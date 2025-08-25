@@ -22,7 +22,7 @@ class TrackerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Tracker';
+    protected static ?string $recordTitleAttribute = 'custom_key';
 
     public static function form(Schema $schema): Schema
     {

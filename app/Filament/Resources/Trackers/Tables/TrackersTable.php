@@ -16,26 +16,17 @@ class TrackersTable
         return $table
             ->columns([
                 TextColumn::make('nip')
-                    ->label('NIP')
-                    ->sortable(),
+                    ->label('NIP'),
+                    
                 TextColumn::make('tgl_login')
-                    ->label('Tanggal Login')
-                    ->sortable(),
+                    ->label('Tanggal Login'),
+                    
                 TextColumn::make('jam_login')
-                    ->label('Jam Login')
-                    ->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                    ->label('Jam Login'),
+                    
+                TextColumn::make('custom_key')
+                    ->label('Custom Key')
+                    ->getStateUsing(fn ($record) => $record->nip . '|' . $record->tgl_login . '|' . $record->jam_login),
             ]);
     }
 }
