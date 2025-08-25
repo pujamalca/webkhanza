@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         // Create or update admin user
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
                 'name' => 'admin',
@@ -29,6 +29,15 @@ class AdminUserSeeder extends Seeder
                 'last_login_ip' => null,
             ]
         );
+
+        // Assign Super Admin role
+        if (class_exists(\Spatie\Permission\Models\Role::class)) {
+            $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
+            if ($superAdminRole) {
+                $admin->assignRole($superAdminRole);
+                $this->command->info('Admin user assigned Super Admin role');
+            }
+        }
 
         $this->command->info('Admin user created/updated: admin@gmail.com / admin');
     }
