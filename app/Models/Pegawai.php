@@ -69,22 +69,22 @@ class Pegawai extends Model
         'no_ktp',
     ];
 
-    public function jnj_jabatan()
+    public function jnjJabatanRelation()
     {
         return $this->belongsTo(JnjJabatan::class, 'jnj_jabatan', 'kode');
     }
 
-    public function kelompok_jabatan()
+    public function kelompokJabatanRelation()
     {
         return $this->belongsTo(KelompokJabatan::class, 'kode_kelompok', 'kode_kelompok');
     }
 
-    public function resiko_kerja()
+    public function resikoKerjaRelation()
     {
         return $this->belongsTo(ResikoKerja::class, 'kode_resiko', 'kode_resiko');
     }
 
-    public function emergency_index()
+    public function emergencyIndexRelation()
     {
         return $this->belongsTo(EmergencyIndex::class, 'kode_emergency', 'kode_emergency');
     }
@@ -99,22 +99,22 @@ class Pegawai extends Model
         return $this->belongsTo(Bidang::class, 'bidang', 'nama');
     }
 
-    public function stts_wp()
+    public function sttsWpRelation()
     {
         return $this->belongsTo(SttsWp::class, 'stts_wp', 'stts');
     }
 
-    public function stts_kerja()
+    public function sttsKerjaRelation()
     {
         return $this->belongsTo(SttsKerja::class, 'stts_kerja', 'stts');
     }
 
-    public function pendidikan()
+    public function pendidikanRelation()
     {
         return $this->belongsTo(Pendidikan::class, 'pendidikan', 'tingkat');
     }
 
-    public function bank()
+    public function bankRelation()
     {
         return $this->belongsTo(Bank::class, 'bpd', 'namabank');
     }

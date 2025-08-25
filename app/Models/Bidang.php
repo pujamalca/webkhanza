@@ -24,4 +24,9 @@ class Bidang extends Model
     {
         return $this->hasMany(Pegawai::class, 'bidang', 'nama');
     }
+    
+    public function pegawaiRelation()
+    {
+        return $this->hasMany(Pegawai::class, 'bidang', 'nama');
+    }
 }

@@ -25,4 +25,9 @@ class Departemen extends Model
     {
         return $this->hasMany(Pegawai::class, 'departemen', 'dep_id');
     }
+    
+    public function pegawaiRelation()
+    {
+        return $this->hasMany(Pegawai::class, 'departemen', 'dep_id');
+    }
 }

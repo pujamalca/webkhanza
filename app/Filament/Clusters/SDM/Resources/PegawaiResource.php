@@ -12,9 +12,9 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -107,7 +107,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('jnj_jabatan')
                             ->label('Jenjang Jabatan')
-                            ->relationship('jnj_jabatan', 'nama')
+                            ->relationship('jnjJabatanRelation', 'nama')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('kode')->required()->maxLength(10),
@@ -118,7 +118,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('kode_kelompok')
                             ->label('Kelompok Jabatan')
-                            ->relationship('kelompok_jabatan', 'nama_kelompok')
+                            ->relationship('kelompokJabatanRelation', 'nama_kelompok')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('kode_kelompok')->required()->maxLength(3),
@@ -128,7 +128,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('departemen')
                             ->label('Departemen')
-                            ->relationship('departemen', 'nama')
+                            ->relationship('departemenRelation', 'nama')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('dep_id')->required()->maxLength(4)->label('Kode'),
@@ -137,7 +137,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('bidang')
                             ->label('Bidang')
-                            ->relationship('bidang', 'nama')
+                            ->relationship('bidangRelation', 'nama')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('nama')->required()->maxLength(15),
@@ -145,7 +145,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('kode_resiko')
                             ->label('Resiko Kerja')
-                            ->relationship('resiko_kerja', 'nama_resiko')
+                            ->relationship('resikoKerjaRelation', 'nama_resiko')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('kode_resiko')->required()->maxLength(3),
@@ -155,7 +155,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('kode_emergency')
                             ->label('Emergency Index')
-                            ->relationship('emergency_index', 'nama_emergency')
+                            ->relationship('emergencyIndexRelation', 'nama_emergency')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('kode_emergency')->required()->maxLength(3),
@@ -205,7 +205,7 @@ class PegawaiResource extends Resource
                     ->schema([
                         Select::make('stts_wp')
                             ->label('Status WP')
-                            ->relationship('stts_wp', 'ktg')
+                            ->relationship('sttsWpRelation', 'ktg')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('stts')->required()->maxLength(5)->label('Status'),
@@ -214,7 +214,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('stts_kerja')
                             ->label('Status Kerja')
-                            ->relationship('stts_kerja', 'ktg')
+                            ->relationship('sttsKerjaRelation', 'ktg')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('stts')->required()->maxLength(3)->label('Status'),
@@ -229,7 +229,7 @@ class PegawaiResource extends Resource
                         
                         Select::make('bpd')
                             ->label('Bank')
-                            ->relationship('bank', 'namabank')
+                            ->relationship('bankRelation', 'namabank')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('namabank')->required()->maxLength(50)->label('Nama Bank'),
@@ -274,7 +274,7 @@ class PegawaiResource extends Resource
                     ->schema([
                         Select::make('pendidikan')
                             ->label('Tingkat Pendidikan')
-                            ->relationship('pendidikan', 'tingkat')
+                            ->relationship('pendidikanRelation', 'tingkat')
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('tingkat')->required()->maxLength(80),
@@ -319,17 +319,17 @@ class PegawaiResource extends Resource
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('departemen.nama')
+                TextColumn::make('departemenRelation.nama')
                     ->label('Departemen')
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('bidang.nama')
+                TextColumn::make('bidangRelation.nama')
                     ->label('Bidang')
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('jnj_jabatan.nama')
+                TextColumn::make('jnjJabatanRelation.nama')
                     ->label('Jenjang')
                     ->searchable()
                     ->sortable(),
