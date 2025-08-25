@@ -24,7 +24,7 @@ class BidangResource extends Resource
 
     protected static ?string $cluster = SDMCluster::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlineBriefcase;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder';
 
     protected static ?string $recordTitleAttribute = 'nama';
 

@@ -9,11 +9,11 @@ use App\Filament\Clusters\SDM\Resources\PegawaiResource\Pages\ViewPegawai;
 use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Pegawai;
 use BackedEnum;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\DatePicker;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -26,7 +26,7 @@ class PegawaiResource extends Resource
 
     protected static ?string $cluster = SDMCluster::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlineUser;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static ?string $recordTitleAttribute = 'nama';
 
@@ -45,9 +45,9 @@ class PegawaiResource extends Resource
         return 'Data Pegawai';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 TextInput::make('nik')
                     ->label('NIK')

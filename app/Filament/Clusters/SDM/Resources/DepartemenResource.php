@@ -9,9 +9,9 @@ use App\Filament\Clusters\SDM\Resources\DepartemenResource\Pages\ViewDepartemen;
 use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Departemen;
 use BackedEnum;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -24,7 +24,7 @@ class DepartemenResource extends Resource
 
     protected static ?string $cluster = SDMCluster::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlineOfficeBuilding;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
     protected static ?string $recordTitleAttribute = 'nama';
 
@@ -43,9 +43,9 @@ class DepartemenResource extends Resource
         return 'Data Departemen';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 TextInput::make('dep_id')
                     ->label('Kode Departemen')

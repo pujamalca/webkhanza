@@ -11,6 +11,27 @@ class Pegawai extends Model
     protected $primaryKey = 'id';
     
     public $timestamps = false;
+
+    protected $attributes = [
+        'pengurang' => 0,
+        'indek' => 1,
+        'cuti_diambil' => 0,
+        'dankes' => 0,
+        'npwp' => '-',
+    ];
+
+    protected $casts = [
+        'wajibmasuk' => 'string',
+        'tgl_lahir' => 'date',
+        'mulai_kerja' => 'date',
+        'mulai_kontrak' => 'date',
+        'gapok' => 'decimal:2',
+        'pengurang' => 'decimal:2',
+        'dankes' => 'decimal:2',
+        'cuti_diambil' => 'integer',
+        'indek' => 'integer',
+        'wajibmasuk' => 'integer',
+    ];
     
     protected $fillable = [
         'nik',
@@ -47,31 +68,82 @@ class Pegawai extends Model
         'photo',
         'no_ktp',
     ];
-    
-    protected $casts = [
-        'tgl_lahir' => 'date',
-        'mulai_kerja' => 'date',
-        'mulai_kontrak' => 'date',
-        'gapok' => 'decimal:2',
-        'pengurang' => 'decimal:2',
-        'dankes' => 'decimal:2',
-        'wajibmasuk' => 'integer',
-        'cuti_diambil' => 'integer',
-        'indek' => 'integer',
-    ];
 
-    public function departemenRelation()
+    public function jnj_jabatan()
+    {
+        return $this->belongsTo(JnjJabatan::class, 'jnj_jabatan', 'kode');
+    }
+
+    public function kelompok_jabatan()
+    {
+        return $this->belongsTo(KelompokJabatan::class, 'kode_kelompok', 'kode_kelompok');
+    }
+
+    public function resiko_kerja()
+    {
+        return $this->belongsTo(ResikoKerja::class, 'kode_resiko', 'kode_resiko');
+    }
+
+    public function emergency_index()
+    {
+        return $this->belongsTo(EmergencyIndex::class, 'kode_emergency', 'kode_emergency');
+    }
+
+    public function departemen()
     {
         return $this->belongsTo(Departemen::class, 'departemen', 'dep_id');
     }
 
-    public function bidangRelation()
+    public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang', 'nama');
     }
 
-    public function jabatanRelation()
+    public function stts_wp()
     {
-        return $this->belongsTo(Jabatan::class, 'jbtn', 'nm_jbtn');
+        return $this->belongsTo(SttsWp::class, 'stts_wp', 'stts');
+    }
+
+    public function stts_kerja()
+    {
+        return $this->belongsTo(SttsKerja::class, 'stts_kerja', 'stts');
+    }
+
+    public function pendidikan()
+    {
+        return $this->belongsTo(Pendidikan::class, 'pendidikan', 'tingkat');
+    }
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, 'bpd', 'namabank');
+    }
+
+    public function dokter()
+    {
+        return $this->hasOne(Dokter::class, 'kd_dokter', 'nik');
+    }
+
+    public function petugas()
+    {
+        return $this->hasOne(Petugas::class, 'nip', 'nik');
+    }
+
+    public function berkas_pegawai()
+    {
+        return $this->hasMany(BerkasPegawai::class, 'no_ktp', 'no_ktp');
+    }
+
+    public function getEnumValues($column)
+    {
+        $instance = new static;
+        $type = \DB::select(\DB::raw("SHOW COLUMNS FROM {$instance->getTable()} WHERE Field = '{$column}'"))[0]->Type;
+        preg_match_all("/'([^']+)'/", $type, $matches);
+        return $matches[1];
+    }
+
+    public function getPhotoUrl()
+    {
+        return route('pegawai.photo', $this->id);
     }
 }
