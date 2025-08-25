@@ -6,6 +6,7 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use SensitiveParameter;
 
@@ -48,5 +49,27 @@ class Login extends BaseLogin
         throw ValidationException::withMessages([
             'data.login' => __('Email/Username atau password salah.'),
         ]);
+    }
+
+    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
+    {
+        $response = parent::authenticate();
+        
+        if ($response && auth()->check()) {
+            $user = auth()->user();
+            $userAgent = request()->header('User-Agent', '');
+            $ipAddress = request()->ip();
+            
+            // Set device token untuk user ini
+            $user->setDeviceToken($userAgent, $ipAddress);
+            
+            // Refresh model untuk mendapatkan device_token yang baru
+            $user->refresh();
+            
+            // Simpan device token di session untuk middleware
+            Session::put('device_token', $user->device_token);
+        }
+        
+        return $response;
     }
 }
