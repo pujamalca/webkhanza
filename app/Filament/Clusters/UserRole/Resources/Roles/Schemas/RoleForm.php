@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Roles\Schemas;
+namespace App\Filament\Clusters\UserRole\Resources\Roles\Schemas;
 
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;

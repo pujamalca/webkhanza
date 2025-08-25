@@ -15,16 +15,15 @@ class TrackersTable
     {
         return $table
             ->columns([
-                //
-            TextColumn::make('custom_key')
-                ->label('Custom Key')
-                ->getStateUsing(fn ($record) => $record->custom_key)
-                ->sortable(function ($query, $direction) {
-                    $query->orderBy('nip', $direction)
-                        ->orderBy('tgl_login', $direction)
-                        ->orderBy('jam_login', $direction);
-                }),
-
+                TextColumn::make('nip')
+                    ->label('NIP')
+                    ->sortable(),
+                TextColumn::make('tgl_login')
+                    ->label('Tanggal Login')
+                    ->sortable(),
+                TextColumn::make('jam_login')
+                    ->label('Jam Login')
+                    ->sortable(),
             ])
             ->filters([
                 //

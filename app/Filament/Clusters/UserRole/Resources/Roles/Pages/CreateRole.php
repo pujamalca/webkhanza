@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Roles\Pages;
+namespace App\Filament\Clusters\UserRole\Resources\Roles\Pages;
 
-use App\Filament\Resources\Roles\RoleResource;
+use App\Filament\Clusters\UserRole\Resources\Roles\RoleResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateRole extends CreateRecord

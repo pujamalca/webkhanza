@@ -11,7 +11,8 @@
       "Bash(composer show:*)",
       "WebFetch(domain:filamentphp.com)",
       "Bash(curl:*)",
-      "Bash(composer:*)"
+      "Bash(composer:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

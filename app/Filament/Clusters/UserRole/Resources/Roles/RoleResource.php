@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Roles;
+namespace App\Filament\Clusters\UserRole\Resources\Roles;
 
-use App\Filament\Resources\Roles\Pages\CreateRole;
-use App\Filament\Resources\Roles\Pages\EditRole;
-use App\Filament\Resources\Roles\Pages\ListRoles;
-use App\Filament\Resources\Roles\Schemas\RoleForm;
-use App\Filament\Resources\Roles\Tables\RolesTable;
+use App\Filament\Clusters\UserRole\Resources\Roles\Pages\CreateRole;
+use App\Filament\Clusters\UserRole\Resources\Roles\Pages\EditRole;
+use App\Filament\Clusters\UserRole\Resources\Roles\Pages\ListRoles;
+use App\Filament\Clusters\UserRole\Resources\Roles\Schemas\RoleForm;
+use App\Filament\Clusters\UserRole\Resources\Roles\Tables\RolesTable;
+use App\Filament\Clusters\UserRole\UserRoleCluster;
 use Spatie\Permission\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,7 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
+    protected static ?string $cluster = UserRoleCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
     
@@ -26,10 +28,6 @@ class RoleResource extends Resource
         return 'Role & Permission';
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'User & Role';
-    }
 
     public static function getNavigationSort(): ?int
     {

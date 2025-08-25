@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Users;
+namespace App\Filament\Clusters\UserRole\Resources\Users;
 
-use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Filament\Resources\Users\Pages\EditUser;
-use App\Filament\Resources\Users\Pages\ListUsers;
-use App\Filament\Resources\Users\Schemas\UserForm;
-use App\Filament\Resources\Users\Tables\UsersTable;
+use App\Filament\Clusters\UserRole\Resources\Users\Pages\CreateUser;
+use App\Filament\Clusters\UserRole\Resources\Users\Pages\EditUser;
+use App\Filament\Clusters\UserRole\Resources\Users\Pages\ListUsers;
+use App\Filament\Clusters\UserRole\Resources\Users\Schemas\UserForm;
+use App\Filament\Clusters\UserRole\Resources\Users\Tables\UsersTable;
+use App\Filament\Clusters\UserRole\UserRoleCluster;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    protected static ?string $cluster = UserRoleCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
     
@@ -26,10 +28,6 @@ class UserResource extends Resource
         return 'Manajemen User';
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'User & Role';
-    }
 
     public static function getNavigationSort(): ?int
     {
