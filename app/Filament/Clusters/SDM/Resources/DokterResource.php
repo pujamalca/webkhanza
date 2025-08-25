@@ -18,8 +18,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 
 class DokterResource extends Resource
 {
@@ -174,9 +172,9 @@ class DokterResource extends Resource
                     ->falseColor('danger')
                     ->sortable(),
             ])
-            ->actions([
-                ViewAction::make(),
-                EditAction::make(),
+            ->recordActions([
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
             ]);
     }
 

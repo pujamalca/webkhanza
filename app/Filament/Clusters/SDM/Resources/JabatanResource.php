@@ -15,8 +15,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 
 class JabatanResource extends Resource
 {
@@ -80,9 +78,9 @@ class JabatanResource extends Resource
                     ->badge()
                     ->sortable(),
             ])
-            ->actions([
-                ViewAction::make(),
-                EditAction::make(),
+            ->recordActions([
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
             ]);
     }
 
