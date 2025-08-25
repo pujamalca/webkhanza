@@ -8,6 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -54,7 +55,7 @@ class UserForm
                     ]),
 
                 // Device & Login Info
-                Fieldset::make('Informasi Login & Perangkat')
+                Section::make('Informasi Login & Perangkat')
                     ->schema([
                         Toggle::make('is_logged_in')
                             ->label('Status Login')
@@ -92,7 +93,7 @@ class UserForm
                     ->collapsible(),
 
                 // Admin Info
-                Fieldset::make('Informasi Admin')
+                Section::make('Informasi Admin')
                     ->schema([
                         DateTimePicker::make('email_verified_at')
                             ->label('Email Terverifikasi')

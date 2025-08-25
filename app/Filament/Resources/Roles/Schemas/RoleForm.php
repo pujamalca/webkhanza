@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Roles\Schemas;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Permission;
 
@@ -31,22 +32,15 @@ class RoleForm
                             ->helperText('Biasanya "web" untuk aplikasi web'),
                     ]),
 
-                Fieldset::make('Permissions')
+                Section::make('Permissions')
                     ->schema([
                         CheckboxList::make('permissions')
                             ->label('Permission')
                             ->relationship('permissions', 'name')
                             ->options(function () {
-                                return Permission::all()->groupBy(function ($permission) {
-                                    // Group by prefix (before first underscore)
-                                    $parts = explode('_', $permission->name);
-                                    return $parts[0] ?? 'other';
-                                })->map(function ($group) {
-                                    return $group->pluck('name', 'id');
-                                })->toArray();
+                                return Permission::all()->pluck('name', 'id');
                             })
-                            ->columns(2)
-                            ->gridDirection('row')
+                            ->columns(3)
                             ->helperText('Pilih permission yang akan diberikan kepada role ini'),
                     ])
                     ->collapsible(),
