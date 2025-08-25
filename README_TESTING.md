@@ -91,6 +91,28 @@ php artisan test --coverage
 - ✅ `test_related_models_exist` - Test related model classes exist
 - ✅ `test_pegawai_model_uses_correct_database_connection` - Test DB connection
 
+#### DokterModelTest (Unit Tests) - 10 tests
+- ✅ `test_dokter_model_has_correct_table_name` - Test table name
+- ✅ `test_dokter_model_has_correct_primary_key` - Test primary key config
+- ✅ `test_dokter_model_fillable_fields` - Test all fillable fields
+- ✅ `test_dokter_model_casts_configuration` - Test data casts
+- ✅ `test_dokter_relationship_methods_exist` - Test relationship method existence
+- ✅ `test_dokter_enum_values_method_exists` - Test enum helper method
+- ✅ `test_dokter_timestamps_disabled` - Test timestamps config
+- ✅ `test_related_models_exist` - Test related model classes exist
+- ✅ `test_dokter_model_uses_correct_database_connection` - Test DB connection
+- ✅ `test_dokter_has_factory` - Test factory availability
+
+#### SpesialisModelTest (Unit Tests) - 8 tests
+- ✅ `test_spesialis_model_has_correct_table_name` - Test table name
+- ✅ `test_spesialis_model_has_correct_primary_key` - Test primary key config
+- ✅ `test_spesialis_model_fillable_fields` - Test all fillable fields
+- ✅ `test_spesialis_relationship_methods_exist` - Test relationship method existence
+- ✅ `test_spesialis_timestamps_disabled` - Test timestamps config
+- ✅ `test_related_models_exist` - Test related model classes exist
+- ✅ `test_spesialis_model_uses_correct_database_connection` - Test DB connection
+- ✅ `test_spesialis_has_factory` - Test factory availability
+
 #### LoginBlockingUnitTest - 6 tests
 - ✅ Authentication blocking dan device management tests
 
@@ -189,15 +211,17 @@ Untuk CI/CD, pastikan:
 ## Summary Testing Status
 
 **✅ BERHASIL DIJALANKAN:**
-- **29 tests passed** dengan 124 assertions
+- **47 tests passed** dengan 168 assertions
 - Testing environment dengan MariaDB berjalan dengan baik
 - Migration conflicts sudah diperbaiki
 - Mock tests untuk model validation berfungsi sempurna
+- DokterResource dengan relasi Spesialis berhasil dibuat dan ditest
 
 **📊 TEST COVERAGE:**
-- Model structure validation: ✅ Complete
+- Model structure validation: ✅ Complete (Pegawai, Dokter, Spesialis)
 - Authentication & middleware: ✅ Complete  
 - Single device login: ✅ Complete
+- Factory testing: ✅ Complete (DokterFactory, SpesialisFactory)
 - Database relationships: 🚫 Disabled (legacy DB dependency)
 - Filament resources: 🚫 Disabled (legacy DB dependency)
 

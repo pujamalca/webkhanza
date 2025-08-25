@@ -8,10 +8,13 @@ use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ListDokter;
 use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ViewDokter;
 use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Dokter;
+use App\Models\Spesialis;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -48,89 +51,137 @@ class DokterResource extends Resource
     {
         return $schema
             ->schema([
-                TextInput::make('kd_dokter')
-                    ->label('Kode Dokter')
-                    ->required()
-                    ->maxLength(20)
-                    ->unique(ignoreRecord: true),
-                
-                TextInput::make('nm_dokter')
-                    ->label('Nama Dokter')
-                    ->required()
-                    ->maxLength(50),
-                
-                Select::make('jk')
-                    ->label('Jenis Kelamin')
-                    ->options([
-                        'L' => 'Laki-laki',
-                        'P' => 'Perempuan',
+                Section::make('Data Identitas')
+                    ->description('Informasi dasar dokter')
+                    ->schema([
+                        TextInput::make('kd_dokter')
+                            ->label('Kode Dokter')
+                            ->required()
+                            ->maxLength(20)
+                            ->unique(ignoreRecord: true)
+                            ->columnSpan(1),
+                        
+                        TextInput::make('nm_dokter')
+                            ->label('Nama Dokter')
+                            ->required()
+                            ->maxLength(50)
+                            ->columnSpan(2),
+                        
+                        Select::make('jk')
+                            ->label('Jenis Kelamin')
+                            ->options([
+                                'L' => 'Laki-laki',
+                                'P' => 'Perempuan',
+                            ])
+                            ->required()
+                            ->columnSpan(1),
                     ])
-                    ->required(),
-                
-                TextInput::make('tmp_lahir')
-                    ->label('Tempat Lahir')
-                    ->maxLength(20),
-                
-                DatePicker::make('tgl_lahir')
-                    ->label('Tanggal Lahir'),
-                
-                Select::make('gol_drh')
-                    ->label('Golongan Darah')
-                    ->options([
-                        'A' => 'A',
-                        'B' => 'B',
-                        'O' => 'O',
-                        'AB' => 'AB',
-                        '-' => 'Tidak Diketahui',
-                    ]),
-                
-                TextInput::make('agama')
-                    ->label('Agama')
-                    ->maxLength(12),
-                
-                TextInput::make('almt_tgl')
-                    ->label('Alamat')
-                    ->maxLength(60),
-                
-                TextInput::make('no_telp')
-                    ->label('No. Telepon')
-                    ->maxLength(13),
-                
-                TextInput::make('email')
-                    ->label('Email')
-                    ->email()
-                    ->required()
-                    ->maxLength(70),
-                
-                Select::make('stts_nikah')
-                    ->label('Status Nikah')
-                    ->options([
-                        'BELUM MENIKAH' => 'Belum Menikah',
-                        'MENIKAH' => 'Menikah',
-                        'JANDA' => 'Janda',
-                        'DUDHA' => 'Dudha',
-                        'JOMBLO' => 'Jomblo',
-                    ]),
-                
-                TextInput::make('kd_sps')
-                    ->label('Kode Spesialis')
-                    ->maxLength(5),
-                
-                TextInput::make('alumni')
-                    ->label('Alumni')
-                    ->maxLength(60),
-                
-                TextInput::make('no_ijn_praktek')
-                    ->label('No. Ijin Praktek')
-                    ->maxLength(120),
-                
-                Select::make('status')
-                    ->label('Status')
-                    ->options([
-                        1 => 'Aktif',
-                        0 => 'Non Aktif',
+                    ->columns(4),
+
+                Section::make('Data Pribadi')
+                    ->description('Informasi pribadi dokter')
+                    ->schema([
+                        TextInput::make('tmp_lahir')
+                            ->label('Tempat Lahir')
+                            ->maxLength(20)
+                            ->columnSpan(1),
+                        
+                        DatePicker::make('tgl_lahir')
+                            ->label('Tanggal Lahir')
+                            ->columnSpan(1),
+                        
+                        Select::make('gol_drh')
+                            ->label('Golongan Darah')
+                            ->options([
+                                'A' => 'A',
+                                'B' => 'B', 
+                                'O' => 'O',
+                                'AB' => 'AB',
+                                '-' => 'Tidak Diketahui',
+                            ])
+                            ->columnSpan(1),
+                        
+                        TextInput::make('agama')
+                            ->label('Agama')
+                            ->maxLength(12)
+                            ->columnSpan(1),
+                        
+                        Select::make('stts_nikah')
+                            ->label('Status Nikah')
+                            ->options([
+                                'BELUM MENIKAH' => 'Belum Menikah',
+                                'MENIKAH' => 'Menikah', 
+                                'JANDA' => 'Janda',
+                                'DUDHA' => 'Dudha',
+                                'JOMBLO' => 'Jomblo',
+                            ])
+                            ->columnSpan(2),
                     ])
-                    ->required(),
+                    ->columns(4),
+
+                Section::make('Kontak & Alamat')
+                    ->description('Informasi kontak dokter')
+                    ->schema([
+                        Textarea::make('almt_tgl')
+                            ->label('Alamat')
+                            ->rows(2)
+                            ->columnSpan(2),
+                        
+                        TextInput::make('no_telp')
+                            ->label('No. Telepon')
+                            ->tel()
+                            ->maxLength(13)
+                            ->columnSpan(1),
+                        
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->maxLength(70)
+                            ->columnSpan(1),
+                    ])
+                    ->columns(4),
+
+                Section::make('Data Profesi')
+                    ->description('Informasi profesi dan keahlian')
+                    ->schema([
+                        Select::make('kd_sps')
+                            ->label('Spesialis')
+                            ->relationship('spesialis', 'nm_sps')
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('kd_sps')
+                                    ->label('Kode Spesialis')
+                                    ->required()
+                                    ->maxLength(5),
+                                TextInput::make('nm_sps')
+                                    ->label('Nama Spesialis')
+                                    ->required()
+                                    ->maxLength(30),
+                            ])
+                            ->columnSpan(2),
+                        
+                        TextInput::make('alumni')
+                            ->label('Alumni')
+                            ->maxLength(60)
+                            ->columnSpan(2),
+                        
+                        TextInput::make('no_ijn_praktek')
+                            ->label('No. Ijin Praktek')
+                            ->maxLength(120)
+                            ->columnSpan(2),
+                        
+                        Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                1 => 'Aktif',
+                                0 => 'Non Aktif',
+                            ])
+                            ->required()
+                            ->columnSpan(2),
+                    ])
+                    ->columns(4),
             ]);
     }
 
@@ -153,10 +204,11 @@ class DokterResource extends Resource
                     ->formatStateUsing(fn (string $state): string => $state === 'L' ? 'Laki-laki' : 'Perempuan')
                     ->sortable(),
                 
-                TextColumn::make('kd_sps')
+                TextColumn::make('spesialis.nm_sps')
                     ->label('Spesialis')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('Belum ada spesialis'),
                 
                 TextColumn::make('email')
                     ->label('Email')
