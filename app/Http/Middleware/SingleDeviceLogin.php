@@ -23,6 +23,7 @@ class SingleDeviceLogin
             
             // Jika tidak ada device token di session, logout
             if (!$sessionDeviceToken) {
+                $user->setLoggedOut();
                 Auth::logout();
                 Session::flush();
                 return redirect()->route('filament.admin.auth.login')
@@ -31,10 +32,19 @@ class SingleDeviceLogin
             
             // Jika device token tidak cocok dengan database, logout
             if (!$user->isDeviceAllowed($sessionDeviceToken)) {
+                $user->setLoggedOut();
                 Auth::logout();
                 Session::flush();
                 return redirect()->route('filament.admin.auth.login')
                     ->with('error', 'Akun Anda telah login dari perangkat lain. Silakan login kembali.');
+            }
+            
+            // Jika user tidak dalam status logged in, logout
+            if (!$user->isCurrentlyLoggedIn()) {
+                Auth::logout();
+                Session::flush();
+                return redirect()->route('filament.admin.auth.login')
+                    ->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
             }
         }
         

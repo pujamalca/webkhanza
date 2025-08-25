@@ -26,6 +26,8 @@ class User extends Authenticatable
         'device_info',
         'last_login_at',
         'last_login_ip',
+        'is_logged_in',
+        'logged_in_at',
     ];
 
     /**
@@ -50,6 +52,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'logged_in_at' => 'datetime',
+            'is_logged_in' => 'boolean',
         ];
     }
 
@@ -65,6 +69,8 @@ class User extends Authenticatable
             'device_info' => $this->formatDeviceInfo($userAgent),
             'last_login_at' => now(),
             'last_login_ip' => $ipAddress,
+            'is_logged_in' => true,
+            'logged_in_at' => now(),
         ]);
     }
 
@@ -78,6 +84,29 @@ class User extends Authenticatable
         $this->update([
             'device_token' => null,
             'device_info' => null,
+            'is_logged_in' => false,
+            'logged_in_at' => null,
+        ]);
+    }
+    
+    public function isCurrentlyLoggedIn(): bool
+    {
+        return $this->is_logged_in === true;
+    }
+    
+    public function setLoggedOut(): void
+    {
+        $this->update([
+            'is_logged_in' => false,
+            'logged_in_at' => null,
+        ]);
+    }
+    
+    public function setLoggedIn(): void
+    {
+        $this->update([
+            'is_logged_in' => true,
+            'logged_in_at' => now(),
         ]);
     }
 

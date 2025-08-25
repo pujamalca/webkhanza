@@ -37,6 +37,7 @@ class SingleDeviceLoginMiddlewareTest extends TestCase
     public function test_middleware_redirects_when_no_device_token_in_session(): void
     {
         $user = User::factory()->create();
+        $user->setLoggedIn(); // Set as logged in
         Auth::login($user);
         
         $request = Request::create('/admin');
@@ -46,8 +47,11 @@ class SingleDeviceLoginMiddlewareTest extends TestCase
         });
 
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertStringContains('login', $response->headers->get('Location'));
+        $this->assertStringContainsString('login', $response->headers->get('Location'));
         $this->assertGuest();
+        
+        // Check that user is set to logged out
+        $this->assertFalse($user->fresh()->isCurrentlyLoggedIn());
     }
 
     public function test_middleware_redirects_when_device_token_mismatch(): void
@@ -67,6 +71,9 @@ class SingleDeviceLoginMiddlewareTest extends TestCase
 
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertGuest();
+        
+        // Check that user is set to logged out
+        $this->assertFalse($user->fresh()->isCurrentlyLoggedIn());
     }
 
     public function test_middleware_allows_valid_device_token(): void
@@ -147,6 +154,25 @@ class SingleDeviceLoginMiddlewareTest extends TestCase
         Auth::login($user);
         
         Session::put('device_token', ''); // Empty string
+        
+        $request = Request::create('/admin');
+        
+        $response = $this->middleware->handle($request, function () {
+            return new Response('OK');
+        });
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertGuest();
+    }
+    
+    public function test_middleware_redirects_when_user_not_logged_in_status(): void
+    {
+        $user = User::factory()->create();
+        $user->setDeviceToken('valid-agent', '127.0.0.1');
+        $user->setLoggedOut(); // Set user as logged out
+        Auth::login($user);
+        
+        Session::put('device_token', $user->device_token); // Valid token
         
         $request = Request::create('/admin');
         

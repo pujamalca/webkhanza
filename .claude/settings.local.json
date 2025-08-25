@@ -5,7 +5,9 @@
       "Bash(php:*)",
       "Bash(vendor/bin/phpunit:*)",
       "Bash(composer require:*)",
-      "Bash(del test_device_login.php test_login_flow.php)"
+      "Bash(del test_device_login.php test_login_flow.php)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
