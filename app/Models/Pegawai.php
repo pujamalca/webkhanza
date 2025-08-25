@@ -89,12 +89,12 @@ class Pegawai extends Model
         return $this->belongsTo(EmergencyIndex::class, 'kode_emergency', 'kode_emergency');
     }
 
-    public function departemen()
+    public function departemenRelation()
     {
         return $this->belongsTo(Departemen::class, 'departemen', 'dep_id');
     }
 
-    public function bidang()
+    public function bidangRelation()
     {
         return $this->belongsTo(Bidang::class, 'bidang', 'nama');
     }
