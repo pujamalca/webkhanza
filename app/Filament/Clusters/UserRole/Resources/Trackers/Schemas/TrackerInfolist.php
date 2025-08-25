@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Trackers\Schemas;
+namespace App\Filament\Clusters\UserRole\Resources\Trackers\Schemas;
 
 use Filament\Schemas\Schema;
 

@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\Trackers;
+namespace App\Filament\Clusters\UserRole\Resources\Trackers;
 
-use App\Filament\Resources\Trackers\Pages\CreateTracker;
-use App\Filament\Resources\Trackers\Pages\EditTracker;
-use App\Filament\Resources\Trackers\Pages\ListTrackers;
-use App\Filament\Resources\Trackers\Pages\ViewTracker;
-use App\Filament\Resources\Trackers\Schemas\TrackerForm;
-use App\Filament\Resources\Trackers\Schemas\TrackerInfolist;
-use App\Filament\Resources\Trackers\Tables\TrackersTable;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\CreateTracker;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\EditTracker;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\ListTrackers;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\ViewTracker;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Schemas\TrackerForm;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Schemas\TrackerInfolist;
+use App\Filament\Clusters\UserRole\Resources\Trackers\Tables\TrackersTable;
+use App\Filament\Clusters\UserRole\UserRoleCluster;
 use App\Models\Tracker;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,8 @@ use Filament\Tables\Table;
 class TrackerResource extends Resource
 {
     protected static ?string $model = Tracker::class;
+
+    protected static ?string $cluster = UserRoleCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
