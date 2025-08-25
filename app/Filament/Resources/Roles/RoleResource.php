@@ -18,19 +18,35 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
     
     public static function getNavigationLabel(): string
     {
         return 'Role & Permission';
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'User & Role';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('role_read') ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -38,12 +38,27 @@ class RoleForm
                             ->label('Permission')
                             ->relationship('permissions', 'name')
                             ->options(function () {
-                                return Permission::all()->pluck('name', 'id');
+                                $permissions = Permission::all()->sortBy('name');
+                                $options = [];
+                                
+                                foreach ($permissions as $permission) {
+                                    $parts = explode('_', $permission->name);
+                                    $group = ucfirst($parts[0] ?? 'Other');
+                                    $action = ucfirst($parts[1] ?? '');
+                                    
+                                    $label = $group . ' - ' . $action;
+                                    $options[$permission->id] = $label;
+                                }
+                                
+                                return $options;
                             })
                             ->columns(3)
-                            ->helperText('Pilih permission yang akan diberikan kepada role ini'),
+                            ->bulkToggleable()
+                            ->searchable()
+                            ->helperText('Pilih permission yang akan diberikan kepada role ini. Gunakan "Select All" untuk memilih semua permission.'),
                     ])
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(false),
             ]);
     }
 }
