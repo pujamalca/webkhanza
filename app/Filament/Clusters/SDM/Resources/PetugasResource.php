@@ -2,13 +2,13 @@
 
 namespace App\Filament\Clusters\SDM\Resources;
 
-use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\CreateDokter;
-use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\EditDokter;
-use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ListDokter;
-use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ViewDokter;
+use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\CreatePetugas;
+use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\EditPetugas;
+use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\ListPetugas;
+use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\ViewPetugas;
 use App\Filament\Clusters\SDM\SDMCluster;
-use App\Models\Dokter;
-use App\Models\Spesialis;
+use App\Models\Petugas;
+use App\Models\Jabatan;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\DatePicker;
@@ -22,29 +22,29 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class DokterResource extends Resource
+class PetugasResource extends Resource
 {
-    protected static ?string $model = Dokter::class;
+    protected static ?string $model = Petugas::class;
 
     protected static ?string $cluster = SDMCluster::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $recordTitleAttribute = 'nm_dokter';
+    protected static ?string $recordTitleAttribute = 'nama';
 
     public static function getNavigationLabel(): string
     {
-        return 'Dokter';
+        return 'Petugas';
     }
 
     public static function getModelLabel(): string
     {
-        return 'Dokter';
+        return 'Petugas';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Data Dokter';
+        return 'Data Petugas';
     }
 
     public static function form(Schema $schema): Schema
@@ -52,17 +52,17 @@ class DokterResource extends Resource
         return $schema
             ->schema([
                 Section::make('Data Identitas')
-                    ->description('Informasi dasar dokter')
+                    ->description('Informasi dasar petugas')
                     ->schema([
-                        TextInput::make('kd_dokter')
-                            ->label('Kode Dokter')
+                        TextInput::make('nip')
+                            ->label('NIP')
                             ->required()
                             ->maxLength(20)
                             ->unique(ignoreRecord: true)
                             ->columnSpan(1),
                         
-                        TextInput::make('nm_dokter')
-                            ->label('Nama Dokter')
+                        TextInput::make('nama')
+                            ->label('Nama Petugas')
                             ->required()
                             ->maxLength(50)
                             ->columnSpan(2),
@@ -79,7 +79,7 @@ class DokterResource extends Resource
                     ->columns(4),
 
                 Section::make('Data Pribadi')
-                    ->description('Informasi pribadi dokter')
+                    ->description('Informasi pribadi petugas')
                     ->schema([
                         TextInput::make('tmp_lahir')
                             ->label('Tempat Lahir')
@@ -90,7 +90,7 @@ class DokterResource extends Resource
                             ->label('Tanggal Lahir')
                             ->columnSpan(1),
                         
-                        Select::make('gol_drh')
+                        Select::make('gol_darah')
                             ->label('Golongan Darah')
                             ->options([
                                 'A' => 'A',
@@ -120,9 +120,9 @@ class DokterResource extends Resource
                     ->columns(4),
 
                 Section::make('Kontak & Alamat')
-                    ->description('Informasi kontak dokter')
+                    ->description('Informasi kontak petugas')
                     ->schema([
-                        Textarea::make('almt_tgl')
+                        Textarea::make('alamat')
                             ->label('Alamat')
                             ->rows(2)
                             ->columnSpan(2),
@@ -137,39 +137,29 @@ class DokterResource extends Resource
                             ->label('Email')
                             ->email()
                             ->required()
-                            ->maxLength(70)
+                            ->maxLength(50)
                             ->columnSpan(1),
                     ])
                     ->columns(4),
 
                 Section::make('Data Profesi')
-                    ->description('Informasi profesi dan keahlian')
+                    ->description('Informasi jabatan dan status')
                     ->schema([
-                        Select::make('kd_sps')
-                            ->label('Spesialis')
-                            ->relationship('spesialis', 'nm_sps')
+                        Select::make('kd_jbtn')
+                            ->label('Jabatan')
+                            ->relationship('jabatan', 'nm_jbtn')
                             ->searchable()
                             ->preload()
                             ->createOptionForm([
-                                TextInput::make('kd_sps')
-                                    ->label('Kode Spesialis')
+                                TextInput::make('kd_jbtn')
+                                    ->label('Kode Jabatan')
                                     ->required()
                                     ->maxLength(5),
-                                TextInput::make('nm_sps')
-                                    ->label('Nama Spesialis')
+                                TextInput::make('nm_jbtn')
+                                    ->label('Nama Jabatan')
                                     ->required()
-                                    ->maxLength(30),
+                                    ->maxLength(25),
                             ])
-                            ->columnSpan(2),
-                        
-                        TextInput::make('alumni')
-                            ->label('Alumni')
-                            ->maxLength(60)
-                            ->columnSpan(2),
-                        
-                        TextInput::make('no_ijn_praktek')
-                            ->label('No. Ijin Praktek')
-                            ->maxLength(120)
                             ->columnSpan(2),
                         
                         Select::make('status')
@@ -189,13 +179,13 @@ class DokterResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kd_dokter')
-                    ->label('Kode')
+                TextColumn::make('nip')
+                    ->label('NIP')
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('nm_dokter')
-                    ->label('Nama Dokter')
+                TextColumn::make('nama')
+                    ->label('Nama Petugas')
                     ->searchable()
                     ->sortable(),
                 
@@ -204,11 +194,11 @@ class DokterResource extends Resource
                     ->formatStateUsing(fn (string $state): string => $state === 'L' ? 'Laki-laki' : 'Perempuan')
                     ->sortable(),
                 
-                TextColumn::make('spesialis.nm_sps')
-                    ->label('Spesialis')
+                TextColumn::make('jabatan.nm_jbtn')
+                    ->label('Jabatan')
                     ->searchable()
                     ->sortable()
-                    ->placeholder('Belum ada spesialis'),
+                    ->placeholder('Belum ada jabatan'),
                 
                 TextColumn::make('email')
                     ->label('Email')
@@ -240,10 +230,10 @@ class DokterResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListDokter::route('/'),
-            'create' => CreateDokter::route('/create'),
-            'view' => ViewDokter::route('/{record}'),
-            'edit' => EditDokter::route('/{record}/edit'),
+            'index' => ListPetugas::route('/'),
+            'create' => CreatePetugas::route('/create'),
+            'view' => ViewPetugas::route('/{record}'),
+            'edit' => EditPetugas::route('/{record}/edit'),
         ];
     }
 }
