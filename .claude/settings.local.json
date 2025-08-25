@@ -17,7 +17,8 @@
       "Bash(powershell:*)",
       "Bash(mysql:*)",
       "Bash(del check_tables.php)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(del tests/Unit/SimpleTest.php)"
     ],
     "deny": [],
     "ask": []

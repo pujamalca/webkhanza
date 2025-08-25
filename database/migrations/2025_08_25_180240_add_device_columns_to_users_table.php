@@ -7,18 +7,27 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('device_token')->nullable();
-        $table->string('device_info')->nullable();
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'device_token')) {
+                $table->string('device_token')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'device_info')) {
+                $table->string('device_info')->nullable();
+            }
+        });
+    }
 
-public function down()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn(['device_token', 'device_info']);
-    });
-}
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (Schema::hasColumn('users', 'device_token')) {
+                $table->dropColumn('device_token');
+            }
+            if (Schema::hasColumn('users', 'device_info')) {
+                $table->dropColumn('device_info');
+            }
+        });
+    }
 
 };

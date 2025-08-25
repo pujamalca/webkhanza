@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_logged_in')->default(false)->after('device_token');
-            $table->timestamp('logged_in_at')->nullable()->after('is_logged_in');
+            if (!Schema::hasColumn('users', 'is_logged_in')) {
+                $table->boolean('is_logged_in')->default(false);
+            }
+            if (!Schema::hasColumn('users', 'logged_in_at')) {
+                $table->timestamp('logged_in_at')->nullable();
+            }
         });
     }
 
@@ -23,7 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['is_logged_in', 'logged_in_at']);
+            if (Schema::hasColumn('users', 'is_logged_in')) {
+                $table->dropColumn('is_logged_in');
+            }
+            if (Schema::hasColumn('users', 'logged_in_at')) {
+                $table->dropColumn('logged_in_at');
+            }
         });
     }
 };

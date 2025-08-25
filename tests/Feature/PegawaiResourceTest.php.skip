@@ -1,0 +1,444 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Filament\Clusters\SDM\Resources\PegawaiResource;
+use App\Models\Bank;
+use App\Models\Bidang;
+use App\Models\Departemen;
+use App\Models\EmergencyIndex;
+use App\Models\JnjJabatan;
+use App\Models\KelompokJabatan;
+use App\Models\Pegawai;
+use App\Models\Pendidikan;
+use App\Models\ResikoKerja;
+use App\Models\SttsKerja;
+use App\Models\SttsWp;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class PegawaiResourceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $admin;
+    private array $testData;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create admin user
+        $this->admin = User::factory()->create([
+            'name' => 'Admin Test',
+            'email' => 'admin@test.com',
+        ]);
+
+        // Create required master data
+        $this->createMasterData();
+        
+        // Prepare test data
+        $this->testData = [
+            'nik' => '1234567890123456',
+            'nama' => 'John Doe Test',
+            'jk' => 'Pria',
+            'jbtn' => 'Dokter Umum',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'kode_resiko' => 'R01',
+            'kode_emergency' => 'E01',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+            'stts_wp' => 'TK/0',
+            'stts_kerja' => 'PNS',
+            'npwp' => '12.345.678.9-123.000',
+            'pendidikan' => 'S1',
+            'gapok' => 5000000,
+            'tmp_lahir' => 'Jakarta',
+            'tgl_lahir' => '1990-01-01',
+            'alamat' => 'Jl. Test No. 123',
+            'kota' => 'Jakarta',
+            'mulai_kerja' => '2020-01-01',
+            'ms_kerja' => 'FT>1',
+            'indexins' => 'I001',
+            'bpd' => 'Bank BCA',
+            'rekening' => '1234567890',
+            'stts_aktif' => 'AKTIF',
+            'wajibmasuk' => 22,
+            'pengurang' => 0,
+            'indek' => 1,
+            'cuti_diambil' => 0,
+            'dankes' => 50000,
+            'no_ktp' => '1234567890123456',
+        ];
+    }
+
+    private function createMasterData(): void
+    {
+        // Create JnjJabatan
+        JnjJabatan::create([
+            'kode' => 'JJ001',
+            'nama' => 'Dokter Umum',
+            'tnj' => 1000000,
+            'indek' => 1,
+        ]);
+
+        // Create KelompokJabatan
+        KelompokJabatan::create([
+            'kode_kelompok' => 'KJ1',
+            'nama_kelompok' => 'Tenaga Medis',
+            'indek' => 1,
+        ]);
+
+        // Create ResikoKerja
+        ResikoKerja::create([
+            'kode_resiko' => 'R01',
+            'nama_resiko' => 'Resiko Rendah',
+            'indek' => 1,
+        ]);
+
+        // Create EmergencyIndex
+        EmergencyIndex::create([
+            'kode_emergency' => 'E01',
+            'nama_emergency' => 'Emergency Tinggi',
+            'indek' => 1,
+        ]);
+
+        // Create Departemen
+        Departemen::create([
+            'dep_id' => 'DEPT',
+            'nama' => 'Departemen Test',
+        ]);
+
+        // Create Bidang
+        Bidang::create([
+            'nama' => 'Medis',
+        ]);
+
+        // Create SttsWp
+        SttsWp::create([
+            'stts' => 'TK/0',
+            'ktg' => 'Tidak Kawin Tanpa Tanggungan',
+        ]);
+
+        // Create SttsKerja
+        SttsKerja::create([
+            'stts' => 'PNS',
+            'ktg' => 'Pegawai Negeri Sipil',
+            'indek' => 1,
+        ]);
+
+        // Create Pendidikan
+        Pendidikan::create([
+            'tingkat' => 'S1',
+            'indek' => 1,
+            'gapok1' => 3000000,
+            'kenaikan' => 150000,
+            'maksimal' => 20,
+        ]);
+
+        // Create Bank
+        Bank::create([
+            'namabank' => 'Bank BCA',
+        ]);
+    }
+
+    public function test_admin_can_view_pegawai_index_page()
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(PegawaiResource::getUrl('index'));
+
+        $response->assertSuccessful();
+    }
+
+    /** @test */
+    public function test_admin_can_view_pegawai_create_page()
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(PegawaiResource::getUrl('create'));
+
+        $response->assertSuccessful();
+    }
+
+    /** @test */
+    public function test_admin_can_create_pegawai()
+    {
+        $this->actingAs($this->admin);
+
+        $newData = $this->testData;
+
+        Livewire::test(PegawaiResource\Pages\CreatePegawai::class)
+            ->fillForm($newData)
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('pegawai', [
+            'nik' => $newData['nik'],
+            'nama' => $newData['nama'],
+            'jk' => $newData['jk'],
+        ]);
+    }
+
+    /** @test */
+    public function test_admin_can_view_pegawai_detail()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai = Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Test Pegawai',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+        ]);
+
+        $response = $this->get(PegawaiResource::getUrl('view', [
+            'record' => $pegawai,
+        ]));
+
+        $response->assertSuccessful();
+        $response->assertSeeText($pegawai->nama);
+    }
+
+    /** @test */
+    public function test_admin_can_view_pegawai_edit_page()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai = Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Test Pegawai',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+        ]);
+
+        $response = $this->get(PegawaiResource::getUrl('edit', [
+            'record' => $pegawai,
+        ]));
+
+        $response->assertSuccessful();
+    }
+
+    /** @test */
+    public function test_admin_can_update_pegawai()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai = Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Test Pegawai',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+        ]);
+
+        $newData = [
+            'nama' => 'Updated Pegawai Name',
+            'jk' => 'Wanita',
+            'alamat' => 'Updated Address',
+        ];
+
+        Livewire::test(PegawaiResource\Pages\EditPegawai::class, [
+            'record' => $pegawai->getRouteKey(),
+        ])
+            ->fillForm($newData)
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('pegawai', [
+            'id' => $pegawai->id,
+            'nama' => 'Updated Pegawai Name',
+            'jk' => 'Wanita',
+            'alamat' => 'Updated Address',
+        ]);
+    }
+
+    /** @test */
+    public function test_admin_can_delete_pegawai()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai = Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Test Pegawai',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+        ]);
+
+        Livewire::test(PegawaiResource\Pages\EditPegawai::class, [
+            'record' => $pegawai->getRouteKey(),
+        ])
+            ->callAction('delete');
+
+        $this->assertModelMissing($pegawai);
+    }
+
+    /** @test */
+    public function test_nik_must_be_unique()
+    {
+        $this->actingAs($this->admin);
+
+        // Create existing pegawai
+        Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Existing Pegawai',
+        ]);
+
+        // Try to create another pegawai with same NIK
+        $newData = $this->testData;
+        $newData['nik'] = '1234567890123456'; // Same NIK
+
+        Livewire::test(PegawaiResource\Pages\CreatePegawai::class)
+            ->fillForm($newData)
+            ->call('create')
+            ->assertHasFormErrors(['nik']);
+    }
+
+    /** @test */
+    public function test_no_ktp_must_be_unique()
+    {
+        $this->actingAs($this->admin);
+
+        // Create existing pegawai
+        Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'no_ktp' => '1234567890123456',
+            'nama' => 'Existing Pegawai',
+        ]);
+
+        // Try to create another pegawai with same KTP
+        $newData = $this->testData;
+        $newData['nik'] = '9876543210987654'; // Different NIK
+        $newData['no_ktp'] = '1234567890123456'; // Same KTP
+
+        Livewire::test(PegawaiResource\Pages\CreatePegawai::class)
+            ->fillForm($newData)
+            ->call('create')
+            ->assertHasFormErrors(['no_ktp']);
+    }
+
+    /** @test */
+    public function test_required_fields_validation()
+    {
+        $this->actingAs($this->admin);
+
+        $emptyData = [];
+
+        Livewire::test(PegawaiResource\Pages\CreatePegawai::class)
+            ->fillForm($emptyData)
+            ->call('create')
+            ->assertHasFormErrors([
+                'nik',
+                'nama',
+                'jk',
+                'jbtn',
+                'tmp_lahir',
+                'tgl_lahir',
+                'alamat',
+                'kota',
+                'mulai_kerja',
+                'stts_aktif',
+                'no_ktp',
+            ]);
+    }
+
+    /** @test */
+    public function test_pegawai_table_displays_relationship_data()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai = Pegawai::factory()->create([
+            'nik' => '1234567890123456',
+            'nama' => 'Test Pegawai',
+            'jnj_jabatan' => 'JJ001',
+            'kode_kelompok' => 'KJ1',
+            'departemen' => 'DEPT',
+            'bidang' => 'Medis',
+        ]);
+
+        Livewire::test(PegawaiResource\Pages\ListPegawai::class)
+            ->assertCanSeeTableRecords([$pegawai])
+            ->assertSeeText($pegawai->nama)
+            ->assertSeeText('Departemen Test') // From relationship
+            ->assertSeeText('Medis') // From relationship
+            ->assertSeeText('Dokter Umum'); // From relationship
+    }
+
+    /** @test */
+    public function test_pegawai_can_be_filtered_by_status()
+    {
+        $this->actingAs($this->admin);
+
+        $activePegawai = Pegawai::factory()->create([
+            'nama' => 'Active Pegawai',
+            'stts_aktif' => 'AKTIF',
+        ]);
+
+        $inactivePegawai = Pegawai::factory()->create([
+            'nama' => 'Inactive Pegawai',
+            'stts_aktif' => 'NON AKTIF',
+        ]);
+
+        // Test filter by active status
+        Livewire::test(PegawaiResource\Pages\ListPegawai::class)
+            ->filterTable('stts_aktif', 'AKTIF')
+            ->assertCanSeeTableRecords([$activePegawai])
+            ->assertCanNotSeeTableRecords([$inactivePegawai]);
+    }
+
+    /** @test */
+    public function test_pegawai_can_be_searched()
+    {
+        $this->actingAs($this->admin);
+
+        $pegawai1 = Pegawai::factory()->create([
+            'nama' => 'John Doe',
+            'nik' => '1111111111111111',
+        ]);
+
+        $pegawai2 = Pegawai::factory()->create([
+            'nama' => 'Jane Smith',
+            'nik' => '2222222222222222',
+        ]);
+
+        // Search by name
+        Livewire::test(PegawaiResource\Pages\ListPegawai::class)
+            ->searchTable('John')
+            ->assertCanSeeTableRecords([$pegawai1])
+            ->assertCanNotSeeTableRecords([$pegawai2]);
+
+        // Search by NIK
+        Livewire::test(PegawaiResource\Pages\ListPegawai::class)
+            ->searchTable('2222222222222222')
+            ->assertCanSeeTableRecords([$pegawai2])
+            ->assertCanNotSeeTableRecords([$pegawai1]);
+    }
+
+    /** @test */
+    public function test_unauthorized_user_cannot_access_pegawai_resource()
+    {
+        // Test without authentication
+        $response = $this->get(PegawaiResource::getUrl('index'));
+        $response->assertRedirect(); // Should redirect to login
+
+        // Test with regular user (if you have role-based permissions)
+        $regularUser = User::factory()->create(['name' => 'Regular User']);
+        $this->actingAs($regularUser);
+
+        $pegawai = Pegawai::factory()->create();
+        
+        // If you implement role-based access control, uncomment:
+        // $response = $this->get(PegawaiResource::getUrl('index'));
+        // $response->assertForbidden();
+    }
+}

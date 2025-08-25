@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('device_token', 255)->nullable()->after('remember_token');
-            $table->string('device_info', 500)->nullable()->after('device_token');
-            $table->timestamp('last_login_at')->nullable()->after('device_info');
-            $table->string('last_login_ip', 45)->nullable()->after('last_login_at');
+            if (!Schema::hasColumn('users', 'device_token')) {
+                $table->string('device_token', 255)->nullable();
+            }
+            if (!Schema::hasColumn('users', 'device_info')) {
+                $table->string('device_info', 500)->nullable();
+            }
+            if (!Schema::hasColumn('users', 'last_login_at')) {
+                $table->timestamp('last_login_at')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'last_login_ip')) {
+                $table->string('last_login_ip', 45)->nullable();
+            }
         });
     }
 
@@ -25,7 +33,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['device_token', 'device_info', 'last_login_at', 'last_login_ip']);
+            if (Schema::hasColumn('users', 'device_token')) {
+                $table->dropColumn('device_token');
+            }
+            if (Schema::hasColumn('users', 'device_info')) {
+                $table->dropColumn('device_info');
+            }
+            if (Schema::hasColumn('users', 'last_login_at')) {
+                $table->dropColumn('last_login_at');
+            }
+            if (Schema::hasColumn('users', 'last_login_ip')) {
+                $table->dropColumn('last_login_ip');
+            }
         });
     }
 };
