@@ -14,7 +14,9 @@
       "Bash(composer:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(mysql:*)",
+      "Bash(del check_tables.php)"
     ],
     "deny": [],
     "ask": []
