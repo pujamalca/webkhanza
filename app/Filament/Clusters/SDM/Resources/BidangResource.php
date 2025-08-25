@@ -10,7 +10,7 @@ use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Bidang;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\TextInput;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
