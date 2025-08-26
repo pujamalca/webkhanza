@@ -22,8 +22,6 @@ class SDMCluster extends Cluster
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasAnyPermission([
-            'pegawai_read', 'dokter_read', 'petugas_read', 'berkas_pegawai_read'
-        ]);
+        return auth()->user()->can('sdm_access');
     }
 }

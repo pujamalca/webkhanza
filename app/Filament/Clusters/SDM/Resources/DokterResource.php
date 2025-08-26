@@ -52,7 +52,12 @@ class DokterResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('dokter_read');
+        return auth()->user()->can('dokter_view');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('dokter_view_details');
     }
 
     public static function canCreate(): bool
@@ -62,7 +67,7 @@ class DokterResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('dokter_update');
+        return auth()->user()->can('dokter_edit');
     }
 
     public static function canDelete($record): bool

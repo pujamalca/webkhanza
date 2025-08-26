@@ -36,14 +36,29 @@ class RoleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function canAccess(): bool
+    public static function canViewAny(): bool
     {
-        return auth()->user()?->can('role_read') ?? false;
+        return auth()->user()->can('roles_view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('roles_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('roles_edit');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('roles_delete');
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canAccess();
+        return static::canViewAny();
     }
 
     public static function form(Schema $schema): Schema

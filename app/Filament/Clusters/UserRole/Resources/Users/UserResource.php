@@ -36,14 +36,29 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function canAccess(): bool
+    public static function canViewAny(): bool
     {
-        return auth()->user()?->can('user_read') ?? false;
+        return auth()->user()->can('users_view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('users_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('users_edit');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('users_delete');
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return static::canAccess();
+        return static::canViewAny();
     }
 
     public static function form(Schema $schema): Schema

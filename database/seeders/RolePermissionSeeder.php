@@ -19,56 +19,66 @@ class RolePermissionSeeder extends Seeder
 
         // Create permissions
         $permissions = [
-            // User Management
-            'user_create',
-            'user_read', 
-            'user_update',
-            'user_delete',
-            'user_reset_device',
-            
-            // Role Management
-            'role_create',
-            'role_read',
-            'role_update', 
-            'role_delete',
-            
-            // SDM - Pegawai Management
-            'pegawai_create',
-            'pegawai_read',
-            'pegawai_update',
-            'pegawai_delete',
-            
-            // SDM - Dokter Management
-            'dokter_create',
-            'dokter_read',
-            'dokter_update',
-            'dokter_delete',
-            
-            // SDM - Petugas Management
-            'petugas_create',
-            'petugas_read',
-            'petugas_update',
-            'petugas_delete',
-            
-            // SDM - Berkas Pegawai Management
-            'berkas_pegawai_create',
-            'berkas_pegawai_read',
-            'berkas_pegawai_update',
-            'berkas_pegawai_delete',
-            'berkas_pegawai_download',
-            
-            // Master Data (for createOptionForm)
-            'bidang_create',
-            'departemen_create',
-            'jabatan_create',
-            'spesialis_create',
-            
-            // System Management
-            'system_settings',
-            'system_logs',
-            
             // Dashboard
             'dashboard_access',
+            
+            // Administrator Cluster
+            'administrator_access',
+            
+            // User Management Menu
+            'users_view',
+            'users_create',
+            'users_edit',
+            'users_delete',
+            'users_reset_device',
+            
+            // Role Management Menu
+            'roles_view',
+            'roles_create',
+            'roles_edit',
+            'roles_delete',
+            
+            // SDM Cluster
+            'sdm_access',
+            
+            // Pegawai Menu
+            'pegawai_view',
+            'pegawai_create',
+            'pegawai_edit',
+            'pegawai_delete',
+            'pegawai_view_details',
+            
+            // Dokter Menu
+            'dokter_view',
+            'dokter_create',
+            'dokter_edit',
+            'dokter_delete',
+            'dokter_view_details',
+            
+            // Petugas Menu
+            'petugas_view',
+            'petugas_create',
+            'petugas_edit',
+            'petugas_delete',
+            'petugas_view_details',
+            
+            // Berkas Pegawai Menu
+            'berkas_pegawai_view',
+            'berkas_pegawai_create',
+            'berkas_pegawai_edit',
+            'berkas_pegawai_delete',
+            'berkas_pegawai_download',
+            'berkas_pegawai_view_details',
+            
+            // Master Data Creation (for createOptionForm in dropdowns)
+            'master_bidang_create',
+            'master_departemen_create', 
+            'master_jabatan_create',
+            'master_spesialis_create',
+            
+            // System Management
+            'system_settings_access',
+            'system_logs_access',
         ];
 
         foreach ($permissions as $permission) {
@@ -93,41 +103,59 @@ class RolePermissionSeeder extends Seeder
             ['guard_name' => 'web']
         );
         $admin->givePermissionTo([
-            'user_create', 'user_read', 'user_update', 'user_reset_device',
-            'role_read',
-            'pegawai_create', 'pegawai_read', 'pegawai_update', 'pegawai_delete',
-            'dokter_create', 'dokter_read', 'dokter_update', 'dokter_delete',
-            'petugas_create', 'petugas_read', 'petugas_update', 'petugas_delete',
-            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_delete', 'berkas_pegawai_download',
-            'bidang_create', 'departemen_create', 'jabatan_create', 'spesialis_create',
-            'dashboard_access'
+            'dashboard_access',
+            'administrator_access',
+            'users_view', 'users_create', 'users_edit', 'users_reset_device',
+            'roles_view',
+            'sdm_access',
+            'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
+            'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
+            'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
+            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+            'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
         ]);
         
-        // HRD Manager - Full SDM access
+        // HRD Manager - Full SDM access only
         $hrdManager = Role::firstOrCreate(
             ['name' => 'HRD Manager'],
             ['guard_name' => 'web']
         );
         $hrdManager->givePermissionTo([
-            'pegawai_create', 'pegawai_read', 'pegawai_update', 'pegawai_delete',
-            'dokter_create', 'dokter_read', 'dokter_update', 'dokter_delete',
-            'petugas_create', 'petugas_read', 'petugas_update', 'petugas_delete',
-            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_delete', 'berkas_pegawai_download',
-            'bidang_create', 'departemen_create', 'jabatan_create', 'spesialis_create',
-            'dashboard_access'
+            'dashboard_access',
+            'sdm_access',
+            'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
+            'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
+            'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
+            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+            'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
         ]);
         
-        // Staff HRD - Read and basic operations on SDM
+        // Staff HRD - Limited SDM operations
         $staffHRD = Role::firstOrCreate(
             ['name' => 'Staff HRD'],
             ['guard_name' => 'web']
         );
         $staffHRD->givePermissionTo([
-            'pegawai_read', 'pegawai_update',
-            'dokter_read', 'dokter_update',
-            'petugas_read', 'petugas_update',
-            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_download',
-            'dashboard_access'
+            'dashboard_access',
+            'sdm_access',
+            'pegawai_view', 'pegawai_edit', 'pegawai_view_details',
+            'dokter_view', 'dokter_edit', 'dokter_view_details',
+            'petugas_view', 'petugas_edit', 'petugas_view_details',
+            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+        ]);
+        
+        // Supervisor - Read access to specific menus
+        $supervisor = Role::firstOrCreate(
+            ['name' => 'Supervisor'],
+            ['guard_name' => 'web']
+        );
+        $supervisor->givePermissionTo([
+            'dashboard_access',
+            'sdm_access',
+            'pegawai_view', 'pegawai_view_details',
+            'dokter_view', 'dokter_view_details',
+            'petugas_view', 'petugas_view_details',
+            'berkas_pegawai_view', 'berkas_pegawai_view_details',
         ]);
         
         // Manager - User management and read access to SDM
@@ -136,9 +164,14 @@ class RolePermissionSeeder extends Seeder
             ['guard_name' => 'web']
         );
         $manager->givePermissionTo([
-            'user_read', 'user_update', 'user_reset_device',
-            'pegawai_read', 'dokter_read', 'petugas_read', 'berkas_pegawai_read',
-            'dashboard_access'
+            'dashboard_access',
+            'administrator_access',
+            'users_view', 'users_edit', 'users_reset_device',
+            'sdm_access',
+            'pegawai_view', 'pegawai_view_details',
+            'dokter_view', 'dokter_view_details',
+            'petugas_view', 'petugas_view_details',
+            'berkas_pegawai_view', 'berkas_pegawai_view_details',
         ]);
         
         // User - Basic access only
@@ -151,7 +184,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and permissions seeded successfully!');
-        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Manager, User');
+        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, User');
         $this->command->info('Created ' . count($permissions) . ' permissions');
     }
 }

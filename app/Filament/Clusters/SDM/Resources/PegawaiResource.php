@@ -47,7 +47,12 @@ class PegawaiResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('pegawai_read');
+        return auth()->user()->can('pegawai_view');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('pegawai_view_details');
     }
 
     public static function canCreate(): bool
@@ -57,7 +62,7 @@ class PegawaiResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('pegawai_update');
+        return auth()->user()->can('pegawai_edit');
     }
 
     public static function canDelete($record): bool

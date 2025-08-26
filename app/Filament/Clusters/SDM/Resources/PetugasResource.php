@@ -52,7 +52,12 @@ class PetugasResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('petugas_read');
+        return auth()->user()->can('petugas_view');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('petugas_view_details');
     }
 
     public static function canCreate(): bool
@@ -62,7 +67,7 @@ class PetugasResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('petugas_update');
+        return auth()->user()->can('petugas_edit');
     }
 
     public static function canDelete($record): bool
