@@ -20,7 +20,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(del tests/Unit/SimpleTest.php)",
       "Bash(del \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\SDM\\Resources\\BidangResource.php\")",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(del test_session_cleanup.php)"
     ],
     "deny": [],
     "ask": []
