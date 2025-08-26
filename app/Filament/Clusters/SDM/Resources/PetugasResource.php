@@ -8,6 +8,7 @@ use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\ListPetugas;
 use App\Filament\Clusters\SDM\Resources\PetugasResource\Pages\ViewPetugas;
 use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Petugas;
+use App\Models\Pegawai;
 use App\Models\Jabatan;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -54,18 +57,52 @@ class PetugasResource extends Resource
                 Section::make('Data Identitas')
                     ->description('Informasi dasar petugas')
                     ->schema([
-                        TextInput::make('nip')
-                            ->label('NIP')
+                        Select::make('nip')
+                            ->label('NIK (Pilih dari Pegawai)')
+                            ->relationship(
+                                'pegawai', 
+                                'nik',
+                                fn ($query, $record) => $query->whereNotIn('nik', function ($subQuery) use ($record) {
+                                    $subQuery->select('nip')
+                                        ->from('petugas')
+                                        ->whereNotNull('nip');
+                                    // Allow current record's NIK when editing
+                                    if ($record && $record->nip) {
+                                        $subQuery->where('nip', '!=', $record->nip);
+                                    }
+                                })
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Pegawai $record): string => "{$record->nik} - {$record->nama}")
+                            ->searchable(['nik', 'nama'])
+                            ->preload()
                             ->required()
-                            ->maxLength(20)
-                            ->unique(ignoreRecord: true)
-                            ->columnSpan(1),
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
+                                if ($state) {
+                                    $pegawai = Pegawai::where('nik', $state)->first();
+                                    if ($pegawai) {
+                                        $set('nama', $pegawai->nama);
+                                        $set('jk', $pegawai->jk);
+                                        $set('tmp_lahir', $pegawai->tmp_lahir);
+                                        $set('tgl_lahir', $pegawai->tgl_lahir);
+                                        $set('gol_darah', $pegawai->gol_darah);
+                                        $set('agama', $pegawai->agama);
+                                        $set('stts_nikah', $pegawai->stts_nikah);
+                                        $set('alamat', $pegawai->alamat);
+                                        $set('no_telp', $pegawai->no_telp);
+                                        $set('email', $pegawai->email);
+                                    }
+                                }
+                            })
+                            ->columnSpan(2),
                         
                         TextInput::make('nama')
                             ->label('Nama Petugas')
                             ->required()
                             ->maxLength(50)
-                            ->columnSpan(2),
+                            ->disabled()
+                            ->dehydrated()
+                            ->columnSpan(1),
                         
                         Select::make('jk')
                             ->label('Jenis Kelamin')
@@ -74,20 +111,26 @@ class PetugasResource extends Resource
                                 'P' => 'Perempuan',
                             ])
                             ->required()
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                     ])
                     ->columns(4),
 
                 Section::make('Data Pribadi')
-                    ->description('Informasi pribadi petugas')
+                    ->description('Informasi pribadi petugas (Auto-filled dari data pegawai)')
                     ->schema([
                         TextInput::make('tmp_lahir')
                             ->label('Tempat Lahir')
                             ->maxLength(20)
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         DatePicker::make('tgl_lahir')
                             ->label('Tanggal Lahir')
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         Select::make('gol_darah')
@@ -99,11 +142,15 @@ class PetugasResource extends Resource
                                 'AB' => 'AB',
                                 '-' => 'Tidak Diketahui',
                             ])
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         TextInput::make('agama')
                             ->label('Agama')
                             ->maxLength(12)
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         Select::make('stts_nikah')
@@ -115,22 +162,28 @@ class PetugasResource extends Resource
                                 'DUDHA' => 'Dudha',
                                 'JOMBLO' => 'Jomblo',
                             ])
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(2),
                     ])
                     ->columns(4),
 
                 Section::make('Kontak & Alamat')
-                    ->description('Informasi kontak petugas')
+                    ->description('Informasi kontak petugas (Auto-filled dari data pegawai)')
                     ->schema([
                         Textarea::make('alamat')
                             ->label('Alamat')
                             ->rows(2)
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(2),
                         
                         TextInput::make('no_telp')
                             ->label('No. Telepon')
                             ->tel()
                             ->maxLength(13)
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         TextInput::make('email')
@@ -180,7 +233,7 @@ class PetugasResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('nip')
-                    ->label('NIP')
+                    ->label('NIK')
                     ->searchable()
                     ->sortable(),
                 

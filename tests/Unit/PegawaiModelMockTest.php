@@ -76,6 +76,7 @@ class PegawaiModelMockTest extends TestCase
         $this->assertTrue(method_exists($pegawai, 'resikoKerjaRelation'));
         $this->assertTrue(method_exists($pegawai, 'emergencyIndexRelation'));
         $this->assertTrue(method_exists($pegawai, 'departemenRelation'));
+        $this->assertTrue(method_exists($pegawai, 'indexinsDepartemenRelation'));
         $this->assertTrue(method_exists($pegawai, 'bidangRelation'));
         $this->assertTrue(method_exists($pegawai, 'sttsWpRelation'));
         $this->assertTrue(method_exists($pegawai, 'sttsKerjaRelation'));

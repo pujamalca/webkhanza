@@ -130,6 +130,7 @@ class PegawaiResource extends Resource
                             ->label('Departemen')
                             ->relationship('departemenRelation', 'nama')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('dep_id')->required()->maxLength(4)->label('Kode'),
                                 TextInput::make('nama')->required()->maxLength(25),
@@ -139,6 +140,7 @@ class PegawaiResource extends Resource
                             ->label('Bidang')
                             ->relationship('bidangRelation', 'nama')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('nama')->required()->maxLength(15),
                             ]),
@@ -147,6 +149,7 @@ class PegawaiResource extends Resource
                             ->label('Resiko Kerja')
                             ->relationship('resikoKerjaRelation', 'nama_resiko')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('kode_resiko')->required()->maxLength(3),
                                 TextInput::make('nama_resiko')->required()->maxLength(100),
@@ -157,6 +160,7 @@ class PegawaiResource extends Resource
                             ->label('Emergency Index')
                             ->relationship('emergencyIndexRelation', 'nama_emergency')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('kode_emergency')->required()->maxLength(3),
                                 TextInput::make('nama_emergency')->required()->maxLength(100),
@@ -176,7 +180,8 @@ class PegawaiResource extends Resource
                                 '<1' => 'Kurang dari 1 tahun',
                                 'PT' => 'Paruh Waktu',
                                 'FT>1' => 'Penuh Waktu > 1 tahun',
-                            ]),
+                            ])
+                            ->required(),
                         
                         Select::make('stts_aktif')
                             ->label('Status Aktif')
@@ -192,11 +197,13 @@ class PegawaiResource extends Resource
                         TextInput::make('wajibmasuk')
                             ->label('Wajib Masuk (hari)')
                             ->numeric()
+                            ->required()
                             ->default(0),
                         
                         TextInput::make('cuti_diambil')
                             ->label('Cuti Diambil')
                             ->numeric()
+                            ->required()
                             ->default(0),
                     ])
                     ->columns(2),
@@ -207,6 +214,7 @@ class PegawaiResource extends Resource
                             ->label('Status WP')
                             ->relationship('sttsWpRelation', 'ktg')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('stts')->required()->maxLength(5)->label('Status'),
                                 TextInput::make('ktg')->required()->maxLength(50)->label('Kategori'),
@@ -216,6 +224,7 @@ class PegawaiResource extends Resource
                             ->label('Status Kerja')
                             ->relationship('sttsKerjaRelation', 'ktg')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('stts')->required()->maxLength(3)->label('Status'),
                                 TextInput::make('ktg')->required()->maxLength(20)->label('Kategori'),
@@ -225,30 +234,35 @@ class PegawaiResource extends Resource
                         TextInput::make('npwp')
                             ->label('NPWP')
                             ->maxLength(15)
+                            ->required()
                             ->default('-'),
                         
                         Select::make('bpd')
                             ->label('Bank')
                             ->relationship('bankRelation', 'namabank')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('namabank')->required()->maxLength(50)->label('Nama Bank'),
                             ]),
                         
                         TextInput::make('rekening')
                             ->label('No. Rekening')
-                            ->maxLength(25),
+                            ->maxLength(25)
+                            ->required(),
                         
                         TextInput::make('gapok')
                             ->label('Gaji Pokok')
                             ->numeric()
                             ->prefix('Rp')
+                            ->required()
                             ->step(0.01),
                         
                         TextInput::make('pengurang')
                             ->label('Pengurang')
                             ->numeric()
                             ->prefix('Rp')
+                            ->required()
                             ->default(0)
                             ->step(0.01),
                         
@@ -256,17 +270,25 @@ class PegawaiResource extends Resource
                             ->label('Dankes')
                             ->numeric()
                             ->prefix('Rp')
+                            ->required()
                             ->default(0)
                             ->step(0.01),
                         
                         TextInput::make('indek')
                             ->label('Indek')
                             ->numeric()
+                            ->required()
                             ->default(1),
                         
-                        TextInput::make('indexins')
+                        Select::make('indexins')
                             ->label('Index Ins')
-                            ->maxLength(4),
+                            ->relationship('indexinsDepartemenRelation', 'nama')
+                            ->searchable()
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('dep_id')->required()->maxLength(4)->label('Kode'),
+                                TextInput::make('nama')->required()->maxLength(25),
+                            ]),
                     ])
                     ->columns(2),
                 
@@ -276,6 +298,7 @@ class PegawaiResource extends Resource
                             ->label('Tingkat Pendidikan')
                             ->relationship('pendidikanRelation', 'tingkat')
                             ->searchable()
+                            ->required()
                             ->createOptionForm([
                                 TextInput::make('tingkat')->required()->maxLength(80),
                                 TextInput::make('indek')->numeric()->required(),
