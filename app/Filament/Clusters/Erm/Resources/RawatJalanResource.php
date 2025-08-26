@@ -15,6 +15,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -89,19 +90,29 @@ class RawatJalanResource extends Resource
                         TextInput::make('no_reg')
                             ->label('No. Registrasi')
                             ->required()
-                            ->numeric()
-                            ->default(function () {
-                                $maxReg = RegPeriksa::whereDate('tgl_registrasi', now())
-                                    ->max('no_reg');
-                                return ($maxReg ?? 0) + 1;
-                            }),
+                            ->maxLength(3)
+                            ->default(function (callable $get) {
+                                $kd_poli = $get('kd_poli');
+                                if ($kd_poli) {
+                                    $maxReg = RegPeriksa::whereDate('tgl_registrasi', now())
+                                        ->where('kd_poli', $kd_poli)
+                                        ->max('no_reg');
+                                    return str_pad(($maxReg ?? 0) + 1, 3, '0', STR_PAD_LEFT);
+                                }
+                                return '001';
+                            })
+                            ->readonly(),
 
-                        Hidden::make('no_rawat')
+                        TextInput::make('no_rawat')
+                            ->label('No. Rawat')
+                            ->required()
+                            ->unique(ignoreRecord: true)
                             ->default(function () {
                                 $today = now()->format('Y/m/d');
-                                $count = RegPeriksa::whereDate('tgl_registrasi', now())->count() + 1;
+                                $count = RegPeriksa::count() + 1;
                                 return $today . '/' . str_pad($count, 6, '0', STR_PAD_LEFT);
-                            }),
+                            })
+                            ->readonly(),
 
                         DatePicker::make('tgl_registrasi')
                             ->label('Tanggal Registrasi')
@@ -117,12 +128,184 @@ class RawatJalanResource extends Resource
 
                         Select::make('no_rkm_medis')
                             ->label('Pasien')
-                            ->relationship('pasien', 'nm_pasien', function (Builder $query) {
-                                return $query->orderBy('nm_pasien');
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search): array {
+                                // Minimum 3 characters to search
+                                if (strlen($search) < 3) {
+                                    return [];
+                                }
+                                
+                                // Cache key for search results
+                                $cacheKey = 'pasien_search_' . md5($search);
+                                
+                                return \Cache::remember($cacheKey, 300, function () use ($search) {
+                                    // Optimize query with specific indexes
+                                    $query = Pasien::select('no_rkm_medis', 'nm_pasien', 'no_ktp', 'no_peserta')
+                                        ->where(function ($q) use ($search) {
+                                            // Prioritize exact matches first
+                                            $q->where('no_rkm_medis', '=', $search)
+                                              ->orWhere('no_ktp', '=', $search)  
+                                              ->orWhere('no_peserta', '=', $search);
+                                        })
+                                        ->orWhere(function ($q) use ($search) {
+                                            // Then LIKE searches with optimized patterns
+                                            if (is_numeric($search)) {
+                                                // For numeric search, prioritize RM and card numbers
+                                                $q->where('no_rkm_medis', 'like', $search . '%')
+                                                  ->orWhere('no_ktp', 'like', '%' . $search . '%')
+                                                  ->orWhere('no_peserta', 'like', '%' . $search . '%');
+                                            } else {
+                                                // For text search, focus on names
+                                                $q->where('nm_pasien', 'like', $search . '%')
+                                                  ->orWhere('nm_pasien', 'like', '% ' . $search . '%');
+                                            }
+                                        })
+                                        ->orderByRaw("
+                                            CASE 
+                                                WHEN no_rkm_medis = ? THEN 1
+                                                WHEN no_ktp = ? THEN 2  
+                                                WHEN no_peserta = ? THEN 3
+                                                WHEN no_rkm_medis LIKE ? THEN 4
+                                                WHEN nm_pasien LIKE ? THEN 5
+                                                ELSE 6 
+                                            END
+                                        ", [$search, $search, $search, $search . '%', $search . '%'])
+                                        ->limit(20) // Reduced limit for faster response
+                                        ->get();
+                                        
+                                    return $query->mapWithKeys(function ($pasien) {
+                                        $label = $pasien->no_rkm_medis . ' - ' . $pasien->nm_pasien;
+                                        if ($pasien->no_ktp) {
+                                            $label .= ' (KTP: ' . $pasien->no_ktp . ')';
+                                        }
+                                        if ($pasien->no_peserta) {
+                                            $label .= ' (BPJS: ' . $pasien->no_peserta . ')';
+                                        }
+                                        return [$pasien->no_rkm_medis => $label];
+                                    })->toArray();
+                                });
                             })
-                            ->getOptionLabelFromRecordUsing(fn (Pasien $record): string => "{$record->no_rkm_medis} - {$record->nm_pasien}")
-                            ->searchable(['no_rkm_medis', 'nm_pasien'])
-                            ->required(),
+                            ->getOptionLabelUsing(function ($value): ?string {
+                                $pasien = Pasien::where('no_rkm_medis', $value)->first();
+                                if (!$pasien) return null;
+                                
+                                $label = $pasien->no_rkm_medis . ' - ' . $pasien->nm_pasien;
+                                if ($pasien->no_ktp) {
+                                    $label .= ' (KTP: ' . $pasien->no_ktp . ')';
+                                }
+                                if ($pasien->no_peserta) {
+                                    $label .= ' (BPJS: ' . $pasien->no_peserta . ')';
+                                }
+                                return $label;
+                            })
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                if ($state) {
+                                    $pasien = Pasien::where('no_rkm_medis', $state)->first();
+                                    if ($pasien) {
+                                        // Auto calculate umur - only years (no comma)
+                                        if ($pasien->tgl_lahir) {
+                                            $birthDate = \Carbon\Carbon::parse($pasien->tgl_lahir);
+                                            $years = (int) $birthDate->diffInYears(\Carbon\Carbon::now());
+                                            $set('umurdaftar', $years);
+                                            $set('sttsumur', 'Th');
+                                        }
+                                        
+                                        // Auto-fill data from pasien
+                                        if ($pasien->kd_pj) {
+                                            $set('kd_pj', $pasien->kd_pj);
+                                        }
+                                        
+                                        if ($pasien->namakeluarga) {
+                                            $set('p_jawab', $pasien->namakeluarga);
+                                        }
+                                        
+                                        if ($pasien->alamatpj) {
+                                            $set('almt_pj', $pasien->alamatpj);
+                                        }
+                                        
+                                        if ($pasien->keluarga) {
+                                            $set('hubunganpj', strtoupper($pasien->keluarga));
+                                        }
+                                        
+                                        // Check if patient is new or old and set biaya_reg
+                                        $existingRecords = RegPeriksa::where('no_rkm_medis', $pasien->no_rkm_medis)->count();
+                                        $isNewPatient = $existingRecords === 0;
+                                        $set('stts_daftar', $isNewPatient ? 'Baru' : 'Lama');
+                                        
+                                        // Set biaya_reg based on patient status and poliklinik
+                                        $kd_poli = $get('kd_poli');
+                                        if ($kd_poli) {
+                                            $poliklinik = \App\Models\Poliklinik::find($kd_poli);
+                                            if ($poliklinik) {
+                                                // Use registrasi for new patient, registrasilama for existing patient
+                                                $biaya = $isNewPatient ? $poliklinik->registrasi : $poliklinik->registrasilama;
+                                                $set('biaya_reg', $biaya ?? 0);
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                            ->placeholder('Ketik No. RM, nama, NIK, atau no. BPJS untuk mencari')
+                            ->helperText('Minimum 3 karakter - Cari berdasarkan: No. RM, Nama, NIK, atau No. Kartu BPJS')
+                            ->searchDebounce(500)
+                            ->createOptionForm([
+                                TextInput::make('no_rkm_medis')
+                                    ->label('No. Rekam Medis')
+                                    ->required()
+                                    ->unique('pasien', 'no_rkm_medis')
+                                    ->maxLength(15),
+                                    
+                                TextInput::make('nm_pasien')
+                                    ->label('Nama Lengkap')
+                                    ->required()
+                                    ->maxLength(40),
+                                    
+                                TextInput::make('no_ktp')
+                                    ->label('No. KTP')
+                                    ->maxLength(20),
+                                    
+                                Select::make('jk')
+                                    ->label('Jenis Kelamin')
+                                    ->options([
+                                        'L' => 'Laki-laki',
+                                        'P' => 'Perempuan',
+                                    ])
+                                    ->required(),
+                                    
+                                TextInput::make('tmp_lahir')
+                                    ->label('Tempat Lahir')
+                                    ->maxLength(15),
+                                    
+                                DatePicker::make('tgl_lahir')
+                                    ->label('Tanggal Lahir')
+                                    ->maxDate(now()),
+                                    
+                                TextInput::make('alamat')
+                                    ->label('Alamat')
+                                    ->maxLength(200),
+                                    
+                                TextInput::make('no_tlp')
+                                    ->label('No. Telepon')
+                                    ->tel()
+                                    ->maxLength(40),
+                                    
+                                TextInput::make('namakeluarga')
+                                    ->label('Nama Penanggung Jawab')
+                                    ->maxLength(50),
+                                    
+                                Select::make('kd_pj')
+                                    ->label('Cara Bayar')
+                                    ->relationship('penjab', 'png_jawab')
+                                    ->searchable()
+                                    ->required(),
+                                    
+                                DatePicker::make('tgl_daftar')
+                                    ->label('Tanggal Daftar')
+                                    ->default(now())
+                                    ->required(),
+                            ]),
 
                         Select::make('kd_poli')
                             ->label('Poliklinik')
@@ -130,8 +313,32 @@ class RawatJalanResource extends Resource
                             ->searchable()
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($set) {
+                            ->afterStateUpdated(function ($set, $get) {
                                 $set('kd_dokter', null);
+                                
+                                // Update no_reg when poli changes
+                                $kd_poli = $get('kd_poli');
+                                if ($kd_poli) {
+                                    $maxReg = RegPeriksa::whereDate('tgl_registrasi', now())
+                                        ->where('kd_poli', $kd_poli)
+                                        ->max('no_reg');
+                                    $newRegNumber = ($maxReg ?? 0) + 1;
+                                    $set('no_reg', str_pad($newRegNumber, 3, '0', STR_PAD_LEFT));
+                                    
+                                    // Update biaya_reg based on patient status
+                                    $no_rkm_medis = $get('no_rkm_medis');
+                                    if ($no_rkm_medis) {
+                                        $existingRecords = RegPeriksa::where('no_rkm_medis', $no_rkm_medis)->count();
+                                        $isNewPatient = $existingRecords === 0;
+                                        
+                                        $poliklinik = \App\Models\Poliklinik::find($kd_poli);
+                                        if ($poliklinik) {
+                                            // Use registrasi for new patient, registrasilama for existing patient
+                                            $biaya = $isNewPatient ? $poliklinik->registrasi : $poliklinik->registrasilama;
+                                            $set('biaya_reg', $biaya ?? 0);
+                                        }
+                                    }
+                                }
                             })
                             ->createOptionForm([
                                 TextInput::make('nm_poli')
@@ -200,33 +407,42 @@ class RawatJalanResource extends Resource
                                     ->maxLength(40),
                             ]),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Section::make('Data Penanggung Jawab')
                     ->schema([
                         TextInput::make('p_jawab')
                             ->label('Penanggung Jawab')
                             ->maxLength(30)
+                            ->placeholder('Auto dari data pasien')
                             ->required(),
 
                         TextInput::make('almt_pj')
                             ->label('Alamat PJ')
-                            ->maxLength(60),
+                            ->maxLength(60)
+                            ->placeholder('Auto dari data pasien'),
 
                         Select::make('hubunganpj')
                             ->label('Hubungan dengan Pasien')
                             ->options([
-                                'KELUARGA' => 'Keluarga',
-                                'SAUDARA' => 'Saudara',
-                                'ORANG TUA' => 'Orang Tua',
-                                'ANAK' => 'Anak',
-                                'SUAMI' => 'Suami',
+                                'AYAH' => 'Ayah',
+                                'IBU' => 'Ibu',
                                 'ISTRI' => 'Istri',
-                                'LAINNYA' => 'Lainnya',
+                                'SUAMI' => 'Suami',
+                                'SAUDARA' => 'Saudara',
+                                'ANAK' => 'Anak',
+                                'MENANTU' => 'Menantu',
+                                'CUCU' => 'Cucu',
+                                'ORANGTUA' => 'Orang Tua',
+                                'MERTUA' => 'Mertua',
+                                'FAMILI' => 'Famili',
+                                'SENDIRI' => 'Sendiri',
+                                'LAIN-LAIN' => 'Lain-lain',
                             ])
-                            ->default('KELUARGA'),
+                            ->default('AYAH')
+                            ->placeholder('Auto dari data pasien'),
                     ])
-                    ->columns(3),
+                    ->columns(1),
 
                 Section::make('Status & Biaya')
                     ->schema([
@@ -260,7 +476,9 @@ class RawatJalanResource extends Resource
 
                         TextInput::make('umurdaftar')
                             ->label('Umur Daftar')
-                            ->maxLength(3),
+                            ->numeric()
+                            ->maxLength(3)
+                            ->placeholder('Auto dari pasien'),
 
                         Select::make('sttsumur')
                             ->label('Satuan Umur')
@@ -269,7 +487,8 @@ class RawatJalanResource extends Resource
                                 'Bl' => 'Bulan',
                                 'Hr' => 'Hari',
                             ])
-                            ->default('Th'),
+                            ->default('Th')
+                            ->placeholder('Auto dari pasien'),
 
                         Select::make('status_bayar')
                             ->label('Status Bayar')
@@ -287,7 +506,7 @@ class RawatJalanResource extends Resource
                             ])
                             ->default('Lama'),
                     ])
-                    ->columns(3),
+                    ->columns(1),
             ]);
     }
 
