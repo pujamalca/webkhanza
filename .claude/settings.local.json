@@ -22,7 +22,8 @@
       "Bash(del \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\SDM\\Resources\\BidangResource.php\")",
       "Bash(copy:*)",
       "Bash(del test_session_cleanup.php)",
-      "Bash(del test_petugas_nik.php)"
+      "Bash(del test_petugas_nik.php)",
+      "Read(/D:\\d D:\\laragon\\www/**)"
     ],
     "deny": [],
     "ask": []
