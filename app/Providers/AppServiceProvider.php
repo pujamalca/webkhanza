@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Auth\CustomUserProvider;
 use App\Listeners\SetUserLoggedOutOnLogout;
+use App\Services\SqlQueryTracker;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -30,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         
         // Register logout event listener
         Event::listen(Logout::class, SetUserLoggedOutOnLogout::class);
+        
+        // Start SQL query tracking
+        SqlQueryTracker::track();
         
         // Register console commands
         if ($this->app->runningInConsole()) {
