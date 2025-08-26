@@ -19,4 +19,11 @@ class UserRoleCluster extends Cluster
     {
         return 10;
     }
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasAnyPermission([
+            'user_read', 'role_read'
+        ]);
+    }
 }

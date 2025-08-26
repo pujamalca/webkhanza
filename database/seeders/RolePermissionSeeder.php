@@ -32,6 +32,37 @@ class RolePermissionSeeder extends Seeder
             'role_update', 
             'role_delete',
             
+            // SDM - Pegawai Management
+            'pegawai_create',
+            'pegawai_read',
+            'pegawai_update',
+            'pegawai_delete',
+            
+            // SDM - Dokter Management
+            'dokter_create',
+            'dokter_read',
+            'dokter_update',
+            'dokter_delete',
+            
+            // SDM - Petugas Management
+            'petugas_create',
+            'petugas_read',
+            'petugas_update',
+            'petugas_delete',
+            
+            // SDM - Berkas Pegawai Management
+            'berkas_pegawai_create',
+            'berkas_pegawai_read',
+            'berkas_pegawai_update',
+            'berkas_pegawai_delete',
+            'berkas_pegawai_download',
+            
+            // Master Data (for createOptionForm)
+            'bidang_create',
+            'departemen_create',
+            'jabatan_create',
+            'spesialis_create',
+            
             // System Management
             'system_settings',
             'system_logs',
@@ -64,16 +95,49 @@ class RolePermissionSeeder extends Seeder
         $admin->givePermissionTo([
             'user_create', 'user_read', 'user_update', 'user_reset_device',
             'role_read',
+            'pegawai_create', 'pegawai_read', 'pegawai_update', 'pegawai_delete',
+            'dokter_create', 'dokter_read', 'dokter_update', 'dokter_delete',
+            'petugas_create', 'petugas_read', 'petugas_update', 'petugas_delete',
+            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_delete', 'berkas_pegawai_download',
+            'bidang_create', 'departemen_create', 'jabatan_create', 'spesialis_create',
             'dashboard_access'
         ]);
         
-        // Manager - User management only
+        // HRD Manager - Full SDM access
+        $hrdManager = Role::firstOrCreate(
+            ['name' => 'HRD Manager'],
+            ['guard_name' => 'web']
+        );
+        $hrdManager->givePermissionTo([
+            'pegawai_create', 'pegawai_read', 'pegawai_update', 'pegawai_delete',
+            'dokter_create', 'dokter_read', 'dokter_update', 'dokter_delete',
+            'petugas_create', 'petugas_read', 'petugas_update', 'petugas_delete',
+            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_delete', 'berkas_pegawai_download',
+            'bidang_create', 'departemen_create', 'jabatan_create', 'spesialis_create',
+            'dashboard_access'
+        ]);
+        
+        // Staff HRD - Read and basic operations on SDM
+        $staffHRD = Role::firstOrCreate(
+            ['name' => 'Staff HRD'],
+            ['guard_name' => 'web']
+        );
+        $staffHRD->givePermissionTo([
+            'pegawai_read', 'pegawai_update',
+            'dokter_read', 'dokter_update',
+            'petugas_read', 'petugas_update',
+            'berkas_pegawai_create', 'berkas_pegawai_read', 'berkas_pegawai_update', 'berkas_pegawai_download',
+            'dashboard_access'
+        ]);
+        
+        // Manager - User management and read access to SDM
         $manager = Role::firstOrCreate(
             ['name' => 'Manager'],
             ['guard_name' => 'web']
         );
         $manager->givePermissionTo([
             'user_read', 'user_update', 'user_reset_device',
+            'pegawai_read', 'dokter_read', 'petugas_read', 'berkas_pegawai_read',
             'dashboard_access'
         ]);
         
@@ -87,7 +151,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('Roles and permissions seeded successfully!');
-        $this->command->info('Created roles: Super Admin, Admin, Manager, User');
+        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Manager, User');
         $this->command->info('Created ' . count($permissions) . ' permissions');
     }
 }

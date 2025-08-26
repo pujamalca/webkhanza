@@ -50,6 +50,26 @@ class DokterResource extends Resource
         return 'Data Dokter';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('dokter_read');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('dokter_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('dokter_update');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('dokter_delete');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

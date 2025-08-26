@@ -45,6 +45,26 @@ class PegawaiResource extends Resource
         return 'Data Pegawai';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('pegawai_read');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('pegawai_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('pegawai_update');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('pegawai_delete');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

@@ -50,6 +50,26 @@ class BerkasPegawaiResource extends Resource
         return 'Data Berkas Pegawai';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('berkas_pegawai_read');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('berkas_pegawai_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('berkas_pegawai_update');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('berkas_pegawai_delete');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -190,6 +210,7 @@ class BerkasPegawaiResource extends Resource
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn ($record) => $record->berkas ? route('berkas-pegawai.download', basename($record->berkas)) : null)
+                    ->visible(fn() => auth()->user()->can('berkas_pegawai_download'))
                     ->openUrlInNewTab(),
             ]);
     }

@@ -50,6 +50,26 @@ class PetugasResource extends Resource
         return 'Data Petugas';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('petugas_read');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('petugas_create');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('petugas_update');
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('petugas_delete');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
