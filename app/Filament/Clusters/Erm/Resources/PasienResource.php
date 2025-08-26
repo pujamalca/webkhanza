@@ -236,20 +236,8 @@ class PasienResource extends Resource
 
                         Select::make('kd_kec')
                             ->label('Kecamatan')
-                            ->options(function (callable $get) {
-                                $kabId = $get('kd_kab');
-                                if ($kabId) {
-                                    // Prioritize kecamatan used by existing patients
-                                    $usedKec = Pasien::where('kd_kab', $kabId)
-                                        ->whereNotNull('kd_kec')
-                                        ->distinct()
-                                        ->pluck('kd_kec');
-                                    
-                                    return Kecamatan::where('kd_kab', $kabId)
-                                        ->orderByRaw("FIELD(kd_kec, '" . $usedKec->implode("','") . "') DESC")
-                                        ->pluck('nm_kec', 'kd_kec');
-                                }
-                                return [];
+                            ->options(function () {
+                                return Kecamatan::pluck('nm_kec', 'kd_kec');
                             })
                             ->searchable()
                             ->live()
@@ -261,29 +249,12 @@ class PasienResource extends Resource
                                     ->label('Nama Kecamatan')
                                     ->required()
                                     ->maxLength(60),
-                                Select::make('kd_kab')
-                                    ->label('Kabupaten')
-                                    ->relationship('kabupaten', 'nm_kab')
-                                    ->required()
-                                    ->searchable(),
                             ]),
 
                         Select::make('kd_kel')
                             ->label('Kelurahan')
-                            ->options(function (callable $get) {
-                                $kecId = $get('kd_kec');
-                                if ($kecId) {
-                                    // Prioritize kelurahan used by existing patients
-                                    $usedKel = Pasien::where('kd_kec', $kecId)
-                                        ->whereNotNull('kd_kel')
-                                        ->distinct()
-                                        ->pluck('kd_kel');
-                                    
-                                    return Kelurahan::where('kd_kec', $kecId)
-                                        ->orderByRaw("FIELD(kd_kel, '" . $usedKel->implode("','") . "') DESC")
-                                        ->pluck('nm_kel', 'kd_kel');
-                                }
-                                return [];
+                            ->options(function () {
+                                return Kelurahan::pluck('nm_kel', 'kd_kel');
                             })
                             ->searchable()
                             ->createOptionForm([
@@ -291,11 +262,6 @@ class PasienResource extends Resource
                                     ->label('Nama Kelurahan')
                                     ->required()
                                     ->maxLength(60),
-                                Select::make('kd_kec')
-                                    ->label('Kecamatan')
-                                    ->relationship('kecamatan', 'nm_kec')
-                                    ->required()
-                                    ->searchable(),
                             ]),
 
                         TextInput::make('no_tlp')
