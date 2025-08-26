@@ -23,7 +23,8 @@
       "Bash(copy:*)",
       "Bash(del test_session_cleanup.php)",
       "Bash(del test_petugas_nik.php)",
-      "Read(/D:\\d D:\\laragon\\www/**)"
+      "Read(/D:\\d D:\\laragon\\www/**)",
+      "Bash(del check_pegawai.php)"
     ],
     "deny": [],
     "ask": []

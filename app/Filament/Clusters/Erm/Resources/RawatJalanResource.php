@@ -382,10 +382,20 @@ class RawatJalanResource extends Resource
                             ->createOptionForm([
                                 Select::make('pegawai_id')
                                     ->label('Pilih Pegawai')
-                                    ->options(\App\Models\Pegawai::where('stts_aktif', 'AKTIF')->pluck('nama', 'nik'))
+                                    ->options(function () {
+                                        return \App\Models\Pegawai::select('nik', 'nama', 'jk', 'tmp_lahir', 'tgl_lahir', 'alamat')
+                                            ->get()
+                                            ->mapWithKeys(function ($pegawai) {
+                                                $label = $pegawai->nama . ' - ' . $pegawai->nik;
+                                                if ($pegawai->jk) $label .= ' (' . $pegawai->jk . ')';
+                                                return [$pegawai->nik => $label];
+                                            });
+                                    })
                                     ->searchable()
                                     ->preload()
                                     ->live()
+                                    ->placeholder('Pilih pegawai...')
+                                    ->helperText('Pilih pegawai untuk mengisi data dokter otomatis')
                                     ->afterStateUpdated(function ($state, $set) {
                                         if ($state) {
                                             $pegawai = \App\Models\Pegawai::where('nik', $state)->first();
@@ -396,23 +406,24 @@ class RawatJalanResource extends Resource
                                                 $set('tmp_lahir', $pegawai->tmp_lahir);
                                                 $set('tgl_lahir', $pegawai->tgl_lahir);
                                                 $set('almt_tgl', $pegawai->alamat);
-                                                $set('no_telp', '');
-                                                $set('email', '');
                                             }
                                         }
                                     })
-                                    ->helperText('Pilih pegawai untuk mengisi data dokter otomatis'),
+                                    ->columnSpan(3),
+                                    
                                 TextInput::make('kd_dokter')
                                     ->label('Kode Dokter')
                                     ->required()
                                     ->unique('dokter', 'kd_dokter')
                                     ->maxLength(20)
                                     ->readonly()
-                                    ->helperText('Kode akan diisi otomatis dari NIK pegawai'),
+                                    ->helperText('Auto dari NIK pegawai'),
+                                    
                                 TextInput::make('nm_dokter')
                                     ->label('Nama Dokter')
                                     ->required()
                                     ->maxLength(50),
+                                    
                                 Select::make('jk')
                                     ->label('Jenis Kelamin')
                                     ->options([
@@ -420,11 +431,14 @@ class RawatJalanResource extends Resource
                                         'P' => 'Perempuan',
                                     ])
                                     ->required(),
+                                    
                                 TextInput::make('tmp_lahir')
                                     ->label('Tempat Lahir')
                                     ->maxLength(20),
+                                    
                                 DatePicker::make('tgl_lahir')
                                     ->label('Tanggal Lahir'),
+                                    
                                 Select::make('gol_drh')
                                     ->label('Golongan Darah')
                                     ->options([
@@ -433,6 +447,22 @@ class RawatJalanResource extends Resource
                                         'AB' => 'AB',
                                         'O' => 'O',
                                     ]),
+                                    
+                                TextInput::make('almt_tgl')
+                                    ->label('Alamat Tinggal')
+                                    ->maxLength(60),
+                                    
+                                TextInput::make('no_telp')
+                                    ->label('No. Telepon')
+                                    ->tel()
+                                    ->maxLength(13),
+                                    
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->required()
+                                    ->maxLength(50),
+                                    
                                 Select::make('agama')
                                     ->label('Agama')
                                     ->options([
@@ -445,18 +475,7 @@ class RawatJalanResource extends Resource
                                         'LAIN-LAIN' => 'Lain-lain',
                                     ])
                                     ->default('ISLAM'),
-                                TextInput::make('almt_tgl')
-                                    ->label('Alamat Tinggal')
-                                    ->maxLength(60),
-                                TextInput::make('no_telp')
-                                    ->label('No. Telepon')
-                                    ->tel()
-                                    ->maxLength(13),
-                                TextInput::make('email')
-                                    ->label('Email')
-                                    ->email()
-                                    ->required()
-                                    ->maxLength(50),
+                                    
                                 Select::make('stts_nikah')
                                     ->label('Status Nikah')
                                     ->options([
@@ -468,6 +487,7 @@ class RawatJalanResource extends Resource
                                         'DUDHA MATI' => 'Dudha Mati',
                                     ])
                                     ->default('BELUM MENIKAH'),
+                                    
                                 Select::make('kd_sps')
                                     ->label('Spesialis')
                                     ->relationship('spesialis', 'nm_sps')
@@ -483,12 +503,15 @@ class RawatJalanResource extends Resource
                                             ->required()
                                             ->maxLength(30),
                                     ]),
+                                    
                                 TextInput::make('alumni')
                                     ->label('Alumni')
                                     ->maxLength(60),
+                                    
                                 TextInput::make('no_ijn_praktek')
                                     ->label('No. Ijin Praktek')
                                     ->maxLength(40),
+                                    
                                 Select::make('status')
                                     ->label('Status')
                                     ->options([
@@ -497,7 +520,8 @@ class RawatJalanResource extends Resource
                                     ])
                                     ->default('1')
                                     ->required(),
-                            ]),
+                            ])
+                            ->columns(3),
 
                         Select::make('kd_pj')
                             ->label('Cara Bayar')
