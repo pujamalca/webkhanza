@@ -24,6 +24,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 
 class RawatJalanResource extends Resource
@@ -546,106 +548,56 @@ class RawatJalanResource extends Resource
                     ->columns(3)
                     ->columnSpanFull(),
 
-                Section::make('Data Penanggung Jawab')
-                    ->schema([
-                        TextInput::make('p_jawab')
-                            ->label('Penanggung Jawab')
-                            ->maxLength(30)
-                            ->placeholder('Auto dari data pasien')
-                            ->required(),
+                Hidden::make('p_jawab')
+                    ->default(function (callable $get) {
+                        $no_rkm_medis = $get('no_rkm_medis');
+                        if ($no_rkm_medis) {
+                            $pasien = \App\Models\Pasien::where('no_rkm_medis', $no_rkm_medis)->first();
+                            return $pasien?->namakeluarga ?? 'SENDIRI';
+                        }
+                        return 'SENDIRI';
+                    }),
 
-                        TextInput::make('almt_pj')
-                            ->label('Alamat PJ')
-                            ->maxLength(60)
-                            ->placeholder('Auto dari data pasien'),
+                Hidden::make('almt_pj')
+                    ->default(function (callable $get) {
+                        $no_rkm_medis = $get('no_rkm_medis');
+                        if ($no_rkm_medis) {
+                            $pasien = \App\Models\Pasien::where('no_rkm_medis', $no_rkm_medis)->first();
+                            return $pasien?->alamatpj ?? $pasien?->alamat ?? '-';
+                        }
+                        return '-';
+                    }),
 
-                        Select::make('hubunganpj')
-                            ->label('Hubungan dengan Pasien')
-                            ->options([
-                                'AYAH' => 'Ayah',
-                                'IBU' => 'Ibu',
-                                'ISTRI' => 'Istri',
-                                'SUAMI' => 'Suami',
-                                'SAUDARA' => 'Saudara',
-                                'ANAK' => 'Anak',
-                                'MENANTU' => 'Menantu',
-                                'CUCU' => 'Cucu',
-                                'ORANGTUA' => 'Orang Tua',
-                                'MERTUA' => 'Mertua',
-                                'FAMILI' => 'Famili',
-                                'SENDIRI' => 'Sendiri',
-                                'LAIN-LAIN' => 'Lain-lain',
-                            ])
-                            ->default('AYAH')
-                            ->placeholder('Auto dari data pasien'),
-                    ])
-                    ->columns(1)
-                    ->hiddenOn(['create', 'edit']),
+                Hidden::make('hubunganpj')
+                    ->default(function (callable $get) {
+                        $no_rkm_medis = $get('no_rkm_medis');
+                        if ($no_rkm_medis) {
+                            $pasien = \App\Models\Pasien::where('no_rkm_medis', $no_rkm_medis)->first();
+                            return strtoupper($pasien?->keluarga ?? 'SENDIRI');
+                        }
+                        return 'SENDIRI';
+                    }),
 
-                Section::make('Status & Biaya')
-                    ->schema([
-                        TextInput::make('biaya_reg')
-                            ->label('Biaya Registrasi')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->default(0),
+                Hidden::make('biaya_reg')
+                    ->default(0),
 
-                        Select::make('stts')
-                            ->label('Status Periksa')
-                            ->options([
-                                'Belum' => 'Belum Periksa',
-                                'Sudah' => 'Sudah Periksa',
-                                'Batal' => 'Batal',
-                            ])
-                            ->default('Belum')
-                            ->required(),
+                Hidden::make('stts')
+                    ->default('Belum'),
 
-                        Select::make('stts_daftar')
-                            ->label('Status Daftar')
-                            ->options([
-                                'Lama' => 'Pasien Lama',
-                                'Baru' => 'Pasien Baru',
-                            ])
-                            ->default('Lama')
-                            ->required(),
+                Hidden::make('status_lanjut')
+                    ->default('Ralan'),
 
-                        Hidden::make('status_lanjut')
-                            ->default('Ralan'),
+                Hidden::make('umurdaftar')
+                    ->default(0),
 
-                        TextInput::make('umurdaftar')
-                            ->label('Umur Daftar')
-                            ->numeric()
-                            ->maxLength(3)
-                            ->placeholder('Auto dari pasien'),
+                Hidden::make('sttsumur')
+                    ->default('Th'),
 
-                        Select::make('sttsumur')
-                            ->label('Satuan Umur')
-                            ->options([
-                                'Th' => 'Tahun',
-                                'Bl' => 'Bulan',
-                                'Hr' => 'Hari',
-                            ])
-                            ->default('Th')
-                            ->placeholder('Auto dari pasien'),
+                Hidden::make('status_bayar')
+                    ->default('Belum Bayar'),
 
-                        Select::make('status_bayar')
-                            ->label('Status Bayar')
-                            ->options([
-                                'Belum Bayar' => 'Belum Bayar',
-                                'Sudah Bayar' => 'Sudah Bayar',
-                            ])
-                            ->default('Belum Bayar'),
-
-                        Select::make('status_poli')
-                            ->label('Status Poli')
-                            ->options([
-                                'Lama' => 'Kunjungan Lama',
-                                'Baru' => 'Kunjungan Baru',
-                            ])
-                            ->default('Lama'),
-                    ])
-                    ->columns(1)
-                    ->hiddenOn(['create', 'edit']),
+                Hidden::make('status_poli')
+                    ->default('Baru'),
             ]);
     }
 
@@ -653,6 +605,7 @@ class RawatJalanResource extends Resource
     {
         return $table
             ->columns([
+                    
                 TextColumn::make('no_rawat')
                     ->label('No. Rawat')
                     ->searchable()
@@ -664,13 +617,13 @@ class RawatJalanResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('tgl_registrasi')
-                    ->label('Tgl Registrasi')
-                    ->date('d/m/Y')
+                    ->label('Tanggal & Jam Registrasi')
+                    ->formatStateUsing(function ($record) {
+                        $date = \Carbon\Carbon::parse($record->tgl_registrasi)->format('d/m/Y');
+                        $time = \Carbon\Carbon::parse($record->jam_reg)->format('H:i');
+                        return $date . ' - ' . $time;
+                    })
                     ->sortable(),
-
-                TextColumn::make('jam_reg')
-                    ->label('Jam')
-                    ->time('H:i'),
 
                 TextColumn::make('pasien.no_rkm_medis')
                     ->label('No. RM')
@@ -723,7 +676,7 @@ class RawatJalanResource extends Resource
                     ->alignEnd(),
 
                 TextColumn::make('stts_daftar')
-                    ->label('Tipe')
+                    ->label('Baru/Lama')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Baru' => 'success',
@@ -793,11 +746,18 @@ class RawatJalanResource extends Resource
                         return $indicators;
                     }),
             ])
-            ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
-            ])
+            ->recordActions([
+                ActionGroup::make([
+                    \Filament\Actions\ViewAction::make(),
+                    \Filament\Actions\EditAction::make(),
+                    \Filament\Actions\DeleteAction::make(),
+                ])
+                ->label('Menu')
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->size('sm')
+                ->color('gray')
+                ->button(),
+            ], position: RecordActionsPosition::BeforeColumns)
             ->defaultSort('tgl_registrasi', 'desc')
             ->defaultSort('jam_reg', 'desc');
     }

@@ -23,6 +23,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 
 class PasienResource extends Resource
@@ -553,6 +555,7 @@ class PasienResource extends Resource
     {
         return $table
             ->columns([
+                    
                 TextColumn::make('no_rkm_medis')
                     ->label('No. RM')
                     ->searchable()
@@ -645,11 +648,18 @@ class PasienResource extends Resource
                         'BUDHA' => 'Budha',
                     ]),
             ])
-            ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
-            ])
+            ->recordActions([
+                ActionGroup::make([
+                    \Filament\Actions\ViewAction::make(),
+                    \Filament\Actions\EditAction::make(), 
+                    \Filament\Actions\DeleteAction::make(),
+                ])
+                ->label('Menu')
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->size('sm')
+                ->color('gray')
+                ->button(),
+            ], position: RecordActionsPosition::BeforeColumns)
             ->defaultSort('tgl_daftar', 'desc');
     }
 
