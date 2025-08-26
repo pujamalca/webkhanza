@@ -23,6 +23,8 @@ class DepartemenResource extends Resource
     protected static ?string $cluster = SDMCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
+    
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $recordTitleAttribute = 'nama';
 

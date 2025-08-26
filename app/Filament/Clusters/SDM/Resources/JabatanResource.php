@@ -23,6 +23,8 @@ class JabatanResource extends Resource
     protected static ?string $cluster = SDMCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+    
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $recordTitleAttribute = 'nm_jbtn';
 
