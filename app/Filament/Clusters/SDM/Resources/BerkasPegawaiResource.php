@@ -19,6 +19,9 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -119,6 +122,7 @@ class BerkasPegawaiResource extends Resource
                     ->schema([
                         FileUpload::make('berkas')
                             ->label('File Berkas')
+                            ->disk('local')
                             ->directory('berkas_pegawai')
                             ->maxSize(5120) // 5MB
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
@@ -169,6 +173,8 @@ class BerkasPegawaiResource extends Resource
                 TextColumn::make('berkas')
                     ->label('File')
                     ->limit(30)
+                    ->url(fn ($record) => $record->berkas ? route('berkas-pegawai.show', basename($record->berkas)) : null)
+                    ->openUrlInNewTab()
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
                         if (strlen($state) <= 30) {
@@ -178,10 +184,14 @@ class BerkasPegawaiResource extends Resource
                     }),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-            ])
-            ->defaultSort('tgl_uploud', 'desc');
+                ViewAction::make(),
+                EditAction::make(),
+                Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn ($record) => $record->berkas ? route('berkas-pegawai.download', basename($record->berkas)) : null)
+                    ->openUrlInNewTab(),
+            ]);
     }
 
     public static function getRelations(): array

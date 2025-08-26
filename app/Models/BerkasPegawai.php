@@ -8,6 +8,11 @@ class BerkasPegawai extends Model
 {
     protected $table = 'berkas_pegawai';
     
+    // Tabel ini menggunakan composite key, kita set berkas sebagai primary key untuk Filament
+    protected $primaryKey = 'berkas';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    
     public $timestamps = false;
     
     protected $fillable = [

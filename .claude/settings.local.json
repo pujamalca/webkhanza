@@ -19,7 +19,8 @@
       "Bash(del check_tables.php)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(del tests/Unit/SimpleTest.php)",
-      "Bash(del \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\SDM\\Resources\\BidangResource.php\")"
+      "Bash(del \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\SDM\\Resources\\BidangResource.php\")",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []
