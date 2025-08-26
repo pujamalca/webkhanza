@@ -81,16 +81,35 @@ class PetugasResource extends Resource
                                 if ($state) {
                                     $pegawai = Pegawai::where('nik', $state)->first();
                                     if ($pegawai) {
+                                        // Auto-fill from pegawai
                                         $set('nama', $pegawai->nama);
-                                        $set('jk', $pegawai->jk);
                                         $set('tmp_lahir', $pegawai->tmp_lahir);
-                                        $set('tgl_lahir', $pegawai->tgl_lahir);
+                                        $set('alamat', $pegawai->alamat);
                                         $set('gol_darah', $pegawai->gol_darah);
                                         $set('agama', $pegawai->agama);
-                                        $set('stts_nikah', $pegawai->stts_nikah);
-                                        $set('alamat', $pegawai->alamat);
                                         $set('no_telp', $pegawai->no_telp);
                                         $set('email', $pegawai->email);
+                                        
+                                        // Convert jk from Pria/Wanita to L/P for petugas
+                                        if ($pegawai->jk === 'Pria') {
+                                            $set('jk', 'L');
+                                        } elseif ($pegawai->jk === 'Wanita') {
+                                            $set('jk', 'P');
+                                        }
+                                        
+                                        // Set jabatan from pegawai.jbtn to kd_jbtn
+                                        if ($pegawai->jbtn && $pegawai->jbtn !== '-' && $pegawai->jbtn !== '') {
+                                            // Find jabatan by name (exact or partial match)
+                                            $jabatan = \App\Models\Jabatan::where('nm_jbtn', 'LIKE', '%' . $pegawai->jbtn . '%')
+                                                ->orWhere('nm_jbtn', $pegawai->jbtn)
+                                                ->first();
+                                            if ($jabatan) {
+                                                $set('kd_jbtn', $jabatan->kd_jbtn);
+                                            }
+                                        }
+                                        
+                                        // Set default status aktif
+                                        $set('status', 1);
                                     }
                                 }
                             })
@@ -111,14 +130,12 @@ class PetugasResource extends Resource
                                 'P' => 'Perempuan',
                             ])
                             ->required()
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(1),
                     ])
                     ->columns(4),
 
                 Section::make('Data Pribadi')
-                    ->description('Informasi pribadi petugas (Auto-filled dari data pegawai)')
+                    ->description('Informasi pribadi petugas (Sebagian auto-filled, sebagian input manual)')
                     ->schema([
                         TextInput::make('tmp_lahir')
                             ->label('Tempat Lahir')
@@ -129,8 +146,6 @@ class PetugasResource extends Resource
                         
                         DatePicker::make('tgl_lahir')
                             ->label('Tanggal Lahir')
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(1),
                         
                         Select::make('gol_darah')
@@ -142,15 +157,11 @@ class PetugasResource extends Resource
                                 'AB' => 'AB',
                                 '-' => 'Tidak Diketahui',
                             ])
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(1),
                         
                         TextInput::make('agama')
                             ->label('Agama')
                             ->maxLength(12)
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(1),
                         
                         Select::make('stts_nikah')
@@ -162,28 +173,22 @@ class PetugasResource extends Resource
                                 'DUDHA' => 'Dudha',
                                 'JOMBLO' => 'Jomblo',
                             ])
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(2),
                     ])
                     ->columns(4),
 
                 Section::make('Kontak & Alamat')
-                    ->description('Informasi kontak petugas (Auto-filled dari data pegawai)')
+                    ->description('Informasi kontak petugas (Auto-filled dari data pegawai, dapat diedit)')
                     ->schema([
                         Textarea::make('alamat')
                             ->label('Alamat')
                             ->rows(2)
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(2),
                         
                         TextInput::make('no_telp')
                             ->label('No. Telepon')
                             ->tel()
                             ->maxLength(13)
-                            ->disabled()
-                            ->dehydrated()
                             ->columnSpan(1),
                         
                         TextInput::make('email')
@@ -222,6 +227,7 @@ class PetugasResource extends Resource
                                 0 => 'Non Aktif',
                             ])
                             ->required()
+                            ->default(1)
                             ->columnSpan(2),
                     ])
                     ->columns(4),
