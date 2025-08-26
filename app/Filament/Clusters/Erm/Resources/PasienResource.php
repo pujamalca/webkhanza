@@ -10,10 +10,12 @@ use App\Models\Kelurahan;
 use App\Models\Pasien;
 use App\Models\Penjab;
 use BackedEnum;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -79,11 +81,40 @@ class PasienResource extends Resource
             ->schema([
                 Section::make('Data Identitas Pasien')
                     ->schema([
-                        TextInput::make('no_rkm_medis')
-                            ->label('No. Rekam Medis')
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(15),
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('no_rkm_medis')
+                                    ->label('No. Rekam Medis')
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(15)
+                                    ->columnSpan(2),
+                                    
+                                Checkbox::make('auto_generate_rm')
+                                    ->label('Auto Generate')
+                                    ->default(true)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set) {
+                                        if ($state) {
+                                            $lastRM = Pasien::max('no_rkm_medis');
+                                            if ($lastRM) {
+                                                // Increment the last RM number
+                                                if (is_numeric($lastRM)) {
+                                                    $newRM = str_pad((int)$lastRM + 1, 6, '0', STR_PAD_LEFT);
+                                                } else {
+                                                    // If RM contains letters, extract numbers and increment
+                                                    preg_match('/(\d+)/', $lastRM, $matches);
+                                                    $number = isset($matches[1]) ? (int)$matches[1] + 1 : 1;
+                                                    $newRM = str_pad($number, 6, '0', STR_PAD_LEFT);
+                                                }
+                                            } else {
+                                                $newRM = '000001';
+                                            }
+                                            $set('no_rkm_medis', $newRM);
+                                        }
+                                    })
+                                    ->columnSpan(1),
+                            ]),
 
                         TextInput::make('nm_pasien')
                             ->label('Nama Lengkap')
@@ -106,9 +137,41 @@ class PasienResource extends Resource
                             ->label('Tempat Lahir')
                             ->maxLength(15),
 
-                        DatePicker::make('tgl_lahir')
-                            ->label('Tanggal Lahir')
-                            ->maxDate(now()),
+                        Grid::make(2)
+                            ->schema([
+                                DatePicker::make('tgl_lahir')
+                                    ->label('Tanggal Lahir')
+                                    ->maxDate(now())
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set) {
+                                        if ($state) {
+                                            $birthDate = \Carbon\Carbon::parse($state);
+                                            $now = \Carbon\Carbon::now();
+                                            
+                                            $years = $birthDate->diffInYears($now);
+                                            $months = $birthDate->copy()->addYears($years)->diffInMonths($now);
+                                            $days = $birthDate->copy()->addYears($years)->addMonths($months)->diffInDays($now);
+                                            
+                                            if ($years > 0) {
+                                                $umur = $years . ' Th';
+                                                if ($months > 0) $umur .= ' ' . $months . ' Bl';
+                                                if ($days > 0) $umur .= ' ' . $days . ' Hr';
+                                            } elseif ($months > 0) {
+                                                $umur = $months . ' Bl';
+                                                if ($days > 0) $umur .= ' ' . $days . ' Hr';
+                                            } else {
+                                                $umur = $days . ' Hr';
+                                            }
+                                            
+                                            $set('umur', $umur);
+                                        }
+                                    }),
+                                    
+                                TextInput::make('umur')
+                                    ->label('Umur')
+                                    ->maxLength(30)
+                                    ->readonly(),
+                            ]),
 
                         TextInput::make('nm_ibu')
                             ->label('Nama Ibu Kandung')
@@ -118,27 +181,73 @@ class PasienResource extends Resource
 
                 Section::make('Informasi Kontak & Alamat')
                     ->schema([
-                        Textarea::make('alamat')
+                        Select::make('alamat')
                             ->label('Alamat Lengkap')
-                            ->rows(3)
-                            ->maxLength(200),
+                            ->options(function () {
+                                // Get unique addresses from existing patients
+                                return Pasien::whereNotNull('alamat')
+                                    ->where('alamat', '!=', '')
+                                    ->distinct()
+                                    ->pluck('alamat', 'alamat')
+                                    ->take(100); // Limit to 100 for performance
+                            })
+                            ->searchable()
+                            ->allowHtml()
+                            ->getSearchResultsUsing(function (string $search) {
+                                return Pasien::where('alamat', 'like', "%{$search}%")
+                                    ->whereNotNull('alamat')
+                                    ->where('alamat', '!=', '')
+                                    ->distinct()
+                                    ->limit(50)
+                                    ->pluck('alamat', 'alamat');
+                            })
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            })
+                            ->createOptionForm([
+                                Textarea::make('alamat')
+                                    ->label('Alamat Baru')
+                                    ->rows(3)
+                                    ->maxLength(200)
+                                    ->required(),
+                            ]),
 
                         Select::make('kd_kab')
                             ->label('Kabupaten')
-                            ->options(Kabupaten::pluck('nm_kab', 'kd_kab'))
+                            ->options(function () {
+                                // Get kabupaten that are actually used by patients
+                                return Kabupaten::whereIn('kd_kab', 
+                                    Pasien::whereNotNull('kd_kab')->distinct()->pluck('kd_kab')
+                                )->pluck('nm_kab', 'kd_kab')
+                                ->union(Kabupaten::pluck('nm_kab', 'kd_kab'));
+                            })
                             ->searchable()
                             ->live()
                             ->afterStateUpdated(function ($set) {
                                 $set('kd_kec', null);
                                 $set('kd_kel', null);
-                            }),
+                            })
+                            ->createOptionForm([
+                                TextInput::make('nm_kab')
+                                    ->label('Nama Kabupaten')
+                                    ->required()
+                                    ->maxLength(60),
+                            ]),
 
                         Select::make('kd_kec')
                             ->label('Kecamatan')
                             ->options(function (callable $get) {
                                 $kabId = $get('kd_kab');
                                 if ($kabId) {
-                                    return Kecamatan::where('kd_kab', $kabId)->pluck('nm_kec', 'kd_kec');
+                                    // Prioritize kecamatan used by existing patients
+                                    $usedKec = Pasien::where('kd_kab', $kabId)
+                                        ->whereNotNull('kd_kec')
+                                        ->distinct()
+                                        ->pluck('kd_kec');
+                                    
+                                    return Kecamatan::where('kd_kab', $kabId)
+                                        ->orderByRaw("FIELD(kd_kec, '" . $usedKec->implode("','") . "') DESC")
+                                        ->pluck('nm_kec', 'kd_kec');
                                 }
                                 return [];
                             })
@@ -146,18 +255,48 @@ class PasienResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($set) {
                                 $set('kd_kel', null);
-                            }),
+                            })
+                            ->createOptionForm([
+                                TextInput::make('nm_kec')
+                                    ->label('Nama Kecamatan')
+                                    ->required()
+                                    ->maxLength(60),
+                                Select::make('kd_kab')
+                                    ->label('Kabupaten')
+                                    ->relationship('kabupaten', 'nm_kab')
+                                    ->required()
+                                    ->searchable(),
+                            ]),
 
                         Select::make('kd_kel')
                             ->label('Kelurahan')
                             ->options(function (callable $get) {
                                 $kecId = $get('kd_kec');
                                 if ($kecId) {
-                                    return Kelurahan::where('kd_kec', $kecId)->pluck('nm_kel', 'kd_kel');
+                                    // Prioritize kelurahan used by existing patients
+                                    $usedKel = Pasien::where('kd_kec', $kecId)
+                                        ->whereNotNull('kd_kel')
+                                        ->distinct()
+                                        ->pluck('kd_kel');
+                                    
+                                    return Kelurahan::where('kd_kec', $kecId)
+                                        ->orderByRaw("FIELD(kd_kel, '" . $usedKel->implode("','") . "') DESC")
+                                        ->pluck('nm_kel', 'kd_kel');
                                 }
                                 return [];
                             })
-                            ->searchable(),
+                            ->searchable()
+                            ->createOptionForm([
+                                TextInput::make('nm_kel')
+                                    ->label('Nama Kelurahan')
+                                    ->required()
+                                    ->maxLength(60),
+                                Select::make('kd_kec')
+                                    ->label('Kecamatan')
+                                    ->relationship('kecamatan', 'nm_kec')
+                                    ->required()
+                                    ->searchable(),
+                            ]),
 
                         TextInput::make('no_tlp')
                             ->label('No. Telepon')
@@ -183,9 +322,27 @@ class PasienResource extends Resource
                                 '-' => 'Tidak Diketahui',
                             ]),
 
-                        TextInput::make('pekerjaan')
+                        Select::make('pekerjaan')
                             ->label('Pekerjaan')
-                            ->maxLength(60),
+                            ->options(function () {
+                                return Pasien::whereNotNull('pekerjaan')
+                                    ->where('pekerjaan', '!=', '')
+                                    ->distinct()
+                                    ->pluck('pekerjaan', 'pekerjaan')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search) {
+                                return Pasien::where('pekerjaan', 'like', "%{$search}%")
+                                    ->whereNotNull('pekerjaan')
+                                    ->where('pekerjaan', '!=', '')
+                                    ->distinct()
+                                    ->limit(25)
+                                    ->pluck('pekerjaan', 'pekerjaan');
+                            })
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
 
                         Select::make('stts_nikah')
                             ->label('Status Nikah')
@@ -261,40 +418,135 @@ class PasienResource extends Resource
 
                 Section::make('Data Penanggung Jawab')
                     ->schema([
-                        TextInput::make('keluarga')
+                        Select::make('keluarga')
                             ->label('Status Keluarga')
-                            ->maxLength(11),
+                            ->options([
+                                'AYAH' => 'Ayah',
+                                'IBU' => 'Ibu', 
+                                'ISTRI' => 'Istri',
+                                'SUAMI' => 'Suami',
+                                'SAUDARA' => 'Saudara',
+                                'ANAK' => 'Anak',
+                                'MENANTU' => 'Menantu',
+                                'CUCU' => 'Cucu',
+                                'ORANGTUA' => 'Orang Tua',
+                                'MERTUA' => 'Mertua',
+                                'FAMILI' => 'Famili',
+                                'SENDIRI' => 'Sendiri',
+                                'LAIN-LAIN' => 'Lain-lain',
+                            ])
+                            ->searchable(),
 
                         TextInput::make('namakeluarga')
                             ->label('Nama Penanggung Jawab')
                             ->maxLength(50),
 
-                        Textarea::make('alamatpj')
+                        Select::make('alamatpj')
                             ->label('Alamat Penanggung Jawab')
-                            ->rows(2)
-                            ->maxLength(100),
+                            ->options(function () {
+                                // Get unique addresses from existing patients PJ
+                                return Pasien::whereNotNull('alamatpj')
+                                    ->where('alamatpj', '!=', '')
+                                    ->distinct()
+                                    ->pluck('alamatpj', 'alamatpj')
+                                    ->take(100);
+                            })
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search) {
+                                return Pasien::where('alamatpj', 'like', "%{$search}%")
+                                    ->whereNotNull('alamatpj')
+                                    ->where('alamatpj', '!=', '')
+                                    ->distinct()
+                                    ->limit(50)
+                                    ->pluck('alamatpj', 'alamatpj');
+                            })
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            })
+                            ->createOptionForm([
+                                Textarea::make('alamatpj')
+                                    ->label('Alamat Baru')
+                                    ->rows(2)
+                                    ->maxLength(100)
+                                    ->required(),
+                            ]),
 
-                        TextInput::make('kelurahanpj')
+                        Select::make('kelurahanpj')
                             ->label('Kelurahan PJ')
-                            ->maxLength(60),
+                            ->options(function () {
+                                return Pasien::whereNotNull('kelurahanpj')
+                                    ->where('kelurahanpj', '!=', '')
+                                    ->distinct()
+                                    ->pluck('kelurahanpj', 'kelurahanpj')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
 
-                        TextInput::make('kecamatanpj')
+                        Select::make('kecamatanpj')
                             ->label('Kecamatan PJ')
-                            ->maxLength(60),
+                            ->options(function () {
+                                return Pasien::whereNotNull('kecamatanpj')
+                                    ->where('kecamatanpj', '!=', '')
+                                    ->distinct()
+                                    ->pluck('kecamatanpj', 'kecamatanpj')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
 
-                        TextInput::make('kabupatenpj')
+                        Select::make('kabupatenpj')
                             ->label('Kabupaten PJ')
-                            ->maxLength(60),
+                            ->options(function () {
+                                return Pasien::whereNotNull('kabupatenpj')
+                                    ->where('kabupatenpj', '!=', '')
+                                    ->distinct()
+                                    ->pluck('kabupatenpj', 'kabupatenpj')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
 
-                        TextInput::make('pekerjaanpj')
+                        Select::make('pekerjaanpj')
                             ->label('Pekerjaan PJ')
-                            ->maxLength(35),
+                            ->options(function () {
+                                return Pasien::whereNotNull('pekerjaanpj')
+                                    ->where('pekerjaanpj', '!=', '')
+                                    ->distinct()
+                                    ->pluck('pekerjaanpj', 'pekerjaanpj')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
 
                         Select::make('kd_pj')
                             ->label('Cara Bayar')
                             ->options(Penjab::pluck('png_jawab', 'kd_pj'))
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('png_jawab')
+                                    ->label('Nama Cara Bayar')
+                                    ->required()
+                                    ->maxLength(50),
+                                TextInput::make('nama_perusahaan')
+                                    ->label('Nama Perusahaan')
+                                    ->maxLength(60),
+                                TextInput::make('alamat_asuransi')
+                                    ->label('Alamat Asuransi')
+                                    ->maxLength(130),
+                                TextInput::make('no_telp')
+                                    ->label('No. Telepon')
+                                    ->maxLength(40),
+                            ]),
 
                         TextInput::make('no_peserta')
                             ->label('No. Peserta/Kartu')
@@ -309,19 +561,25 @@ class PasienResource extends Resource
                             ->default(now())
                             ->required(),
 
-                        TextInput::make('umur')
-                            ->label('Umur')
-                            ->maxLength(30),
-
                         TextInput::make('nip')
                             ->label('NIP (Jika PNS)')
                             ->maxLength(30),
 
-                        TextInput::make('perusahaan_pasien')
+                        Select::make('perusahaan_pasien')
                             ->label('Perusahaan/Instansi')
-                            ->maxLength(8),
+                            ->options(function () {
+                                return Pasien::whereNotNull('perusahaan_pasien')
+                                    ->where('perusahaan_pasien', '!=', '')
+                                    ->distinct()
+                                    ->pluck('perusahaan_pasien', 'perusahaan_pasien')
+                                    ->take(50);
+                            })
+                            ->searchable()
+                            ->createOptionUsing(function (string $value) {
+                                return $value;
+                            }),
                     ])
-                    ->columns(2),
+                    ->columns(3),
             ]);
     }
 

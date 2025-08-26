@@ -122,15 +122,7 @@ class RawatJalanResource extends Resource
                             })
                             ->getOptionLabelFromRecordUsing(fn (Pasien $record): string => "{$record->no_rkm_medis} - {$record->nm_pasien}")
                             ->searchable(['no_rkm_medis', 'nm_pasien'])
-                            ->required()
-                            ->createOptionForm([
-                                TextInput::make('no_rkm_medis')
-                                    ->label('No. Rekam Medis')
-                                    ->required(),
-                                TextInput::make('nm_pasien')
-                                    ->label('Nama Pasien')
-                                    ->required(),
-                            ]),
+                            ->required(),
 
                         Select::make('kd_poli')
                             ->label('Poliklinik')
@@ -140,19 +132,73 @@ class RawatJalanResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($set) {
                                 $set('kd_dokter', null);
-                            }),
+                            })
+                            ->createOptionForm([
+                                TextInput::make('nm_poli')
+                                    ->label('Nama Poliklinik')
+                                    ->required()
+                                    ->maxLength(50),
+                                Select::make('kd_bangsal')
+                                    ->label('Bangsal')
+                                    ->relationship('bangsal', 'nm_bangsal')
+                                    ->searchable(),
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        '0' => 'Non Aktif',
+                                        '1' => 'Aktif',
+                                    ])
+                                    ->default('1'),
+                            ]),
 
                         Select::make('kd_dokter')
                             ->label('Dokter')
                             ->relationship('dokter', 'nm_dokter')
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('nm_dokter')
+                                    ->label('Nama Dokter')
+                                    ->required()
+                                    ->maxLength(50),
+                                Select::make('jk')
+                                    ->label('Jenis Kelamin')
+                                    ->options([
+                                        'Pria' => 'Pria',
+                                        'Wanita' => 'Wanita',
+                                    ])
+                                    ->required(),
+                                TextInput::make('tmp_lahir')
+                                    ->label('Tempat Lahir')
+                                    ->maxLength(20),
+                                DatePicker::make('tgl_lahir')
+                                    ->label('Tanggal Lahir'),
+                                Select::make('kd_sps')
+                                    ->label('Spesialis')
+                                    ->relationship('spesialis', 'nm_sps')
+                                    ->searchable(),
+                            ]),
 
                         Select::make('kd_pj')
                             ->label('Cara Bayar')
                             ->relationship('penjab', 'png_jawab')
                             ->searchable()
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('png_jawab')
+                                    ->label('Nama Cara Bayar')
+                                    ->required()
+                                    ->maxLength(50),
+                                TextInput::make('nama_perusahaan')
+                                    ->label('Nama Perusahaan')
+                                    ->maxLength(60),
+                                TextInput::make('alamat_asuransi')
+                                    ->label('Alamat Asuransi')
+                                    ->maxLength(130),
+                                TextInput::make('no_telp')
+                                    ->label('No. Telepon')
+                                    ->maxLength(40),
+                            ]),
                     ])
                     ->columns(2),
 
