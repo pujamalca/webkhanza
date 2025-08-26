@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\CleanupSessionsOnLogout;
+use App\Listeners\LogUserActivity;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
@@ -18,6 +19,15 @@ class EventServiceProvider extends ServiceProvider
         Logout::class => [
             CleanupSessionsOnLogout::class,
         ],
+    ];
+
+    /**
+     * The event to listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $subscribe = [
+        LogUserActivity::class,
     ];
 
     /**

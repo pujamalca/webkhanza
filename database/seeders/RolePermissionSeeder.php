@@ -79,6 +79,7 @@ class RolePermissionSeeder extends Seeder
             // System Management
             'system_settings_access',
             'system_logs_access',
+            'activity_logs_view',
         ];
 
         foreach ($permissions as $permission) {
@@ -107,6 +108,7 @@ class RolePermissionSeeder extends Seeder
             'administrator_access',
             'users_view', 'users_create', 'users_edit', 'users_reset_device',
             'roles_view',
+            'system_settings_access', 'system_logs_access', 'activity_logs_view',
             'sdm_access',
             'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
             'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
@@ -167,6 +169,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard_access',
             'administrator_access',
             'users_view', 'users_edit', 'users_reset_device',
+            'activity_logs_view',
             'sdm_access',
             'pegawai_view', 'pegawai_view_details',
             'dokter_view', 'dokter_view_details',
@@ -185,6 +188,6 @@ class RolePermissionSeeder extends Seeder
 
         $this->command->info('Roles and permissions seeded successfully!');
         $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, User');
-        $this->command->info('Created ' . count($permissions) . ' permissions');
+        $this->command->info('Created ' . count($permissions) . ' permissions (including activity logs)');
     }
 }

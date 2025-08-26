@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Pegawai extends Model
 {
+    use LogsActivity;
     protected $table = 'pegawai';
     
     protected $primaryKey = 'id';
@@ -150,5 +153,14 @@ class Pegawai extends Model
     public function getPhotoUrl()
     {
         return route('pegawai.photo', $this->id);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['nik', 'nama', 'jk', 'jbtn', 'departemen', 'bidang', 'stts_aktif'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('pegawai');
     }
 }

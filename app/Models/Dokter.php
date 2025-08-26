@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Dokter extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     
     protected $table = 'dokter';
     
@@ -58,5 +60,14 @@ class Dokter extends Model
         $type = \DB::select(\DB::raw("SHOW COLUMNS FROM {$instance->getTable()} WHERE Field = '{$column}'"))[0]->Type;
         preg_match_all("/'([^']+)'/", $type, $matches);
         return $matches[1];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['kd_dokter', 'nm_dokter', 'jk', 'kd_sps', 'status'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('dokter');
     }
 }
