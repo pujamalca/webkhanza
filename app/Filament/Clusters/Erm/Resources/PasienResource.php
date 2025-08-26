@@ -660,6 +660,12 @@ class PasienResource extends Resource
                 ->color('gray')
                 ->button(),
             ], position: RecordActionsPosition::BeforeColumns)
+            ->paginated([5, 25, 50, 100, 200, 500, 1000])
+            ->defaultPaginationPageOption(5)
+            ->description(function () {
+                $totalCount = Pasien::count();
+                return "Seluruh Pasien: " . number_format($totalCount);
+            })
             ->defaultSort('tgl_daftar', 'desc');
     }
 

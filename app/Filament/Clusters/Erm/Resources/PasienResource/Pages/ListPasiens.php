@@ -10,6 +10,7 @@ class ListPasiens extends ListRecords
 {
     protected static string $resource = PasienResource::class;
 
+
     protected function getHeaderActions(): array
     {
         return [
