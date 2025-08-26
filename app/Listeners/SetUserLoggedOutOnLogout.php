@@ -22,8 +22,8 @@ class SetUserLoggedOutOnLogout
     public function handle(Logout $event): void
     {
         if ($event->user) {
-            // Set logged out status when user logs out
-            $event->user->setLoggedOut();
+            // Set logged out status and clear device info when user logs out
+            $event->user->logoutFromAllDevices();
         }
     }
 }

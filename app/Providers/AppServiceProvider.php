@@ -30,5 +30,12 @@ class AppServiceProvider extends ServiceProvider
         
         // Register logout event listener
         Event::listen(Logout::class, SetUserLoggedOutOnLogout::class);
+        
+        // Register console commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Console\Commands\CleanupExpiredSessions::class,
+            ]);
+        }
     }
 }

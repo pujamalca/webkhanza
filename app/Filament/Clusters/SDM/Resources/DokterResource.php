@@ -8,6 +8,7 @@ use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ListDokter;
 use App\Filament\Clusters\SDM\Resources\DokterResource\Pages\ViewDokter;
 use App\Filament\Clusters\SDM\SDMCluster;
 use App\Models\Dokter;
+use App\Models\Pegawai;
 use App\Models\Spesialis;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -54,18 +57,61 @@ class DokterResource extends Resource
                 Section::make('Data Identitas')
                     ->description('Informasi dasar dokter')
                     ->schema([
-                        TextInput::make('kd_dokter')
-                            ->label('Kode Dokter')
+                        Select::make('kd_dokter')
+                            ->label('NIK (Pilih dari Pegawai)')
+                            ->relationship(
+                                'pegawai', 
+                                'nik',
+                                fn ($query, $record) => $query->whereNotIn('nik', function ($subQuery) use ($record) {
+                                    $subQuery->select('kd_dokter')
+                                        ->from('dokter')
+                                        ->whereNotNull('kd_dokter');
+                                    // Allow current record's NIK when editing
+                                    if ($record && $record->kd_dokter) {
+                                        $subQuery->where('kd_dokter', '!=', $record->kd_dokter);
+                                    }
+                                })
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Pegawai $record): string => "{$record->nik} - {$record->nama}")
+                            ->searchable(['nik', 'nama'])
+                            ->preload()
                             ->required()
-                            ->maxLength(20)
-                            ->unique(ignoreRecord: true)
-                            ->columnSpan(1),
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
+                                if ($state) {
+                                    $pegawai = Pegawai::where('nik', $state)->first();
+                                    if ($pegawai) {
+                                        // Auto-fill from pegawai
+                                        $set('nm_dokter', $pegawai->nama);
+                                        $set('tmp_lahir', $pegawai->tmp_lahir);
+                                        $set('tgl_lahir', $pegawai->tgl_lahir ? $pegawai->tgl_lahir->format('Y-m-d') : null);
+                                        $set('almt_tgl', $pegawai->alamat);
+                                        $set('gol_drh', $pegawai->gol_darah);
+                                        $set('agama', $pegawai->agama);
+                                        $set('no_telp', $pegawai->no_telp);
+                                        $set('email', $pegawai->email);
+                                        
+                                        // Convert jk from Pria/Wanita to L/P for dokter
+                                        if ($pegawai->jk === 'Pria') {
+                                            $set('jk', 'L');
+                                        } elseif ($pegawai->jk === 'Wanita') {
+                                            $set('jk', 'P');
+                                        }
+                                        
+                                        // Set default status aktif
+                                        $set('status', 1);
+                                    }
+                                }
+                            })
+                            ->columnSpan(2),
                         
                         TextInput::make('nm_dokter')
                             ->label('Nama Dokter')
                             ->required()
                             ->maxLength(50)
-                            ->columnSpan(2),
+                            ->disabled()
+                            ->dehydrated()
+                            ->columnSpan(1),
                         
                         Select::make('jk')
                             ->label('Jenis Kelamin')
@@ -79,11 +125,13 @@ class DokterResource extends Resource
                     ->columns(4),
 
                 Section::make('Data Pribadi')
-                    ->description('Informasi pribadi dokter')
+                    ->description('Informasi pribadi dokter (Sebagian auto-filled, sebagian input manual)')
                     ->schema([
                         TextInput::make('tmp_lahir')
                             ->label('Tempat Lahir')
                             ->maxLength(20)
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         DatePicker::make('tgl_lahir')
@@ -101,9 +149,18 @@ class DokterResource extends Resource
                             ])
                             ->columnSpan(1),
                         
-                        TextInput::make('agama')
+                        Select::make('agama')
                             ->label('Agama')
-                            ->maxLength(12)
+                            ->options([
+                                'ISLAM' => 'Islam',
+                                'KRISTEN' => 'Kristen',
+                                'KATHOLIK' => 'Katholik',
+                                'HINDU' => 'Hindu',
+                                'BUDHA' => 'Budha',
+                                'KONGHUCU' => 'Konghucu',
+                                'KEPERCAYAAN' => 'Kepercayaan',
+                            ])
+                            ->searchable()
                             ->columnSpan(1),
                         
                         Select::make('stts_nikah')
@@ -120,7 +177,7 @@ class DokterResource extends Resource
                     ->columns(4),
 
                 Section::make('Kontak & Alamat')
-                    ->description('Informasi kontak dokter')
+                    ->description('Informasi kontak dokter (Auto-filled dari data pegawai, dapat diedit)')
                     ->schema([
                         Textarea::make('almt_tgl')
                             ->label('Alamat')
@@ -179,6 +236,7 @@ class DokterResource extends Resource
                                 0 => 'Non Aktif',
                             ])
                             ->required()
+                            ->default(1)
                             ->columnSpan(2),
                     ])
                     ->columns(4),

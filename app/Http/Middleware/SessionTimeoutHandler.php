@@ -80,13 +80,24 @@ class SessionTimeoutHandler
             
             $userId = $sessionRecord ? $sessionRecord->user_id : null;
             
-            // Clean up all sessions for this user
+            // Update user status before cleaning up sessions
             if ($userId) {
+                // Update user login status and clear device info
+                DB::table('users')
+                    ->where('id', $userId)
+                    ->update([
+                        'is_logged_in' => false,
+                        'logged_in_at' => null,
+                        'device_token' => null,
+                        'device_info' => null,
+                    ]);
+                
+                // Clean up all sessions for this user
                 DB::table('sessions')
                     ->where('user_id', $userId)
                     ->delete();
                     
-                \Log::info("Session timeout: Cleaned up all sessions for user ID: {$userId}");
+                \Log::info("Session timeout: Cleaned up user data and sessions for user ID: {$userId}");
             } else {
                 // Clean up just this session if no user_id
                 DB::table('sessions')
