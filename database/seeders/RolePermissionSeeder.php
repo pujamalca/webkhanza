@@ -38,6 +38,23 @@ class RolePermissionSeeder extends Seeder
             'roles_edit',
             'roles_delete',
             
+            // ERM Cluster
+            'erm_access',
+            
+            // Pasien Menu
+            'pasien_view',
+            'pasien_create',
+            'pasien_edit',
+            'pasien_delete',
+            'pasien_view_details',
+            
+            // Rawat Jalan Menu
+            'rawat_jalan_view',
+            'rawat_jalan_create',
+            'rawat_jalan_edit',
+            'rawat_jalan_delete',
+            'rawat_jalan_view_details',
+
             // SDM Cluster
             'sdm_access',
             
@@ -109,6 +126,9 @@ class RolePermissionSeeder extends Seeder
             'users_view', 'users_create', 'users_edit', 'users_reset_device',
             'roles_view',
             'system_settings_access', 'system_logs_access', 'activity_logs_view',
+            'erm_access',
+            'pasien_view', 'pasien_create', 'pasien_edit', 'pasien_delete', 'pasien_view_details',
+            'rawat_jalan_view', 'rawat_jalan_create', 'rawat_jalan_edit', 'rawat_jalan_delete', 'rawat_jalan_view_details',
             'sdm_access',
             'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
             'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
@@ -170,6 +190,9 @@ class RolePermissionSeeder extends Seeder
             'administrator_access',
             'users_view', 'users_edit', 'users_reset_device',
             'activity_logs_view',
+            'erm_access',
+            'pasien_view', 'pasien_view_details',
+            'rawat_jalan_view', 'rawat_jalan_view_details',
             'sdm_access',
             'pegawai_view', 'pegawai_view_details',
             'dokter_view', 'dokter_view_details',
