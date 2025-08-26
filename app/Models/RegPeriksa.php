@@ -81,4 +81,14 @@ class RegPeriksa extends Model
     {
         return str_replace('/', '-', $this->no_rawat);
     }
+
+    public function getRouteKey()
+    {
+        return base64_encode($this->no_rawat);
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where($field ?? $this->getRouteKeyName(), base64_decode($value))->first();
+    }
 }

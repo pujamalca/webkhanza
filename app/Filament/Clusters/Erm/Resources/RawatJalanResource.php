@@ -27,6 +27,8 @@ use Filament\Tables\Table;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Closure;
 
 class RawatJalanResource extends Resource
 {
@@ -682,7 +684,8 @@ class RawatJalanResource extends Resource
                         'Baru' => 'success',
                         'Lama' => 'info',
                         default => 'gray',
-                    }),
+                    })
+                    ->formatStateUsing(fn ($state) => $state === '-' ? 'Lama' : $state),
             ])
             ->filters([
                 SelectFilter::make('kd_poli')
@@ -767,6 +770,20 @@ class RawatJalanResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function resolveRecordRouteBinding(int | string $key, ?\Closure $modifyQuery = null): ?Model
+    {
+        // Decode the base64-encoded key
+        $decodedKey = base64_decode($key);
+        
+        $query = static::getModel()::where('no_rawat', $decodedKey);
+        
+        if ($modifyQuery) {
+            $query = $modifyQuery($query) ?: $query;
+        }
+        
+        return $query->first();
     }
 
     public static function getPages(): array
