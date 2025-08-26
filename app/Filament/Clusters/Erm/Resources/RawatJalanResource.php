@@ -310,7 +310,6 @@ class RawatJalanResource extends Resource
                         Select::make('kd_poli')
                             ->label('Poliklinik')
                             ->relationship('poliklinik', 'nm_poli')
-                            ->searchable()
                             ->required()
                             ->live()
                             ->afterStateUpdated(function ($set, $get) {
@@ -325,45 +324,91 @@ class RawatJalanResource extends Resource
                                     $newRegNumber = ($maxReg ?? 0) + 1;
                                     $set('no_reg', str_pad($newRegNumber, 3, '0', STR_PAD_LEFT));
                                     
-                                    // Update biaya_reg based on patient status
-                                    $no_rkm_medis = $get('no_rkm_medis');
-                                    if ($no_rkm_medis) {
-                                        $existingRecords = RegPeriksa::where('no_rkm_medis', $no_rkm_medis)->count();
-                                        $isNewPatient = $existingRecords === 0;
-                                        
-                                        $poliklinik = \App\Models\Poliklinik::find($kd_poli);
-                                        if ($poliklinik) {
-                                            // Use registrasi for new patient, registrasilama for existing patient
+                                    // Get poliklinik data
+                                    $poliklinik = \App\Models\Poliklinik::find($kd_poli);
+                                    if ($poliklinik) {
+                                        // Update biaya_reg based on patient status
+                                        $no_rkm_medis = $get('no_rkm_medis');
+                                        if ($no_rkm_medis) {
+                                            // Patient selected - check if new or existing
+                                            $existingRecords = RegPeriksa::where('no_rkm_medis', $no_rkm_medis)->count();
+                                            $isNewPatient = $existingRecords === 0;
                                             $biaya = $isNewPatient ? $poliklinik->registrasi : $poliklinik->registrasilama;
-                                            $set('biaya_reg', $biaya ?? 0);
+                                        } else {
+                                            // No patient selected yet - default to new patient rate
+                                            $biaya = $poliklinik->registrasi;
                                         }
+                                        $set('biaya_reg', $biaya ?? 0);
                                     }
                                 }
                             })
                             ->createOptionForm([
+                                TextInput::make('kd_poli')
+                                    ->label('Kode Poliklinik')
+                                    ->required()
+                                    ->unique('poliklinik', 'kd_poli')
+                                    ->maxLength(5)
+                                    ->placeholder('Contoh: POLI, U-01, dll'),
                                 TextInput::make('nm_poli')
                                     ->label('Nama Poliklinik')
                                     ->required()
                                     ->maxLength(50),
-                                Select::make('kd_bangsal')
-                                    ->label('Bangsal')
-                                    ->relationship('bangsal', 'nm_bangsal')
-                                    ->searchable(),
+                                TextInput::make('registrasi')
+                                    ->label('Tarif Registrasi Baru')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->default(0)
+                                    ->required(),
+                                TextInput::make('registrasilama')
+                                    ->label('Tarif Registrasi Lama')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->default(0)
+                                    ->required(),
                                 Select::make('status')
                                     ->label('Status')
                                     ->options([
                                         '0' => 'Non Aktif',
                                         '1' => 'Aktif',
                                     ])
-                                    ->default('1'),
+                                    ->default('1')
+                                    ->required(),
                             ]),
 
                         Select::make('kd_dokter')
                             ->label('Dokter')
                             ->relationship('dokter', 'nm_dokter')
-                            ->searchable()
                             ->required()
                             ->createOptionForm([
+                                Select::make('pegawai_id')
+                                    ->label('Pilih Pegawai')
+                                    ->options(\App\Models\Pegawai::where('stts_aktif', 'AKTIF')->pluck('nama', 'nik'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set) {
+                                        if ($state) {
+                                            $pegawai = \App\Models\Pegawai::where('nik', $state)->first();
+                                            if ($pegawai) {
+                                                $set('kd_dokter', $pegawai->nik);
+                                                $set('nm_dokter', $pegawai->nama);
+                                                $set('jk', $pegawai->jk);
+                                                $set('tmp_lahir', $pegawai->tmp_lahir);
+                                                $set('tgl_lahir', $pegawai->tgl_lahir);
+                                                $set('almt_tgl', $pegawai->alamat);
+                                                $set('no_telp', '');
+                                                $set('email', '');
+                                            }
+                                        }
+                                    })
+                                    ->helperText('Pilih pegawai untuk mengisi data dokter otomatis'),
+                                TextInput::make('kd_dokter')
+                                    ->label('Kode Dokter')
+                                    ->required()
+                                    ->unique('dokter', 'kd_dokter')
+                                    ->maxLength(20)
+                                    ->readonly()
+                                    ->helperText('Kode akan diisi otomatis dari NIK pegawai'),
                                 TextInput::make('nm_dokter')
                                     ->label('Nama Dokter')
                                     ->required()
@@ -371,8 +416,8 @@ class RawatJalanResource extends Resource
                                 Select::make('jk')
                                     ->label('Jenis Kelamin')
                                     ->options([
-                                        'Pria' => 'Pria',
-                                        'Wanita' => 'Wanita',
+                                        'L' => 'Laki-laki',
+                                        'P' => 'Perempuan',
                                     ])
                                     ->required(),
                                 TextInput::make('tmp_lahir')
@@ -380,16 +425,83 @@ class RawatJalanResource extends Resource
                                     ->maxLength(20),
                                 DatePicker::make('tgl_lahir')
                                     ->label('Tanggal Lahir'),
+                                Select::make('gol_drh')
+                                    ->label('Golongan Darah')
+                                    ->options([
+                                        'A' => 'A',
+                                        'B' => 'B',
+                                        'AB' => 'AB',
+                                        'O' => 'O',
+                                    ]),
+                                Select::make('agama')
+                                    ->label('Agama')
+                                    ->options([
+                                        'ISLAM' => 'Islam',
+                                        'KRISTEN' => 'Kristen',
+                                        'KATOLIK' => 'Katolik',
+                                        'HINDU' => 'Hindu',
+                                        'BUDHA' => 'Budha',
+                                        'KONG HU CHU' => 'Kong Hu Chu',
+                                        'LAIN-LAIN' => 'Lain-lain',
+                                    ])
+                                    ->default('ISLAM'),
+                                TextInput::make('almt_tgl')
+                                    ->label('Alamat Tinggal')
+                                    ->maxLength(60),
+                                TextInput::make('no_telp')
+                                    ->label('No. Telepon')
+                                    ->tel()
+                                    ->maxLength(13),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->required()
+                                    ->maxLength(50),
+                                Select::make('stts_nikah')
+                                    ->label('Status Nikah')
+                                    ->options([
+                                        'BELUM MENIKAH' => 'Belum Menikah',
+                                        'MENIKAH' => 'Menikah',
+                                        'JANDA' => 'Janda',
+                                        'DUDHA' => 'Dudha',
+                                        'JANDA MATI' => 'Janda Mati',
+                                        'DUDHA MATI' => 'Dudha Mati',
+                                    ])
+                                    ->default('BELUM MENIKAH'),
                                 Select::make('kd_sps')
                                     ->label('Spesialis')
                                     ->relationship('spesialis', 'nm_sps')
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->createOptionForm([
+                                        TextInput::make('kd_sps')
+                                            ->label('Kode Spesialis')
+                                            ->required()
+                                            ->unique('spesialis', 'kd_sps')
+                                            ->maxLength(5),
+                                        TextInput::make('nm_sps')
+                                            ->label('Nama Spesialis')
+                                            ->required()
+                                            ->maxLength(30),
+                                    ]),
+                                TextInput::make('alumni')
+                                    ->label('Alumni')
+                                    ->maxLength(60),
+                                TextInput::make('no_ijn_praktek')
+                                    ->label('No. Ijin Praktek')
+                                    ->maxLength(40),
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        '0' => 'Non Aktif',
+                                        '1' => 'Aktif',
+                                    ])
+                                    ->default('1')
+                                    ->required(),
                             ]),
 
                         Select::make('kd_pj')
                             ->label('Cara Bayar')
                             ->relationship('penjab', 'png_jawab')
-                            ->searchable()
                             ->required()
                             ->createOptionForm([
                                 TextInput::make('png_jawab')
@@ -407,7 +519,8 @@ class RawatJalanResource extends Resource
                                     ->maxLength(40),
                             ]),
                     ])
-                    ->columns(1),
+                    ->columns(3)
+                    ->columnSpanFull(),
 
                 Section::make('Data Penanggung Jawab')
                     ->schema([
@@ -442,7 +555,8 @@ class RawatJalanResource extends Resource
                             ->default('AYAH')
                             ->placeholder('Auto dari data pasien'),
                     ])
-                    ->columns(1),
+                    ->columns(1)
+                    ->hiddenOn(['create', 'edit']),
 
                 Section::make('Status & Biaya')
                     ->schema([
@@ -506,7 +620,8 @@ class RawatJalanResource extends Resource
                             ])
                             ->default('Lama'),
                     ])
-                    ->columns(1),
+                    ->columns(1)
+                    ->hiddenOn(['create', 'edit']),
             ]);
     }
 

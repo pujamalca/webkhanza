@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\CleanupSessionsOnLogout;
+use App\Listeners\SetUserLoggedOutOnLogout;
 use App\Listeners\LogUserActivity;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -17,6 +18,7 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Logout::class => [
+            SetUserLoggedOutOnLogout::class,
             CleanupSessionsOnLogout::class,
         ],
     ];
