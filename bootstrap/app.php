@@ -13,13 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'single.device' => \App\Http\Middleware\SingleDeviceLogin::class,
-            'session.timeout' => \App\Http\Middleware\SessionTimeoutHandler::class,
-            'session.cleanup' => \App\Http\Middleware\CleanupSessionOnLogout::class,
-        ]);
-        
-        // Add session timeout handler to web middleware group
-        $middleware->web(append: [
-            \App\Http\Middleware\SessionTimeoutHandler::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

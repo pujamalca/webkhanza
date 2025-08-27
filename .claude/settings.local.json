@@ -25,7 +25,9 @@
       "Bash(del test_petugas_nik.php)",
       "Read(/D:\\d D:\\laragon\\www/**)",
       "Bash(del check_pegawai.php)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "WebFetch(domain:laracasts.com)",
+      "WebFetch(domain:stackoverflow.com)"
     ],
     "deny": [],
     "ask": []

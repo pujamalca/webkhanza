@@ -18,7 +18,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind custom logout controller like KhanzaWeb
+        $this->app->bind(
+            \Filament\Http\Controllers\Auth\LogoutController::class,
+            \App\Http\Controllers\Auth\CustomLogoutController::class
+        );
     }
 
     /**

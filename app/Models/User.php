@@ -82,27 +82,6 @@ class User extends Authenticatable
         return $this->device_token === $deviceToken;
     }
 
-    public function logoutFromAllDevices(): void
-    {
-        \Log::info('=== USER MODEL logoutFromAllDevices START ===', [
-            'user_id' => $this->id,
-            'current_is_logged_in' => $this->is_logged_in,
-            'current_device_token' => $this->device_token
-        ]);
-        
-        $result = $this->update([
-            'device_token' => null,
-            'device_info' => null,
-            'is_logged_in' => false,
-            'logged_in_at' => null,
-        ]);
-        
-        \Log::info('=== USER MODEL logoutFromAllDevices RESULT ===', [
-            'user_id' => $this->id,
-            'update_successful' => $result,
-            'new_is_logged_in' => $this->fresh()->is_logged_in
-        ]);
-    }
     
     public function isCurrentlyLoggedIn(): bool
     {

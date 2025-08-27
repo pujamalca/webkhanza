@@ -65,7 +65,8 @@ class Login extends BaseLogin
         
         if ($user && $authProvider->validateCredentials($user, $credentials)) {
             // Cek apakah user sudah login (is_logged_in = true)
-            if ($user->isCurrentlyLoggedIn()) {
+            // TAPI skip check untuk user dengan multi_device_login permission
+            if ($user->isCurrentlyLoggedIn() && !$user->can('multi_device_login')) {
                 // Tampilkan notifikasi bahwa sudah login di perangkat lain
                 $deviceInfo = json_decode($user->device_info, true) ?? [];
                 $this->showActiveSessionNotification($deviceInfo, $user->logged_in_at ?? $user->last_login_at);
@@ -86,13 +87,26 @@ class Login extends BaseLogin
             $ipAddress = request()->ip();
             
             // Set device token dan status login
-            $user->setDeviceToken($userAgent, $ipAddress);
+            // Untuk admin dengan multi_device_login, tidak perlu overwrite device_token existing
+            if (!$user->can('multi_device_login') || !$user->device_token) {
+                $user->setDeviceToken($userAgent, $ipAddress);
+            } else {
+                // Admin user sudah punya device_token, hanya update last_login dan status login
+                $user->update([
+                    'last_login_at' => now(),
+                    'last_login_ip' => $ipAddress,
+                    'is_logged_in' => true,
+                    'logged_in_at' => now(),
+                ]);
+            }
             
-            // Refresh model untuk mendapatkan device_token yang baru
+            // Refresh model untuk mendapatkan data terbaru
             $user->refresh();
             
             // Simpan device token di session untuk middleware
-            Session::put('device_token', $user->device_token);
+            // Untuk admin, bisa pakai device_token yang ada atau generate sementara untuk session ini
+            $sessionDeviceToken = $user->device_token ?? $user->generateDeviceToken();
+            Session::put('device_token', $sessionDeviceToken);
         }
         
         return $response;

@@ -28,14 +28,14 @@ class SetUserLoggedOutOnLogout
         ]);
         
         if ($event->user) {
-            \Log::info('=== CALLING logoutFromAllDevices ===', [
+            \Log::info('=== CALLING setLoggedOut ===', [
                 'user_id' => $event->user->id
             ]);
             
             // Set logged out status and clear device info when user logs out
-            $event->user->logoutFromAllDevices();
+            $event->user->setLoggedOut();
             
-            \Log::info('=== logoutFromAllDevices COMPLETED ===', [
+            \Log::info('=== setLoggedOut COMPLETED ===', [
                 'user_id' => $event->user->id
             ]);
         } else {

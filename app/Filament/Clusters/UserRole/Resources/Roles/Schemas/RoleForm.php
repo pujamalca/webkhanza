@@ -66,6 +66,7 @@ class RoleForm
                                 return Permission::where('name', 'like', 'administrator_access')
                                     ->orWhere('name', 'like', 'users_%')
                                     ->orWhere('name', 'like', 'roles_%')
+                                    ->orWhere('name', '=', 'multi_device_login')
                                     ->pluck('name', 'id')
                                     ->map(function ($name) {
                                         return match($name) {
@@ -79,6 +80,7 @@ class RoleForm
                                             'roles_create' => '➕ Roles - Buat role baru',
                                             'roles_edit' => '✏️ Roles - Edit role',
                                             'roles_delete' => '🗑️ Roles - Hapus role',
+                                            'multi_device_login' => '📱 Multi Device - Login dari multiple perangkat',
                                             default => $name
                                         };
                                     })->toArray();

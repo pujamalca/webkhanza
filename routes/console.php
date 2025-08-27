@@ -8,5 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Schedule session cleanup every hour
-Schedule::command('sessions:cleanup')->hourly();
+// Schedule automatic session cleanup
+Schedule::command('sessions:cleanup')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/session-cleanup.log'));
