@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Login;
 use App\Http\Controllers\LogoutController;
 use App\Http\Middleware\SingleDeviceLogin;
+use App\Http\Middleware\SessionTimeoutHandler;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -60,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 SingleDeviceLogin::class,
+                SessionTimeoutHandler::class,
             ]);
     }
 }

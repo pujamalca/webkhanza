@@ -2,8 +2,6 @@
 
 namespace App\Filament\Clusters\UserRole\Resources\Trackers;
 
-use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\CreateTracker;
-use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\EditTracker;
 use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\ListTrackers;
 use App\Filament\Clusters\UserRole\Resources\Trackers\Pages\ViewTracker;
 use App\Filament\Clusters\UserRole\Resources\Trackers\Schemas\TrackerForm;
@@ -53,9 +51,7 @@ class TrackerResource extends Resource
     {
         return [
             'index' => ListTrackers::route('/'),
-            'create' => CreateTracker::route('/create'),
             'view' => ViewTracker::route('/{record}'),
-            'edit' => EditTracker::route('/{record}/edit'),
         ];
     }
 }

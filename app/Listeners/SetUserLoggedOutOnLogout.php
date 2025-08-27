@@ -21,9 +21,25 @@ class SetUserLoggedOutOnLogout
      */
     public function handle(Logout $event): void
     {
+        \Log::info('=== LOGOUT EVENT LISTENER TRIGGERED ===', [
+            'user_id' => $event->user?->id,
+            'username' => $event->user?->username,
+            'timestamp' => now()->toDateTimeString()
+        ]);
+        
         if ($event->user) {
+            \Log::info('=== CALLING logoutFromAllDevices ===', [
+                'user_id' => $event->user->id
+            ]);
+            
             // Set logged out status and clear device info when user logs out
             $event->user->logoutFromAllDevices();
+            
+            \Log::info('=== logoutFromAllDevices COMPLETED ===', [
+                'user_id' => $event->user->id
+            ]);
+        } else {
+            \Log::warning('=== LOGOUT EVENT WITHOUT USER ===');
         }
     }
 }

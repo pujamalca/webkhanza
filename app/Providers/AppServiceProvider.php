@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Auth\CustomUserProvider;
 use App\Listeners\SetUserLoggedOutOnLogout;
+use App\Listeners\CleanupSessionsOnLogout;
 use App\Services\SqlQueryTracker;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +30,9 @@ class AppServiceProvider extends ServiceProvider
             return new CustomUserProvider($app['hash'], $config['model']);
         });
         
-        // Register logout event listener
+        // Register logout event listeners
         Event::listen(Logout::class, SetUserLoggedOutOnLogout::class);
+        Event::listen(Logout::class, CleanupSessionsOnLogout::class);
         
         // Start SQL query tracking
         SqlQueryTracker::track();
@@ -39,7 +41,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \App\Console\Commands\CleanupExpiredSessions::class,
+                \App\Console\Commands\SetSessionTimeout::class,
             ]);
         }
+        
     }
 }

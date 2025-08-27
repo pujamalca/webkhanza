@@ -2,8 +2,6 @@
 
 namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs;
 
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\CreateTrackerSQL;
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\EditTrackerSQL;
 use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\ListTrackerSQLs;
 use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\ViewTrackerSQL;
 use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Schemas\TrackerSQLForm;
@@ -68,9 +66,7 @@ class TrackerSQLResource extends Resource
     {
         return [
             'index' => ListTrackerSQLs::route('/'),
-            'create' => CreateTrackerSQL::route('/create'),
             'view' => ViewTrackerSQL::route('/{record}'),
-            'edit' => EditTrackerSQL::route('/{record}/edit'),
         ];
     }
 }

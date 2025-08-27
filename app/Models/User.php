@@ -84,11 +84,23 @@ class User extends Authenticatable
 
     public function logoutFromAllDevices(): void
     {
-        $this->update([
+        \Log::info('=== USER MODEL logoutFromAllDevices START ===', [
+            'user_id' => $this->id,
+            'current_is_logged_in' => $this->is_logged_in,
+            'current_device_token' => $this->device_token
+        ]);
+        
+        $result = $this->update([
             'device_token' => null,
             'device_info' => null,
             'is_logged_in' => false,
             'logged_in_at' => null,
+        ]);
+        
+        \Log::info('=== USER MODEL logoutFromAllDevices RESULT ===', [
+            'user_id' => $this->id,
+            'update_successful' => $result,
+            'new_is_logged_in' => $this->fresh()->is_logged_in
         ]);
     }
     
@@ -102,6 +114,8 @@ class User extends Authenticatable
         $this->update([
             'is_logged_in' => false,
             'logged_in_at' => null,
+            'device_token' => null,
+            'device_info' => null,
         ]);
     }
     

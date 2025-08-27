@@ -16,13 +16,19 @@ class TrackersTable
         return $table
             ->columns([
                 TextColumn::make('nip')
-                    ->label('NIP'),
+                    ->label('NIP')
+                    ->searchable()
+                    ->sortable(),
                     
                 TextColumn::make('tgl_login')
-                    ->label('Tanggal Login'),
+                    ->label('Tanggal Login')
+                    ->searchable()
+                    ->sortable(),
                     
                 TextColumn::make('jam_login')
-                    ->label('Jam Login'),
+                    ->label('Jam Login')
+                    ->searchable()
+                    ->sortable(),
                     
                 TextColumn::make('custom_key')
                     ->label('Custom Key')

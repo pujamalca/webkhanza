@@ -2,9 +2,6 @@
 
 namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -17,17 +14,22 @@ class TrackerSQLsTable
             ->columns([
                 TextColumn::make('tanggal')
                     ->label('Tanggal')
-                    ->date('d/m/Y'),
+                    ->date('d/m/Y')
+                    ->searchable()
+                    ->sortable(),
                     
                 TextColumn::make('sqle')
                     ->label('SQL Command')
                     ->limit(50)
                     ->tooltip(function ($state) {
                         return $state;
-                    }),
+                    })
+                    ->searchable(),
                     
                 TextColumn::make('usere')
-                    ->label('User'),
+                    ->label('User')
+                    ->searchable()
+                    ->sortable(),
                     
                 TextColumn::make('custom_key')
                     ->label('Custom Key')
@@ -38,12 +40,6 @@ class TrackerSQLsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
