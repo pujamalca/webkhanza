@@ -686,6 +686,24 @@ class RawatJalanResource extends Resource
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => $state === '-' ? 'Lama' : $state),
+
+                TextColumn::make('pasien.no_ktp')
+                    ->label('No. KTP')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('No. KTP berhasil disalin!')
+                    ->copyMessageDuration(2000)
+                    ->placeholder('-')
+                    ->toggleable(),
+
+                TextColumn::make('pasien.no_peserta')
+                    ->label('No. BPJS')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('No. BPJS berhasil disalin!')
+                    ->copyMessageDuration(2000)
+                    ->placeholder('-')
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('kd_poli')
