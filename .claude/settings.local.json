@@ -30,6 +30,9 @@
       "WebFetch(domain:stackoverflow.com)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "D:\\d D:\\laragon\\www"
+    ]
   }
 }
