@@ -50,17 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->renderHook(
-                'panels::scripts.after',
-                fn () => view('filament.components.profile-modal-script')
-            )
-            ->userMenuItems([
-                MenuItem::make()
-                    ->label('Profile')
-                    ->icon('heroicon-o-user-circle')
-                    ->url('#')
-                    ->sort(-1),
-            ])
+            ->profile()
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
