@@ -39,10 +39,19 @@ class Login extends BaseLogin
                 'password' => $data['password'],
             ];
         } else {
-            return [
-                'name' => $loginField,
-                'password' => $data['password'],
-            ];
+            // Try username first, then name
+            $user = \App\Models\User::where('username', $loginField)->first();
+            if ($user) {
+                return [
+                    'username' => $loginField,
+                    'password' => $data['password'],
+                ];
+            } else {
+                return [
+                    'name' => $loginField,
+                    'password' => $data['password'],
+                ];
+            }
         }
     }
 

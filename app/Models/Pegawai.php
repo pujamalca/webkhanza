@@ -155,6 +155,11 @@ class Pegawai extends Model
         return route('pegawai.photo', $this->id);
     }
 
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'nik');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

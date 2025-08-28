@@ -2,6 +2,8 @@
 
 namespace App\Filament\Clusters\UserRole\Resources\Users\Schemas;
 
+use App\Models\Pegawai;
+use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,13 +21,45 @@ class UserForm
     {
         return $schema
             ->components([
+                // Pegawai Selection (only for create)
+                Fieldset::make('Pilih Pegawai')
+                    ->schema([
+                        Select::make('id')
+                            ->label('Pilih Pegawai')
+                            ->options(function () {
+                                return Pegawai::whereNotIn('nik', User::pluck('id'))
+                                    ->where('stts_aktif', 'AKTIF')
+                                    ->pluck('nama', 'nik');
+                            })
+                            ->searchable()
+                            ->required(fn ($context) => $context === 'create')
+                            ->reactive()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                if ($state) {
+                                    $pegawai = Pegawai::where('nik', $state)->first();
+                                    if ($pegawai) {
+                                        $set('name', $pegawai->nama);
+                                        $set('email', strtolower(str_replace(' ', '.', $pegawai->nama)) . '@hospital.com');
+                                    }
+                                }
+                            })
+                            ->visible(fn ($context) => $context === 'create'),
+                    ])
+                    ->visible(fn ($context) => $context === 'create'),
+
                 // Basic User Info
                 Fieldset::make('Informasi User')
                     ->schema([
                         TextInput::make('name')
                             ->label('Nama')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(fn ($context) => $context === 'create'),
+                        
+                        TextInput::make('username')
+                            ->label('Username')
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
                         
                         TextInput::make('email')
                             ->label('Email')
