@@ -24,11 +24,10 @@ class UserForm
                 // Pegawai Selection (only for create)
                 Fieldset::make('Pilih Pegawai')
                     ->schema([
-                        Select::make('id')
+                        Select::make('pegawai_nik')
                             ->label('Pilih Pegawai')
                             ->options(function () {
-                                return Pegawai::whereNotIn('nik', User::pluck('id'))
-                                    ->where('stts_aktif', 'AKTIF')
+                                return Pegawai::where('stts_aktif', 'AKTIF')
                                     ->pluck('nama', 'nik');
                             })
                             ->searchable()
@@ -39,7 +38,6 @@ class UserForm
                                     $pegawai = Pegawai::where('nik', $state)->first();
                                     if ($pegawai) {
                                         $set('name', $pegawai->nama);
-                                        $set('email', strtolower(str_replace(' ', '.', $pegawai->nama)) . '@hospital.com');
                                     }
                                 }
                             })
@@ -53,8 +51,7 @@ class UserForm
                         TextInput::make('name')
                             ->label('Nama')
                             ->required()
-                            ->maxLength(255)
-                            ->disabled(fn ($context) => $context === 'create'),
+                            ->maxLength(255),
                         
                         TextInput::make('username')
                             ->label('Username')
