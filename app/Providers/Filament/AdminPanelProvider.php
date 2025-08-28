@@ -10,12 +10,20 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use App\Filament\Pages\Auth\EditProfile;
+use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Navigation\MenuItem;
+use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -42,7 +50,17 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->profile(EditProfile::class)
+            ->renderHook(
+                'panels::scripts.after',
+                fn () => view('filament.components.profile-modal-script')
+            )
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Profile')
+                    ->icon('heroicon-o-user-circle')
+                    ->url('#')
+                    ->sort(-1),
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,

@@ -9,6 +9,11 @@ use Filament\Schemas\Schema;
 
 class EditProfile extends BaseEditProfile
 {
+    public static function isSimple(): bool
+    {
+        return true; // This will make it render in a modal-like style
+    }
+
     protected function getAvatarFormComponent(): Component
     {
         return FileUpload::make('avatar_url')

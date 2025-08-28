@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BerkasPegawaiController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,4 +20,7 @@ Route::middleware([
     Route::get('/berkas-pegawai/{filename}/download', [BerkasPegawaiController::class, 'download'])
         ->name('berkas-pegawai.download')
         ->where('filename', '.*');
+    
+    Route::post('/admin/profile/update', [ProfileController::class, 'update'])
+        ->name('admin.profile.update');
 });
