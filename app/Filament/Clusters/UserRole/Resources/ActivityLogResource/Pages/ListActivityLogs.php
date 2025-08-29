@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\UserRole\Resources\ActivityLogResource\Pages;
 use App\Filament\Clusters\UserRole\Resources\ActivityLogResource;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 class ListActivityLogs extends ListRecords
 {
@@ -23,7 +24,11 @@ class ListActivityLogs extends ListRecords
                 ->action(function () {
                     $deletedCount = \Spatie\Activitylog\Models\Activity::where('created_at', '<', now()->subDays(30))->delete();
                     
-                    $this->notify('success', "Successfully deleted {$deletedCount} old activity logs.");
+                    Notification::make()
+                        ->title('Success')
+                        ->body("Successfully deleted {$deletedCount} old activity logs.")
+                        ->success()
+                        ->send();
                 })
                 ->visible(fn(): bool => auth()->user()->can('system_settings_access')),
         ];

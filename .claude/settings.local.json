@@ -29,7 +29,8 @@
       "WebFetch(domain:laracasts.com)",
       "WebFetch(domain:stackoverflow.com)",
       "Bash(move \"app\\Filament\\Components\\ProfileAction.php\" \"app\\Livewire\\ProfileAction.php\")",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": [],

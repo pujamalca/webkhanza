@@ -32,12 +32,13 @@ class RoleForm
                             ->helperText('Biasanya "web" untuk aplikasi web'),
                     ]),
 
+                // We don't need a hidden permissions field anymore
+
                 Section::make('Dashboard & System')
                     ->description('Akses dasar sistem dan dashboard')
                     ->schema([
-                        CheckboxList::make('permissions')
+                        CheckboxList::make('dashboard_permissions')
                             ->label('Dashboard & System Permissions')
-                            ->relationship('permissions', 'name')
                             ->options(function () {
                                 return Permission::whereIn('name', [
                                     'dashboard_access',
@@ -60,8 +61,7 @@ class RoleForm
                 Section::make('Administrator Cluster')
                     ->description('Manajemen pengguna dan role')
                     ->schema([
-                        CheckboxList::make('permissions')
-                            ->relationship('permissions', 'name')
+                        CheckboxList::make('admin_permissions')
                             ->options(function () {
                                 return Permission::where('name', 'like', 'administrator_access')
                                     ->orWhere('name', 'like', 'users_%')
@@ -93,8 +93,7 @@ class RoleForm
                 Section::make('SDM Cluster')
                     ->description('Sumber Daya Manusia - Pegawai, Dokter, Petugas')
                     ->schema([
-                        CheckboxList::make('permissions')
-                            ->relationship('permissions', 'name')
+                        CheckboxList::make('sdm_permissions')
                             ->options(function () {
                                 return Permission::where('name', 'like', 'sdm_access')
                                     ->orWhere('name', 'like', 'pegawai_%')
@@ -143,8 +142,7 @@ class RoleForm
                 Section::make('Master Data')
                     ->description('Pembuatan data master melalui dropdown')
                     ->schema([
-                        CheckboxList::make('permissions')
-                            ->relationship('permissions', 'name')
+                        CheckboxList::make('master_permissions')
                             ->options(function () {
                                 return Permission::where('name', 'like', 'master_%')
                                     ->pluck('name', 'id')
