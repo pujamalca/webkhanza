@@ -23,7 +23,10 @@ class TrackerSQLResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static ?string $recordTitleAttribute = 'custom_key';
+    protected static ?string $recordTitleAttribute = 'tanggal';
+    
+    // Disable global search for this resource due to complex key structure
+    protected static bool $isGloballySearchable = false;
 
     public static function getNavigationLabel(): string
     {

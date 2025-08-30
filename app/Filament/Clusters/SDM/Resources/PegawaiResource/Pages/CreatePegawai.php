@@ -8,4 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePegawai extends CreateRecord
 {
     protected static string $resource = PegawaiResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        // Always redirect to index to avoid ID issues after creation
+        return $this->getResource()::getUrl('index');
+    }
 }

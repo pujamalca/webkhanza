@@ -7,6 +7,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 
 class EditDokter extends EditRecord
 {
@@ -50,5 +52,53 @@ class EditDokter extends EditRecord
                     }
                 }),
         ];
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        try {
+            // First attempt to update
+            $record->update($data);
+            return $record;
+        } catch (\Exception $e) {
+            // Check if it's a MariaDB prepared statement error
+            if (str_contains($e->getMessage(), 'Prepared statement needs to be re-prepared') || 
+                str_contains($e->getMessage(), '1615')) {
+                
+                // Show user-friendly notification for prepared statement error
+                Notification::make()
+                    ->danger()
+                    ->title('Gagal menyimpan data dokter')
+                    ->body('Terjadi kesalahan database MariaDB. Silakan refresh halaman dan coba lagi. Jika masalah berlanjut, hubungi administrator sistem.')
+                    ->persistent()
+                    ->send();
+                
+                \Log::error('MariaDB prepared statement error in dokter update:', [
+                    'id' => $record->getKey(),
+                    'data' => $data,
+                    'error' => $e->getMessage(),
+                    'suggestion' => 'User should refresh page and try again'
+                ]);
+                
+                // Don't throw the exception, just return the original record
+                return $record;
+            } else {
+                // Handle other database errors
+                Notification::make()
+                    ->danger()
+                    ->title('Gagal menyimpan data')
+                    ->body('Terjadi kesalahan database: ' . $e->getMessage())
+                    ->persistent()
+                    ->send();
+                
+                \Log::error('Dokter update failed:', [
+                    'id' => $record->getKey(),
+                    'data' => $data,
+                    'error' => $e->getMessage()
+                ]);
+                
+                return $record;
+            }
+        }
     }
 }
