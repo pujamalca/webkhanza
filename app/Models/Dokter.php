@@ -23,6 +23,7 @@ class Dokter extends Model
     
     protected $fillable = [
         'kd_dokter',
+        'route_key',
         'nm_dokter',
         'jk',
         'tmp_lahir',
@@ -52,6 +53,29 @@ class Dokter extends Model
     public function spesialis()
     {
         return $this->belongsTo(Spesialis::class, 'kd_sps', 'kd_sps');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'route_key';
+    }
+
+    public function getRouteKey()
+    {
+        // Use route_key if available, otherwise generate from kd_dokter
+        if ($this->route_key) {
+            return $this->route_key;
+        }
+        
+        // Generate route_key if not exists
+        $routeKey = 'dr_' . str_replace('/', '_', $this->kd_dokter);
+        $this->update(['route_key' => $routeKey]);
+        return $routeKey;
+    }
+    
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where($field ?? $this->getRouteKeyName(), $value)->first();
     }
 
     public function getEnumValues($column)
