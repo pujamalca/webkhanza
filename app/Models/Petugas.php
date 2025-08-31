@@ -34,7 +34,7 @@ class Petugas extends Model
     
     protected $casts = [
         'tgl_lahir' => 'date',
-        'status' => 'boolean',
+        'status' => 'string',
     ];
 
     public function pegawai()

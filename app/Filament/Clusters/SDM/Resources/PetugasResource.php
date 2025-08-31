@@ -184,9 +184,18 @@ class PetugasResource extends Resource
                             ])
                             ->columnSpan(1),
                         
-                        TextInput::make('agama')
+                        Select::make('agama')
                             ->label('Agama')
-                            ->maxLength(12)
+                            ->options([
+                                'ISLAM' => 'Islam',
+                                'KRISTEN' => 'Kristen',
+                                'KATHOLIK' => 'Katholik',
+                                'HINDU' => 'Hindu',
+                                'BUDHA' => 'Budha',
+                                'KONGHUCU' => 'Konghucu',
+                                'KEPERCAYAAN' => 'Kepercayaan',
+                            ])
+                            ->searchable()
                             ->columnSpan(1),
                         
                         Select::make('stts_nikah')

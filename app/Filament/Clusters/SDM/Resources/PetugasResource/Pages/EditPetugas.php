@@ -22,25 +22,32 @@ class EditPetugas extends EditRecord
                     // Check if petugas is referenced by other tables
                     $constraints = [];
                     
-                    // Check common tables that might reference petugas
+                    // Check common tables that might reference petugas by NIP
                     $tablesToCheck = [
-                        'reg_periksa' => 'kd_pj',
-                        'kamar_inap' => 'kd_kamar',
-                        'operasi' => 'operator1',
-                        'operasi' => 'operator2',
-                        'operasi' => 'operator3',
-                        'rawat_jl_dr' => 'nip',
-                        'rawat_jl_pr' => 'nip',
-                        'rawat_jl_drpr' => 'nip',
-                        'rawat_inap_dr' => 'nip',
-                        'rawat_inap_pr' => 'nip',
-                        'rawat_inap_drpr' => 'nip',
+                        'reg_periksa' => ['kd_pj'],
+                        'operasi' => ['operator1', 'operator2', 'operator3'],
+                        'rawat_jl_pr' => ['nip'],
+                        'rawat_inap_pr' => ['nip'],
+                        'kamar_inap' => ['nip'],
+                        'pemeriksaan_ralan' => ['nip'],
+                        'pemeriksaan_ranap' => ['nip'],
+                        'bridging_sep' => ['nip'],
                     ];
                     
-                    foreach ($tablesToCheck as $table => $column) {
-                        if (DB::table($table)->where($column, $record->nip)->exists()) {
-                            $constraints[] = ucfirst(str_replace('_', ' ', $table));
-                            break; // Avoid duplicates for same table
+                    foreach ($tablesToCheck as $table => $columns) {
+                        $tableFound = false;
+                        foreach ($columns as $column) {
+                            try {
+                                if (DB::table($table)->where($column, $record->nip)->exists()) {
+                                    $constraints[] = ucfirst(str_replace('_', ' ', $table));
+                                    $tableFound = true;
+                                    break; // Found constraint in this table, move to next table
+                                }
+                            } catch (\Exception $e) {
+                                // Skip if table/column doesn't exist or query fails
+                                \Log::info("Skipping constraint check for {$table}.{$column}: " . $e->getMessage());
+                                continue;
+                            }
                         }
                     }
                     
@@ -61,48 +68,101 @@ class EditPetugas extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        // Ensure status field is properly cast to string for enum database column
+        if (isset($data['status'])) {
+            $data['status'] = (string) $data['status'];
+        }
+        
+        \Log::info('Attempting petugas update:', [
+            'id' => $record->getKey(),
+            'original_record' => $record->toArray(),
+            'incoming_data' => $data,
+            'status_value' => $data['status'] ?? 'not_set',
+            'status_type' => gettype($data['status'] ?? null),
+            'current_status_in_db' => $record->status,
+            'current_status_type' => gettype($record->status)
+        ]);
+        
         try {
-            // First attempt to update
+            // Level 1: Normal Eloquent update
             $record->update($data);
+            $record->refresh();
+            \Log::info('Level 1 petugas update successful:', [
+                'id' => $record->getKey(),
+                'final_status' => $record->status,
+                'final_status_type' => gettype($record->status),
+                'all_attributes' => $record->toArray()
+            ]);
             return $record;
-        } catch (\Exception $e) {
-            // Check if it's a MariaDB prepared statement error
-            if (str_contains($e->getMessage(), 'Prepared statement needs to be re-prepared') || 
-                str_contains($e->getMessage(), '1615')) {
-                
-                // Show user-friendly notification for prepared statement error
-                Notification::make()
-                    ->danger()
-                    ->title('Gagal menyimpan data petugas')
-                    ->body('Terjadi kesalahan database MariaDB. Silakan refresh halaman dan coba lagi. Jika masalah berlanjut, hubungi administrator sistem.')
-                    ->persistent()
-                    ->send();
-                
-                \Log::error('MariaDB prepared statement error in petugas update:', [
+        } catch (\Exception $e1) {
+            \Log::warning('Level 1 petugas update failed, trying fresh connection:', [
+                'error' => $e1->getMessage(),
+                'id' => $record->getKey()
+            ]);
+            
+            try {
+                // Level 2: Fresh connection update
+                $freshRecord = $record->newQuery()->find($record->getKey());
+                $freshRecord->update($data);
+                $freshRecord->refresh();
+                \Log::info('Level 2 petugas update successful with fresh connection:', [
                     'id' => $record->getKey(),
-                    'data' => $data,
-                    'error' => $e->getMessage(),
-                    'suggestion' => 'User should refresh page and try again'
+                    'final_status' => $freshRecord->status,
+                    'final_status_type' => gettype($freshRecord->status),
+                    'all_attributes' => $freshRecord->toArray()
+                ]);
+                return $freshRecord;
+            } catch (\Exception $e2) {
+                \Log::warning('Level 2 petugas update failed, trying unprepared statement:', [
+                    'error' => $e2->getMessage(),
+                    'id' => $record->getKey()
                 ]);
                 
-                // Don't throw the exception, just return the original record
-                return $record;
-            } else {
-                // Handle other database errors
-                Notification::make()
-                    ->danger()
-                    ->title('Gagal menyimpan data')
-                    ->body('Terjadi kesalahan database: ' . $e->getMessage())
-                    ->persistent()
-                    ->send();
-                
-                \Log::error('Petugas update failed:', [
-                    'id' => $record->getKey(),
-                    'data' => $data,
-                    'error' => $e->getMessage()
-                ]);
-                
-                return $record;
+                try {
+                    // Level 3: Raw unprepared statement as last resort
+                    $setParts = [];
+                    foreach ($data as $column => $value) {
+                        if ($value === null) {
+                            $setParts[] = "`{$column}` = NULL";
+                        } else {
+                            $escapedValue = addslashes($value);
+                            $setParts[] = "`{$column}` = '{$escapedValue}'";
+                        }
+                    }
+                    $setClause = implode(', ', $setParts);
+                    $primaryKey = $record->getKey();
+                    
+                    \DB::unprepared("UPDATE petugas SET {$setClause} WHERE nip = '{$primaryKey}'");
+                    
+                    // Reload the record to get fresh data
+                    $record = $record->fresh();
+                    
+                    \Log::info('Level 3 petugas update successful with unprepared statement:', [
+                        'id' => $record->getKey(),
+                        'final_status' => $record->status,
+                        'final_status_type' => gettype($record->status),
+                        'all_attributes' => $record->toArray()
+                    ]);
+                    return $record;
+                } catch (\Exception $e3) {
+                    \Log::error('All 3 levels of petugas update failed:', [
+                        'id' => $record->getKey(),
+                        'level1_error' => $e1->getMessage(),
+                        'level2_error' => $e2->getMessage(),
+                        'level3_error' => $e3->getMessage(),
+                        'data' => $data
+                    ]);
+                    
+                    // Show user-friendly notification
+                    Notification::make()
+                        ->danger()
+                        ->title('Gagal menyimpan data petugas')
+                        ->body('Terjadi kesalahan database yang tidak dapat diatasi. Silakan hubungi administrator sistem.')
+                        ->persistent()
+                        ->send();
+                    
+                    return $record; // Return original record
+                }
             }
         }
     }
