@@ -606,6 +606,15 @@ class RawatJalanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('tgl_registrasi', 'desc')
+            ->modifyQueryUsing(function ($query) {
+                return $query->with(['pasien:no_rkm_medis,nm_pasien,jk,no_ktp,no_peserta', 'poliklinik:kd_poli,nm_poli', 'dokter:kd_dokter,nm_dokter', 'penjab:kd_pj,png_jawab'])
+                    ->whereDate('tgl_registrasi', today());
+            })
+            ->deferLoading()
+            ->paginationPageOptions([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25)
+            ->striped()
             ->columns([
                     
                 TextColumn::make('no_rawat')
@@ -629,13 +638,21 @@ class RawatJalanResource extends Resource
 
                 TextColumn::make('pasien.no_rkm_medis')
                     ->label('No. RM')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('pasien.nm_pasien')
                     ->label('Nama Pasien')
                     ->searchable()
                     ->weight('bold')
-                    ->limit(30),
+                    ->limit(30)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 30) {
+                            return null;
+                        }
+                        return $state;
+                    }),
 
                 TextColumn::make('pasien.jk')
                     ->label('JK')
@@ -644,23 +661,34 @@ class RawatJalanResource extends Resource
                         'L' => 'blue',
                         'P' => 'pink',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
 
                 TextColumn::make('poliklinik.nm_poli')
                     ->label('Poliklinik')
                     ->badge()
                     ->color('info')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('dokter.nm_dokter')
                     ->label('Dokter')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(25)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 25) {
+                            return null;
+                        }
+                        return $state;
+                    })
+                    ->toggleable(),
 
                 TextColumn::make('penjab.png_jawab')
                     ->label('Cara Bayar')
                     ->badge()
-                    ->color('success'),
+                    ->color('success')
+                    ->toggleable(),
 
                 TextColumn::make('stts')
                     ->label('Status')
@@ -779,7 +807,6 @@ class RawatJalanResource extends Resource
                 ->color('gray')
                 ->button(),
             ], position: RecordActionsPosition::BeforeColumns)
-            ->defaultSort('tgl_registrasi', 'desc')
             ->defaultSort('jam_reg', 'desc');
     }
 
