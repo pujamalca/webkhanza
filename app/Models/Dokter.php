@@ -42,7 +42,7 @@ class Dokter extends Model
     
     protected $casts = [
         'tgl_lahir' => 'date',
-        'status' => 'boolean',
+        'status' => 'string',
     ];
 
     public function pegawai()
@@ -69,13 +69,66 @@ class Dokter extends Model
         
         // Generate route_key if not exists
         $routeKey = 'dr_' . str_replace('/', '_', $this->kd_dokter);
-        $this->update(['route_key' => $routeKey]);
+        
+        try {
+            // Try raw SQL to bypass MariaDB prepared statement issues
+            $escapedKdDokter = addslashes($this->kd_dokter);
+            $escapedRouteKey = addslashes($routeKey);
+            \DB::unprepared("UPDATE dokter SET route_key = '{$escapedRouteKey}' WHERE kd_dokter = '{$escapedKdDokter}'");
+            
+            // Update the current model instance
+            $this->route_key = $routeKey;
+            
+        } catch (\Exception $e) {
+            // Handle MariaDB errors gracefully
+            \Log::info('Error updating route_key for dokter (raw SQL failed):', [
+                'kd_dokter' => $this->kd_dokter,
+                'route_key' => $routeKey,
+                'error' => $e->getMessage(),
+                'note' => 'Returning generated route_key without saving to DB'
+            ]);
+            
+            // Return the generated route_key without saving to database
+            return $routeKey;
+        }
+        
         return $routeKey;
     }
     
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where($field ?? $this->getRouteKeyName(), $value)->first();
+        $fieldName = $field ?? $this->getRouteKeyName();
+        
+        // Try to find by route_key first
+        $record = $this->where($fieldName, $value)->first();
+        
+        if (!$record && $fieldName === 'route_key') {
+            // If route_key lookup failed, try to extract kd_dokter from route_key
+            // Format: dr_12_09_1988_001 -> 12/09/1988/001
+            if (str_starts_with($value, 'dr_')) {
+                $kdDokter = str_replace('_', '/', substr($value, 3));
+                $record = $this->where('kd_dokter', $kdDokter)->first();
+                
+                if ($record) {
+                    // Try to update route_key for future use using raw SQL
+                    try {
+                        $escapedKdDokter = addslashes($kdDokter);
+                        $escapedRouteKey = addslashes($value);
+                        \DB::unprepared("UPDATE dokter SET route_key = '{$escapedRouteKey}' WHERE kd_dokter = '{$escapedKdDokter}'");
+                        $record->route_key = $value; // Update model instance
+                    } catch (\Exception $e) {
+                        // Log the error but continue
+                        \Log::info('Could not update route_key for dokter during route binding (raw SQL):', [
+                            'kd_dokter' => $kdDokter,
+                            'route_key' => $value,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        return $record;
     }
 
     public function getEnumValues($column)
