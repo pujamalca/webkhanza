@@ -48,6 +48,13 @@ class RolePermissionSeeder extends Seeder
             'pasien_delete',
             'pasien_view_details',
             
+            // Registrasi Menu
+            'registrasi_view',
+            'registrasi_create',
+            'registrasi_edit',
+            'registrasi_delete',
+            'registrasi_view_details',
+            
             // Rawat Jalan Menu
             'rawat_jalan_view',
             'rawat_jalan_create',
@@ -128,6 +135,7 @@ class RolePermissionSeeder extends Seeder
             'system_settings_access', 'system_logs_access', 'activity_logs_view',
             'erm_access',
             'pasien_view', 'pasien_create', 'pasien_edit', 'pasien_delete', 'pasien_view_details',
+            'registrasi_view', 'registrasi_create', 'registrasi_edit', 'registrasi_delete', 'registrasi_view_details',
             'rawat_jalan_view', 'rawat_jalan_create', 'rawat_jalan_edit', 'rawat_jalan_delete', 'rawat_jalan_view_details',
             'sdm_access',
             'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
@@ -192,6 +200,7 @@ class RolePermissionSeeder extends Seeder
             'activity_logs_view',
             'erm_access',
             'pasien_view', 'pasien_view_details',
+            'registrasi_view', 'registrasi_view_details',
             'rawat_jalan_view', 'rawat_jalan_view_details',
             'sdm_access',
             'pegawai_view', 'pegawai_view_details',

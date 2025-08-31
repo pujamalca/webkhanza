@@ -46,6 +46,13 @@ class EditRole extends EditRecord
                 ->orWhere('name', '=', 'multi_device_login')
                 ->pluck('id')->toArray();
             $data['admin_permissions'] = array_values(array_intersect($permissionIds, $adminIds));
+
+            $ermIds = Permission::where('name', 'like', 'erm_access')
+                ->orWhere('name', 'like', 'registrasi_%')
+                ->orWhere('name', 'like', 'rawat_jalan_%')
+                ->orWhere('name', 'like', 'pasien_%')
+                ->pluck('id')->toArray();
+            $data['erm_permissions'] = array_values(array_intersect($permissionIds, $ermIds));
                 
             $sdmIds = Permission::where('name', 'like', 'sdm_access')
                 ->orWhere('name', 'like', 'pegawai_%')
@@ -62,6 +69,7 @@ class EditRole extends EditRecord
             \Log::info('EditRole populated checkboxes with permissions:', [
                 'dashboard_permissions' => $data['dashboard_permissions'],
                 'admin_permissions' => $data['admin_permissions'],
+                'erm_permissions' => $data['erm_permissions'],
                 'sdm_permissions' => $data['sdm_permissions'],
                 'master_permissions' => $data['master_permissions']
             ]);
@@ -84,6 +92,9 @@ class EditRole extends EditRecord
         if (!empty($data['admin_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['admin_permissions']);
         }
+        if (!empty($data['erm_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['erm_permissions']);
+        }
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
@@ -99,6 +110,7 @@ class EditRole extends EditRecord
         // Remove all permission fields so they don't get saved to roles table
         unset($data['dashboard_permissions']);
         unset($data['admin_permissions']);
+        unset($data['erm_permissions']);
         unset($data['sdm_permissions']);
         unset($data['master_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error

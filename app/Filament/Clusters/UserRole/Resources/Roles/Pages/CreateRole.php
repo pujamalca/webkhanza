@@ -27,6 +27,9 @@ class CreateRole extends CreateRecord
         if (!empty($data['admin_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['admin_permissions']);
         }
+        if (!empty($data['erm_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['erm_permissions']);
+        }
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
@@ -42,6 +45,7 @@ class CreateRole extends CreateRecord
         // Remove all permission fields so they don't get saved to roles table
         unset($data['dashboard_permissions']);
         unset($data['admin_permissions']);
+        unset($data['erm_permissions']);
         unset($data['sdm_permissions']);
         unset($data['master_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error

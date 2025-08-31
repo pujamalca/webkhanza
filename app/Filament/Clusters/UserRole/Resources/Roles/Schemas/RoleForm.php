@@ -139,6 +139,47 @@ class RoleForm
                     ])
                     ->collapsible(),
 
+                Section::make('ERM Cluster')
+                    ->description('Electronic Medical Record - Registrasi, Rawat Jalan, Pasien')
+                    ->schema([
+                        CheckboxList::make('erm_permissions')
+                            ->options(function () {
+                                return Permission::where('name', 'like', 'erm_access')
+                                    ->orWhere('name', 'like', 'registrasi_%')
+                                    ->orWhere('name', 'like', 'rawat_jalan_%')
+                                    ->orWhere('name', 'like', 'pasien_%')
+                                    ->pluck('name', 'id')
+                                    ->map(function ($name) {
+                                        return match($name) {
+                                            'erm_access' => '🏥 ERM - Akses ke cluster ERM',
+                                            
+                                            'registrasi_view' => '👁️ Registrasi - Lihat daftar registrasi',
+                                            'registrasi_create' => '➕ Registrasi - Buat registrasi baru',
+                                            'registrasi_edit' => '✏️ Registrasi - Edit data registrasi',
+                                            'registrasi_delete' => '🗑️ Registrasi - Hapus registrasi',
+                                            'registrasi_view_details' => '📄 Registrasi - Lihat detail registrasi',
+                                            
+                                            'rawat_jalan_view' => '👁️ Rawat Jalan - Lihat daftar rawat jalan',
+                                            'rawat_jalan_create' => '➕ Rawat Jalan - Buat registrasi rawat jalan baru',
+                                            'rawat_jalan_edit' => '✏️ Rawat Jalan - Edit data rawat jalan',
+                                            'rawat_jalan_delete' => '🗑️ Rawat Jalan - Hapus rawat jalan',
+                                            'rawat_jalan_view_details' => '📄 Rawat Jalan - Lihat detail rawat jalan',
+                                            
+                                            'pasien_view' => '👁️ Pasien - Lihat daftar pasien',
+                                            'pasien_create' => '➕ Pasien - Buat data pasien baru',
+                                            'pasien_edit' => '✏️ Pasien - Edit data pasien',
+                                            'pasien_delete' => '🗑️ Pasien - Hapus pasien',
+                                            'pasien_view_details' => '📄 Pasien - Lihat detail pasien',
+                                            
+                                            default => $name
+                                        };
+                                    })->toArray();
+                            })
+                            ->columns(2)
+                            ->bulkToggleable(),
+                    ])
+                    ->collapsible(),
+
                 Section::make('Master Data')
                     ->description('Pembuatan data master melalui dropdown')
                     ->schema([
