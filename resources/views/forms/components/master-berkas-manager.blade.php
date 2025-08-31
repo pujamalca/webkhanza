@@ -1,0 +1,1 @@
+@livewire('master-berkas-manager')

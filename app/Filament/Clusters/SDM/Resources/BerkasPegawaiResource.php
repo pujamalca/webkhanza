@@ -18,6 +18,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Actions\Action;
@@ -109,18 +110,10 @@ class BerkasPegawaiResource extends Resource
                             ->required()
                             ->createOptionForm([
                                 \Filament\Schemas\Components\Section::make('Data Master Berkas yang Sudah Ada')
-                                    ->description('Daftar jenis berkas yang sudah terdaftar')
+                                    ->description('Daftar jenis berkas yang sudah terdaftar - Klik tombol hapus untuk menghapus data')
                                     ->schema([
-                                        \Filament\Forms\Components\Placeholder::make('existing_data')
-                                            ->label('')
-                                            ->content(function () {
-                                                $existing = MasterBerkasPegawai::orderBy('kode')->get();
-                                                $content = '';
-                                                foreach ($existing as $item) {
-                                                    $content .= "• {$item->kode} - {$item->nama_berkas} ({$item->kategori})\n";
-                                                }
-                                                return new \Illuminate\Support\HtmlString('<pre style="font-size: 12px; margin: 0;">' . ($content ?: 'Belum ada data') . '</pre>');
-                                            })
+                                        ViewField::make('master_berkas')
+                                            ->view('forms.components.master-berkas-manager')
                                             ->columnSpanFull(),
                                     ])
                                     ->columnSpanFull()
