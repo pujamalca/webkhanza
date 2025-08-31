@@ -13,6 +13,7 @@ use App\Models\MasterBerkasPegawai;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
@@ -107,22 +108,116 @@ class BerkasPegawaiResource extends Resource
                             ->preload()
                             ->required()
                             ->createOptionForm([
+                                \Filament\Schemas\Components\Section::make('Data Master Berkas yang Sudah Ada')
+                                    ->description('Daftar jenis berkas yang sudah terdaftar')
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('existing_data')
+                                            ->label('')
+                                            ->content(function () {
+                                                $existing = MasterBerkasPegawai::orderBy('kode')->get();
+                                                $content = '';
+                                                foreach ($existing as $item) {
+                                                    $content .= "• {$item->kode} - {$item->nama_berkas} ({$item->kategori})\n";
+                                                }
+                                                return new \Illuminate\Support\HtmlString('<pre style="font-size: 12px; margin: 0;">' . ($content ?: 'Belum ada data') . '</pre>');
+                                            })
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columnSpanFull()
+                                    ->collapsible()
+                                    ->collapsed(),
+                                
+                                \Filament\Schemas\Components\Section::make('Tambah Jenis Berkas Baru')
+                                    ->description('Form untuk menambah jenis berkas baru')
+                                    ->schema([
+                                        TextInput::make('kode')
+                                            ->label('Kode Berkas')
+                                            ->required()
+                                            ->maxLength(10)
+                                            ->default(function () {
+                                                $lastCode = MasterBerkasPegawai::orderBy('kode', 'desc')->first();
+                                                if ($lastCode) {
+                                                    $codeNumber = (int) substr($lastCode->kode, 3);
+                                                    $nextNumber = $codeNumber + 1;
+                                                    return 'MBP' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                                                }
+                                                return 'MBP0001';
+                                            })
+                                            ->disabled()
+                                            ->dehydrated(),
+                                        
+                                        TextInput::make('nama_berkas')
+                                            ->label('Nama Berkas')
+                                            ->required()
+                                            ->maxLength(300)
+                                            ->placeholder('Contoh: FOTOCOPY KTP'),
+                                        
+                                        Select::make('kategori')
+                                            ->label('Kategori')
+                                            ->options([
+                                                'Tenaga klinis Dokter Umum' => 'Tenaga klinis Dokter Umum',
+                                                'Tenaga klinis Dokter Spesialis' => 'Tenaga klinis Dokter Spesialis',
+                                                'Tenaga klinis Perawat dan Bidan' => 'Tenaga klinis Perawat dan Bidan',
+                                                'Tenaga klinis Profesi Lain' => 'Tenaga klinis Profesi Lain',
+                                                'Tenaga Non Klinis' => 'Tenaga Non Klinis',
+                                            ])
+                                            ->required()
+                                            ->searchable(),
+                                        
+                                        TextInput::make('no_urut')
+                                            ->label('No. Urut')
+                                            ->numeric()
+                                            ->default(function () {
+                                                return MasterBerkasPegawai::max('no_urut') + 1;
+                                            })
+                                            ->required()
+                                            ->minValue(1),
+                                    ])
+                                    ->columns(2),
+                            ])
+                            ->editOptionForm([
                                 TextInput::make('kode')
                                     ->label('Kode Berkas')
                                     ->required()
-                                    ->maxLength(10),
+                                    ->maxLength(10)
+                                    ->disabled() // Prevent editing primary key
+                                    ->dehydrated(),
+                                
                                 TextInput::make('nama_berkas')
                                     ->label('Nama Berkas')
                                     ->required()
-                                    ->maxLength(100),
-                                TextInput::make('kategori')
+                                    ->maxLength(300),
+                                
+                                Select::make('kategori')
                                     ->label('Kategori')
-                                    ->maxLength(50),
+                                    ->options([
+                                        'Tenaga klinis Dokter Umum' => 'Tenaga klinis Dokter Umum',
+                                        'Tenaga klinis Dokter Spesialis' => 'Tenaga klinis Dokter Spesialis',
+                                        'Tenaga klinis Perawat dan Bidan' => 'Tenaga klinis Perawat dan Bidan',
+                                        'Tenaga klinis Profesi Lain' => 'Tenaga klinis Profesi Lain',
+                                        'Tenaga Non Klinis' => 'Tenaga Non Klinis',
+                                    ])
+                                    ->required()
+                                    ->searchable(),
+                                
                                 TextInput::make('no_urut')
                                     ->label('No. Urut')
                                     ->numeric()
-                                    ->default(1),
+                                    ->required()
+                                    ->minValue(1),
                             ])
+                            ->createOptionAction(function (Action $action) {
+                                return $action
+                                    ->modalHeading('Buat Jenis Berkas Baru')
+                                    ->modalSubmitActionLabel('Simpan')
+                                    ->modalCancelActionLabel('Batal');
+                            })
+                            ->editOptionAction(function (Action $action) {
+                                return $action
+                                    ->modalHeading('Edit Jenis Berkas')
+                                    ->modalSubmitActionLabel('Simpan')
+                                    ->modalCancelActionLabel('Batal');
+                            })
                             ->columnSpan(2),
                     ])
                     ->columns(4),
