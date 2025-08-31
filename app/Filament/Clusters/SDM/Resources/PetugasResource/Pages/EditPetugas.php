@@ -86,7 +86,32 @@ class EditPetugas extends EditRecord
         try {
             // Level 1: Normal Eloquent update
             $record->update($data);
-            $record->refresh();
+            
+            // Generate route_key if missing
+            if ($record->nip && !$record->route_key) {
+                $routeKey = 'pg_' . str_replace('/', '_', $record->nip);
+                try {
+                    // Try raw SQL to bypass MariaDB prepared statement issues
+                    $escapedNip = addslashes($record->nip);
+                    $escapedRouteKey = addslashes($routeKey);
+                    \DB::unprepared("UPDATE petugas SET route_key = '{$escapedRouteKey}' WHERE nip = '{$escapedNip}'");
+                    $record->refresh();
+                    
+                    \Log::info('Route_key generated during petugas update (raw SQL):', [
+                        'nip' => $record->nip,
+                        'route_key' => $record->route_key
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::info('Route_key generation failed during petugas update (even raw SQL):', [
+                        'nip' => $record->nip,
+                        'intended_route_key' => $routeKey,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            } else {
+                $record->refresh();
+            }
+            
             \Log::info('Level 1 petugas update successful:', [
                 'id' => $record->getKey(),
                 'final_status' => $record->status,

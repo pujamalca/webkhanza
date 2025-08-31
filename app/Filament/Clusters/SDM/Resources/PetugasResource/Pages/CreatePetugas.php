@@ -27,6 +27,36 @@ class CreatePetugas extends CreateRecord
         try {
             // Level 1: Normal Eloquent create
             $record = static::getModel()::create($data);
+            
+            // Generate route_key after creation
+            if ($record && $record->nip) {
+                $routeKey = 'pg_' . str_replace('/', '_', $record->nip);
+                
+                try {
+                    // Try raw SQL to bypass MariaDB prepared statement issues
+                    $escapedNip = addslashes($record->nip);
+                    $escapedRouteKey = addslashes($routeKey);
+                    \DB::unprepared("UPDATE petugas SET route_key = '{$escapedRouteKey}' WHERE nip = '{$escapedNip}'");
+                    
+                    // Refresh the record to get the updated route_key
+                    $record->refresh();
+                    
+                    \Log::info('Petugas creation successful with route_key (raw SQL):', [
+                        'id' => $record->getKey(),
+                        'nip' => $record->nip,
+                        'route_key' => $record->route_key
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::info('Petugas created successfully but route_key update failed (even with raw SQL):', [
+                        'id' => $record->getKey(),
+                        'nip' => $record->nip,
+                        'intended_route_key' => $routeKey,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue without failing - route binding will handle this
+                }
+            }
+            
             \Log::info('Level 1 petugas creation successful:', [
                 'id' => $record->getKey(),
                 'final_status' => $record->status,
@@ -48,6 +78,24 @@ class CreatePetugas extends CreateRecord
                 
                 // Get the created record
                 $record = static::getModel()::where('nip', $data['nip'])->first();
+                
+                if ($record) {
+                    // Try to generate route_key
+                    $routeKey = 'pg_' . str_replace('/', '_', $record->nip);
+                    try {
+                        // Try raw SQL to bypass MariaDB prepared statement issues
+                        $escapedNip = addslashes($record->nip);
+                        $escapedRouteKey = addslashes($routeKey);
+                        \DB::unprepared("UPDATE petugas SET route_key = '{$escapedRouteKey}' WHERE nip = '{$escapedNip}'");
+                        $record->refresh();
+                    } catch (\Exception $e) {
+                        \Log::info('Direct insert petugas created but route_key update failed (raw SQL):', [
+                            'nip' => $record->nip,
+                            'intended_route_key' => $routeKey,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
                 
                 \Log::info('Level 2 petugas creation successful with direct insert:', [
                     'id' => $record->getKey(),

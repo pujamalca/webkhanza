@@ -109,6 +109,7 @@ class PetugasResource extends Resource
                                         // Auto-fill from pegawai
                                         $set('nama', $pegawai->nama);
                                         $set('tmp_lahir', $pegawai->tmp_lahir);
+                                        $set('tgl_lahir', $pegawai->tgl_lahir ? $pegawai->tgl_lahir->format('Y-m-d') : null);
                                         $set('alamat', $pegawai->alamat);
                                         $set('gol_darah', $pegawai->gol_darah);
                                         $set('agama', $pegawai->agama);
@@ -171,6 +172,8 @@ class PetugasResource extends Resource
                         
                         DatePicker::make('tgl_lahir')
                             ->label('Tanggal Lahir')
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
                         
                         Select::make('gol_darah')
