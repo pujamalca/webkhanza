@@ -116,4 +116,25 @@ class BerkasPegawai extends Model
         
         return $record;
     }
+    
+    public static function getExpiringDocuments($monthsAhead)
+    {
+        $targetDate = now()->addMonths($monthsAhead);
+        
+        return static::whereNotNull('tgl_berakhir')
+            ->whereDate('tgl_berakhir', '<=', $targetDate)
+            ->whereDate('tgl_berakhir', '>=', now())
+            ->with(['pegawai', 'masterBerkasPegawai'])
+            ->orderBy('tgl_berakhir', 'asc')
+            ->get();
+    }
+    
+    public static function getExpirationSummary()
+    {
+        return [
+            'expiring_6_months' => static::getExpiringDocuments(6)->count(),
+            'expiring_3_months' => static::getExpiringDocuments(3)->count(),
+            'expiring_1_month' => static::getExpiringDocuments(1)->count(),
+        ];
+    }
 }
