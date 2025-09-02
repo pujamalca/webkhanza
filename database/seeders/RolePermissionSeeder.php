@@ -100,6 +100,21 @@ class RolePermissionSeeder extends Seeder
             'master_jabatan_create',
             'master_spesialis_create',
             
+            // Pegawai Cluster - Absensi
+            'view_own_absent',
+            'view_all_absent',
+            'create_absent',
+            'edit_absent',
+            'delete_absent',
+            
+            // Pegawai Cluster - Cuti
+            'view_own_cuti',
+            'view_all_cuti',
+            'create_cuti',
+            'approve_cuti',
+            'edit_cuti',
+            'delete_cuti',
+            
             // System Management
             'system_settings_access',
             'system_logs_access',

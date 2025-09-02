@@ -180,6 +180,38 @@ class RoleForm
                     ])
                     ->collapsible(),
 
+                Section::make('Pegawai')
+                    ->description('Manajemen absensi dan cuti pegawai')
+                    ->schema([
+                        CheckboxList::make('pegawai_permissions')
+                            ->options(function () {
+                                return Permission::whereIn('name', [
+                                    'view_own_absent', 'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+                                    'view_own_cuti', 'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti'
+                                ])->pluck('name', 'id')->map(function ($name) {
+                                    return match($name) {
+                                        'view_own_absent' => '👁️ Absensi - Lihat absensi sendiri',
+                                        'view_all_absent' => '👁️ Absensi - Lihat semua absensi',
+                                        'create_absent' => '➕ Absensi - Buat data absensi',
+                                        'edit_absent' => '✏️ Absensi - Edit data absensi',
+                                        'delete_absent' => '🗑️ Absensi - Hapus data absensi',
+                                        
+                                        'view_own_cuti' => '👁️ Cuti - Lihat cuti sendiri',
+                                        'view_all_cuti' => '👁️ Cuti - Lihat semua pengajuan cuti',
+                                        'create_cuti' => '➕ Cuti - Ajukan cuti baru',
+                                        'approve_cuti' => '✅ Cuti - Setujui/tolak pengajuan cuti',
+                                        'edit_cuti' => '✏️ Cuti - Edit data cuti',
+                                        'delete_cuti' => '🗑️ Cuti - Hapus data cuti',
+                                        
+                                        default => $name
+                                    };
+                                })->toArray();
+                            })
+                            ->columns(2)
+                            ->bulkToggleable(),
+                    ])
+                    ->collapsible(),
+
                 Section::make('Master Data')
                     ->description('Pembuatan data master melalui dropdown')
                     ->schema([

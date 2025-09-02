@@ -78,6 +78,12 @@ class EditRole extends EditRecord
                 ->pluck('id')->toArray();
             $data['sdm_permissions'] = array_values(array_intersect($permissionIds, $sdmIds));
                 
+            $pegawaiIds = Permission::whereIn('name', [
+                'view_own_absent', 'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+                'view_own_cuti', 'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti'
+            ])->pluck('id')->toArray();
+            $data['pegawai_permissions'] = array_values(array_intersect($permissionIds, $pegawaiIds));
+                
             $masterIds = Permission::where('name', 'like', 'master_%')
                 ->pluck('id')->toArray();
             $data['master_permissions'] = array_values(array_intersect($permissionIds, $masterIds));
@@ -87,6 +93,7 @@ class EditRole extends EditRecord
                 'admin_permissions' => $data['admin_permissions'],
                 'erm_permissions' => $data['erm_permissions'],
                 'sdm_permissions' => $data['sdm_permissions'],
+                'pegawai_permissions' => $data['pegawai_permissions'],
                 'master_permissions' => $data['master_permissions']
             ]);
         }
@@ -114,6 +121,9 @@ class EditRole extends EditRecord
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
+        if (!empty($data['pegawai_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['pegawai_permissions']);
+        }
         if (!empty($data['master_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['master_permissions']);
         }
@@ -128,6 +138,7 @@ class EditRole extends EditRecord
         unset($data['admin_permissions']);
         unset($data['erm_permissions']);
         unset($data['sdm_permissions']);
+        unset($data['pegawai_permissions']);
         unset($data['master_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error
         
