@@ -17,6 +17,10 @@ class RolePermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Clear existing role-permission assignments to prevent conflicts
+        \Illuminate\Support\Facades\DB::table('role_has_permissions')->delete();
+        \Illuminate\Support\Facades\DB::table('model_has_roles')->delete();
+
         // Create permissions
         $permissions = [
             // Dashboard
@@ -131,132 +135,134 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
-        // Create roles and assign permissions
-        
-        // Super Admin - All permissions
-        $superAdmin = Role::firstOrCreate(
-            ['name' => 'Super Admin'],
-            ['guard_name' => 'web']
-        );
-        $superAdmin->givePermissionTo(Permission::all());
-        
-        // Admin - Most permissions except system critical
-        $admin = Role::firstOrCreate(
-            ['name' => 'Admin'], 
-            ['guard_name' => 'web']
-        );
-        $admin->givePermissionTo([
-            'dashboard_access',
-            'administrator_access',
-            'users_view', 'users_create', 'users_edit', 'users_reset_device',
-            'roles_view',
-            'system_settings_access', 'system_logs_access', 'activity_logs_view',
-            'multi_device_login',
-            'erm_access',
-            'pasien_view', 'pasien_create', 'pasien_edit', 'pasien_delete', 'pasien_view_details',
-            'registrasi_view', 'registrasi_create', 'registrasi_edit', 'registrasi_delete', 'registrasi_view_details',
-            'rawat_jalan_view', 'rawat_jalan_create', 'rawat_jalan_edit', 'rawat_jalan_delete', 'rawat_jalan_view_details',
-            'sdm_access',
-            'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
-            'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
-            'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
-            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
-            'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
-            // Pegawai Cluster Permissions
-            'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
-            'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
-        ]);
-        
-        // HRD Manager - Full SDM access only
-        $hrdManager = Role::firstOrCreate(
-            ['name' => 'HRD Manager'],
-            ['guard_name' => 'web']
-        );
-        $hrdManager->givePermissionTo([
-            'dashboard_access',
-            'sdm_access',
-            'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
-            'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
-            'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
-            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
-            'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
-            // Pegawai Cluster Permissions
-            'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
-            'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
-        ]);
-        
-        // Staff HRD - Limited SDM operations
-        $staffHRD = Role::firstOrCreate(
-            ['name' => 'Staff HRD'],
-            ['guard_name' => 'web']
-        );
-        $staffHRD->givePermissionTo([
-            'dashboard_access',
-            'sdm_access',
-            'pegawai_view', 'pegawai_edit', 'pegawai_view_details',
-            'dokter_view', 'dokter_edit', 'dokter_view_details',
-            'petugas_view', 'petugas_edit', 'petugas_view_details',
-            'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
-            // Pegawai Cluster Permissions - View and Create only
-            'view_all_absent', 'create_absent', 'edit_absent',
-            'view_all_cuti', 'create_cuti', 'edit_cuti',
-        ]);
-        
-        // Supervisor - Read access to specific menus
-        $supervisor = Role::firstOrCreate(
-            ['name' => 'Supervisor'],
-            ['guard_name' => 'web']
-        );
-        $supervisor->givePermissionTo([
-            'dashboard_access',
-            'sdm_access',
-            'pegawai_view', 'pegawai_view_details',
-            'dokter_view', 'dokter_view_details',
-            'petugas_view', 'petugas_view_details',
-            'berkas_pegawai_view', 'berkas_pegawai_view_details',
-            // Pegawai Cluster Permissions - View only
-            'view_all_absent',
-            'view_all_cuti',
-        ]);
-        
-        // Manager - User management and read access to SDM
-        $manager = Role::firstOrCreate(
-            ['name' => 'Manager'],
-            ['guard_name' => 'web']
-        );
-        $manager->givePermissionTo([
-            'dashboard_access',
-            'administrator_access',
-            'users_view', 'users_edit', 'users_reset_device',
-            'activity_logs_view',
-            'erm_access',
-            'pasien_view', 'pasien_view_details',
-            'registrasi_view', 'registrasi_view_details',
-            'rawat_jalan_view', 'rawat_jalan_view_details',
-            'sdm_access',
-            'pegawai_view', 'pegawai_view_details',
-            'dokter_view', 'dokter_view_details',
-            'petugas_view', 'petugas_view_details',
-            'berkas_pegawai_view', 'berkas_pegawai_view_details',
-            // Pegawai Cluster Permissions - View and Approve
-            'view_all_absent', 'edit_absent',
-            'view_all_cuti', 'approve_cuti', 'edit_cuti',
-        ]);
-        
-        // User - Basic access only
-        $user = Role::firstOrCreate(
-            ['name' => 'User'],
-            ['guard_name' => 'web']
-        );
-        $user->givePermissionTo([
-            'dashboard_access',
-            // Pegawai Cluster Permissions - Own data only
-            'view_own_absent', 'create_absent',
-            'view_own_cuti', 'create_cuti',
-        ]);
+        // Create roles and assign permissions safely
+        $this->createRolesWithPermissions();
 
         $this->command->info('Roles and permissions seeded successfully!');
         $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, User');
         $this->command->info('Created ' . count($permissions) . ' permissions (including activity logs)');
+    }
+
+    private function createRolesWithPermissions(): void
+    {
+        // First, create all roles to ensure they exist
+        $roleNames = ['Super Admin', 'Admin', 'HRD Manager', 'Staff HRD', 'Supervisor', 'Manager', 'User'];
+        
+        foreach ($roleNames as $roleName) {
+            Role::firstOrCreate([
+                'name' => $roleName,
+                'guard_name' => 'web'
+            ]);
+        }
+
+        // Clear cache after role creation
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Define role permissions mapping
+        $rolePermissions = [
+            'Super Admin' => Permission::all()->pluck('name')->toArray(),
+            'Admin' => [
+                'dashboard_access', 'administrator_access',
+                'users_view', 'users_create', 'users_edit', 'users_reset_device',
+                'roles_view', 'system_settings_access', 'system_logs_access', 'activity_logs_view', 'multi_device_login',
+                'erm_access', 'pasien_view', 'pasien_create', 'pasien_edit', 'pasien_delete', 'pasien_view_details',
+                'registrasi_view', 'registrasi_create', 'registrasi_edit', 'registrasi_delete', 'registrasi_view_details',
+                'rawat_jalan_view', 'rawat_jalan_create', 'rawat_jalan_edit', 'rawat_jalan_delete', 'rawat_jalan_view_details',
+                'sdm_access', 'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
+                'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
+                'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
+                'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+                'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
+                'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+                'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
+            ],
+            'HRD Manager' => [
+                'dashboard_access', 'sdm_access',
+                'pegawai_view', 'pegawai_create', 'pegawai_edit', 'pegawai_delete', 'pegawai_view_details',
+                'dokter_view', 'dokter_create', 'dokter_edit', 'dokter_delete', 'dokter_view_details',
+                'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
+                'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+                'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
+                'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+                'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
+            ],
+            'Staff HRD' => [
+                'dashboard_access', 'sdm_access',
+                'pegawai_view', 'pegawai_edit', 'pegawai_view_details',
+                'dokter_view', 'dokter_edit', 'dokter_view_details',
+                'petugas_view', 'petugas_edit', 'petugas_view_details',
+                'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+                'view_all_absent', 'create_absent', 'edit_absent',
+                'view_all_cuti', 'create_cuti', 'edit_cuti',
+            ],
+            'Supervisor' => [
+                'dashboard_access', 'sdm_access',
+                'pegawai_view', 'pegawai_view_details',
+                'dokter_view', 'dokter_view_details',
+                'petugas_view', 'petugas_view_details',
+                'berkas_pegawai_view', 'berkas_pegawai_view_details',
+                'view_all_absent', 'view_all_cuti',
+            ],
+            'Manager' => [
+                'dashboard_access', 'administrator_access',
+                'users_view', 'users_edit', 'users_reset_device', 'activity_logs_view',
+                'erm_access', 'pasien_view', 'pasien_view_details',
+                'registrasi_view', 'registrasi_view_details',
+                'rawat_jalan_view', 'rawat_jalan_view_details',
+                'sdm_access', 'pegawai_view', 'pegawai_view_details',
+                'dokter_view', 'dokter_view_details',
+                'petugas_view', 'petugas_view_details',
+                'berkas_pegawai_view', 'berkas_pegawai_view_details',
+                'view_all_absent', 'edit_absent',
+                'view_all_cuti', 'approve_cuti', 'edit_cuti',
+            ],
+            'User' => [
+                'dashboard_access',
+                'view_own_absent', 'create_absent',
+                'view_own_cuti', 'create_cuti',
+            ],
+        ];
+
+        // Assign permissions to existing roles
+        foreach ($rolePermissions as $roleName => $permissions) {
+            try {
+                // Get existing role (we know it exists from above)
+                $role = Role::where('name', $roleName)->where('guard_name', 'web')->first();
+                
+                if (!$role) {
+                    $this->command->error("Role {$roleName} not found!");
+                    continue;
+                }
+
+                // Clear existing permissions for this role
+                \Illuminate\Support\Facades\DB::table('role_has_permissions')
+                    ->where('role_id', $role->id)
+                    ->delete();
+
+                // Filter permissions to only include existing ones
+                $validPermissions = Permission::whereIn('name', $permissions)->get();
+                
+                if ($validPermissions->isNotEmpty()) {
+                    // Use raw DB insert to avoid any Laravel model issues
+                    $insertData = [];
+                    foreach ($validPermissions as $permission) {
+                        $insertData[] = [
+                            'role_id' => $role->id,
+                            'permission_id' => $permission->id
+                        ];
+                    }
+                    
+                    if (!empty($insertData)) {
+                        \Illuminate\Support\Facades\DB::table('role_has_permissions')->insert($insertData);
+                    }
+                }
+
+            } catch (\Exception $e) {
+                $this->command->error("Error assigning permissions to role {$roleName}: " . $e->getMessage());
+            }
+        }
+        
+        // Clear cache after all assignments
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }
