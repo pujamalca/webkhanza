@@ -6,6 +6,7 @@ use App\Filament\Clusters\UserRole\Resources\Roles\RoleResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Spatie\Permission\Models\Permission;
+use Filament\Notifications\Notification;
 
 class EditRole extends EditRecord
 {
@@ -16,7 +17,22 @@ class EditRole extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->requiresConfirmation()
+                ->before(function ($record, $action) {
+                    $usersCount = $record->users()->count();
+                    
+                    if ($usersCount > 0) {
+                        Notification::make()
+                            ->danger()
+                            ->title('Tidak dapat menghapus role')
+                            ->body("Role '{$record->name}' tidak dapat dihapus karena masih memiliki {$usersCount} user yang menggunakan role ini.")
+                            ->persistent()
+                            ->send();
+                            
+                        $action->cancel();
+                    }
+                }),
         ];
     }
 

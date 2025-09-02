@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 
 class RolesTable
 {
@@ -50,7 +51,31 @@ class RolesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
+                        ->label('Hapus Terpilih')
+                        ->requiresConfirmation()
+                        ->before(function ($records, $action) {
+                            $rolesWithUsers = [];
+                            
+                            foreach ($records as $record) {
+                                $usersCount = $record->users()->count();
+                                if ($usersCount > 0) {
+                                    $rolesWithUsers[] = "'{$record->name}' ({$usersCount} user)";
+                                }
+                            }
+                            
+                            if (!empty($rolesWithUsers)) {
+                                $rolesList = implode(', ', $rolesWithUsers);
+                                
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Tidak dapat menghapus role')
+                                    ->body("Role berikut tidak dapat dihapus karena masih memiliki user: {$rolesList}")
+                                    ->persistent()
+                                    ->send();
+                                    
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
