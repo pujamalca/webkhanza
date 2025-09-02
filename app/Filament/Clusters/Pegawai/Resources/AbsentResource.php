@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -21,11 +22,15 @@ use Filament\Support\Enums\FontWeight;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\ViewField;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Storage as StorageFacade;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class AbsentResource extends Resource
@@ -104,7 +109,7 @@ class AbsentResource extends Resource
     }
 
     public static function form(Schema $schema): Schema
-    {
+    {        
         return $schema
             ->schema([
                 Section::make('Informasi Pegawai')
@@ -128,20 +133,22 @@ class AbsentResource extends Resource
                             ->label('Tanggal')
                             ->required()
                             ->default(today())
+                            ->disabled()
                             ->maxDate(today()),
                     ])
                     ->columns(2),
 
-                Section::make('Waktu & Status')
+                Section::make('Jenis Absensi')
                     ->schema([
-                        Forms\Components\TimePicker::make('check_in')
-                            ->label('Waktu Masuk')
-                            ->default(now()->format('H:i'))
-                            ->seconds(false),
-                            
-                        Forms\Components\TimePicker::make('check_out')
-                            ->label('Waktu Pulang')
-                            ->seconds(false),
+                        Forms\Components\Select::make('attendance_type')
+                            ->label('Pilih Jenis Absensi')
+                            ->options([
+                                'masuk' => 'Absen Masuk',
+                                'pulang' => 'Absen Pulang',
+                            ])
+                            ->required()
+                            ->default('masuk')
+                            ->live(),
                             
                         Forms\Components\Select::make('status')
                             ->label('Status')
@@ -154,37 +161,39 @@ class AbsentResource extends Resource
                             ->required()
                             ->default('hadir'),
                     ])
-                    ->columns(3),
+                    ->columns(2),
 
                 Section::make('Foto Absensi')
                     ->schema([
-                        FileUpload::make('check_in_photo')
+                        // Camera capture untuk foto masuk
+                        ViewField::make('check_in_photo_capture')
                             ->label('Foto Masuk')
-                            ->image()
-                            ->directory('absent-photos')
-                            ->visibility('public')
-                            ->maxSize(512) // 500KB
-                            ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                            ->imageResizeMode('cover')
-                            ->imageCropAspectRatio('1:1')
-                            ->imageResizeTargetWidth('800')
-                            ->imageResizeTargetHeight('800')
-                                                        ->helperText('Maksimal 500KB. Format: JPG, PNG, WEBP'),
+                            ->view('filament.forms.camera-capture')
+                            ->viewData([
+                                'field_name' => 'check_in_photo',
+                                'label' => 'Ambil Foto Masuk'
+                            ])
+                            ->columnSpanFull()
+                            ->visible(fn($get) => $get('attendance_type') === 'masuk'),
                             
-                        FileUpload::make('check_out_photo')
+                        Forms\Components\Hidden::make('check_in_photo')
+                            ->visible(fn($get) => $get('attendance_type') === 'masuk'),
+                            
+                        // Camera capture untuk foto pulang
+                        ViewField::make('check_out_photo_capture')
                             ->label('Foto Pulang')
-                            ->image()
-                            ->directory('absent-photos')
-                            ->visibility('public')
-                            ->maxSize(512) // 500KB
-                            ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                            ->imageResizeMode('cover')
-                            ->imageCropAspectRatio('1:1')
-                            ->imageResizeTargetWidth('800')
-                            ->imageResizeTargetHeight('800')
-                                                        ->helperText('Maksimal 500KB. Format: JPG, PNG, WEBP'),
+                            ->view('filament.forms.camera-capture')
+                            ->viewData([
+                                'field_name' => 'check_out_photo',
+                                'label' => 'Ambil Foto Pulang'
+                            ])
+                            ->columnSpanFull()
+                            ->visible(fn($get) => $get('attendance_type') === 'pulang'),
+                            
+                        Forms\Components\Hidden::make('check_out_photo')
+                            ->visible(fn($get) => $get('attendance_type') === 'pulang'),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Section::make('Catatan')
                     ->schema([
@@ -218,14 +227,14 @@ class AbsentResource extends Resource
                     ->time('H:i')
                     ->sortable()
                     ->badge()
-                    ->color(fn(?string $state): string => $state ? Color::Green : Color::Gray),
+                    ->color(fn(?string $state) => $state ? Color::Green : Color::Gray),
                     
                 Tables\Columns\TextColumn::make('check_out')
                     ->label('Pulang')
                     ->time('H:i')
                     ->sortable()
                     ->badge()
-                    ->color(fn(?string $state): string => $state ? Color::Blue : Color::Gray),
+                    ->color(fn(?string $state) => $state ? Color::Blue : Color::Gray),
                     
                 Tables\Columns\TextColumn::make('total_working_hours')
                     ->label('Total Jam')
@@ -235,7 +244,7 @@ class AbsentResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn(string $state) => match ($state) {
                         'hadir' => Color::Green,
                         'terlambat' => Color::Yellow,
                         'izin' => Color::Blue,
@@ -331,8 +340,73 @@ class AbsentResource extends Resource
                     ->visible(fn() => auth()->user()->can('view_all_absent')),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('Edit'),
+                Action::make('absen_pulang')
+                    ->label('Absen Pulang')
+                    ->icon('heroicon-o-camera')
+                    ->color('success')
+                    ->visible(fn($record) => empty($record->check_out))
+                    ->modalHeading('Absen Pulang')
+                    ->modalDescription('Ambil foto dan konfirmasi absen pulang Anda')
+                    ->modalWidth('lg')
+                    ->form([
+                        Forms\Components\Hidden::make('photo_data')
+                            ->required()
+                            ->rule('required', 'Foto diperlukan untuk absen pulang'),
+                            
+                        Forms\Components\ViewField::make('camera_capture')
+                            ->label('')
+                            ->view('filament.forms.absen-camera')
+                            ->viewData(['type' => 'check_out']),
+                        
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Catatan Pulang (Opsional)')
+                            ->rows(3)
+                            ->placeholder('Contoh: Lembur sampai malam, menyelesaikan laporan bulanan...')
+                            ->maxLength(500),
+                    ])
+                    ->action(function (array $data, $record) {
+                        try {
+                            // Debug log
+                            \Log::info('Absen pulang data:', $data);
+                            
+                            // Validate photo data
+                            if (empty($data['photo_data'])) {
+                                throw new \Exception('Foto diperlukan untuk absen pulang. Silakan ambil foto terlebih dahulu.');
+                            }
+                            
+                            // Save photo
+                            $photoPath = self::saveBase64Image($data['photo_data'], 'check_out', $record->employee_id);
+                            
+                            if (!$photoPath) {
+                                throw new \Exception('Gagal menyimpan foto. Silakan coba lagi.');
+                            }
+                            
+                            // Update record
+                            $record->update([
+                                'check_out' => now()->format('H:i:s'),
+                                'check_out_photo' => $photoPath,
+                                'notes' => $data['notes'] ?? $record->notes,
+                            ]);
+                            
+                            Notification::make()
+                                ->title('Absen pulang berhasil!')
+                                ->body('Waktu pulang: ' . now()->format('H:i'))
+                                ->success()
+                                ->send();
+                                
+                        } catch (\Exception $e) {
+                            \Log::error('Absen pulang error:', ['error' => $e->getMessage(), 'data' => $data]);
+                            
+                            Notification::make()
+                                ->title('Gagal absen pulang')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->modalSubmitActionLabel('Konfirmasi Absen Pulang')
+                    ->modalCancelActionLabel('Batal'),
+                    
                 ViewAction::make()
                     ->label('Lihat'),
                 DeleteAction::make()
@@ -359,8 +433,37 @@ class AbsentResource extends Resource
         return [
             'index' => Pages\ListAbsents::route('/'),
             'create' => Pages\CreateAbsent::route('/create'),
-            'edit' => Pages\EditAbsent::route('/{record}/edit'),
             'view' => Pages\ViewAbsent::route('/{record}'),
         ];
+    }
+
+    private static function saveBase64Image(string $base64Data, string $type, $employeeId): ?string
+    {
+        try {
+            // Remove data:image/jpeg;base64, prefix if exists
+            if (strpos($base64Data, 'data:image') !== false) {
+                $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+            }
+            
+            // Validate base64 data
+            $imageData = base64_decode($base64Data, true);
+            if ($imageData === false) {
+                \Log::error('Invalid base64 data for ' . $type);
+                return null;
+            }
+            
+            // Generate unique filename
+            $filename = 'absent-' . $type . '-' . $employeeId . '-' . time() . '.jpg';
+            $path = 'absent-photos/' . $filename;
+            
+            // Save to storage
+            StorageFacade::disk('public')->put($path, $imageData);
+            
+            return $path;
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to save image: ' . $e->getMessage());
+            return null;
+        }
     }
 }
