@@ -107,7 +107,7 @@ class CutiResource extends Resource
     {
         return $schema
             ->schema([
-                Section::make('Informasi Pegawai')
+                Section::make('Pengajuan Cuti')
                     ->schema([
                         Forms\Components\Select::make('employee_id')
                             ->label('Pegawai')
@@ -123,15 +123,13 @@ class CutiResource extends Resource
                             ->searchable()
                             ->preload()
                             ->visible(fn() => auth()->user()->can('view_all_cuti'))
-                            ->disabled(fn() => !auth()->user()->can('view_all_cuti')),
+                            ->disabled(fn() => !auth()->user()->can('view_all_cuti'))
+                            ->columnSpan(2),
                             
                         Forms\Components\Hidden::make('employee_id')
                             ->default(fn() => auth()->id())
                             ->visible(fn() => !auth()->user()->can('view_all_cuti')),
-                    ]),
 
-                Section::make('Periode Cuti')
-                    ->schema([
                         Forms\Components\DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
                             ->required()
@@ -173,11 +171,7 @@ class CutiResource extends Resource
                                 
                                 return 'Pilih tanggal mulai dan selesai';
                             }),
-                    ])
-                    ->columns(3),
 
-                Section::make('Detail Cuti')
-                    ->schema([
                         Forms\Components\Select::make('leave_type')
                             ->label('Jenis Cuti')
                             ->options([
@@ -189,18 +183,18 @@ class CutiResource extends Resource
                                 'lainnya' => 'Lainnya',
                             ])
                             ->required()
-                            ->default('tahunan'),
+                            ->default('tahunan')
+                            ->columnSpan(2),
                             
                         Forms\Components\Textarea::make('reason')
                             ->label('Alasan Cuti')
                             ->required()
-                            ->rows(4)
-                            ->placeholder('Jelaskan alasan pengajuan cuti...'),
-                    ])
-                    ->columns(1),
+                            ->rows(3)
+                            ->placeholder('Jelaskan alasan pengajuan cuti...')
+                            ->columnSpan(2),
 
-                Section::make('Status Persetujuan')
-                    ->schema([
+
+                        // Status approval fields - only visible for approvers
                         Forms\Components\Select::make('status')
                             ->label('Status')
                             ->options([
@@ -209,7 +203,8 @@ class CutiResource extends Resource
                                 'rejected' => 'Ditolak',
                             ])
                             ->default('pending')
-                            ->disabled(fn() => !auth()->user()->can('approve_cuti')),
+                            ->disabled(fn() => !auth()->user()->can('approve_cuti'))
+                            ->visible(fn() => auth()->user()->can('approve_cuti')),
                             
                         Forms\Components\Select::make('approved_by')
                             ->label('Disetujui Oleh')
@@ -218,19 +213,20 @@ class CutiResource extends Resource
                             })->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
-                            ->disabled(),
+                            ->disabled()
+                            ->visible(fn() => auth()->user()->can('approve_cuti')),
                             
                         Forms\Components\DateTimePicker::make('approved_at')
                             ->label('Waktu Persetujuan')
-                            ->disabled(),
+                            ->disabled()
+                            ->visible(fn() => auth()->user()->can('approve_cuti')),
+                            
+                        // Hidden fields for regular users
+                        Forms\Components\Hidden::make('status')
+                            ->default('pending')
+                            ->visible(fn() => !auth()->user()->can('approve_cuti')),
                     ])
-                    ->columns(3)
-                    ->visible(fn() => auth()->user()->can('approve_cuti')),
-                    
-                // Hidden fields for regular users
-                Forms\Components\Hidden::make('status')
-                    ->default('pending')
-                    ->visible(fn() => !auth()->user()->can('approve_cuti')),
+                    ->columns(3),
             ]);
     }
 

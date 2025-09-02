@@ -25,6 +25,8 @@ class ViewCuti extends ViewRecord
                     $this->record->status === 'pending'
                 )
                 ->requiresConfirmation()
+                ->modalHeading('Setujui Pengajuan Cuti')
+                ->modalDescription('Apakah Anda yakin ingin menyetujui pengajuan cuti ini?')
                 ->action(function () {
                     $this->record->approve(auth()->id());
                     $this->refreshFormData(['status', 'approved_by', 'approved_at']);
@@ -39,6 +41,8 @@ class ViewCuti extends ViewRecord
                     $this->record->status === 'pending'
                 )
                 ->requiresConfirmation()
+                ->modalHeading('Tolak Pengajuan Cuti')
+                ->modalDescription('Apakah Anda yakin ingin menolak pengajuan cuti ini?')
                 ->action(function () {
                     $this->record->reject(auth()->id());
                     $this->refreshFormData(['status', 'approved_by', 'approved_at']);
