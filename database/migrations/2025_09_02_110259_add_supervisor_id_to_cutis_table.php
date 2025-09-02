@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cutis', function (Blueprint $table) {
-            $table->foreignId('supervisor_id')->nullable()->after('employee_id')
-                  ->constrained('users')
-                  ->onDelete('set null')
+            // Add supervisor_id column
+            $table->string('supervisor_id', 20)->nullable()->after('employee_id')
                   ->comment('Atasan yang harus menyetujui cuti');
+            $table->foreign('supervisor_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

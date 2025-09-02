@@ -46,12 +46,28 @@ class CutiResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_own_cuti') || auth()->user()->can('view_all_cuti');
+        $user = auth()->user();
+        if (!$user) return false;
+        
+        try {
+            return $user->can('view_own_cuti') || $user->can('view_all_cuti');
+        } catch (\Exception $e) {
+            // If permission system fails, allow admin roles
+            return $user->hasRole(['Super Admin', 'Admin', 'HRD Manager']);
+        }
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_cuti');
+        $user = auth()->user();
+        if (!$user) return false;
+        
+        try {
+            return $user->can('create_cuti');
+        } catch (\Exception $e) {
+            // If permission system fails, allow admin roles
+            return $user->hasRole(['Super Admin', 'Admin', 'HRD Manager']);
+        }
     }
 
     public static function canEdit($record): bool

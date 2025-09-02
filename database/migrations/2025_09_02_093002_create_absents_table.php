@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('absents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
+            $table->string('employee_id', 20);
+            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade');
             $table->date('date');
             $table->time('check_in')->nullable();
             $table->time('check_out')->nullable();

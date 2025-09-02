@@ -10,14 +10,16 @@ return new class extends Migration
     {
         Schema::create('cutis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
+            $table->string('employee_id', 20);
+            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
             $table->enum('leave_type', ['tahunan', 'sakit', 'darurat', 'melahirkan', 'menikah', 'lainnya'])
                   ->default('tahunan');
             $table->text('reason');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('approved_by', 20)->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null');
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
 

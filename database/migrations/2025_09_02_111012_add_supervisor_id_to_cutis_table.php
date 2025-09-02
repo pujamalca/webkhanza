@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cutis', function (Blueprint $table) {
-            $table->foreignId('supervisor_id')->nullable()->after('employee_id')
-                  ->constrained('users')
-                  ->onDelete('set null')
-                  ->comment('Supervisor yang harus menyetujui cuti');
+            // supervisor_id already added in previous migration
             $table->enum('supervisor_status', ['pending', 'approved', 'rejected'])
                   ->default('pending')
                   ->after('supervisor_id')
@@ -32,8 +29,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cutis', function (Blueprint $table) {
-            $table->dropForeign(['supervisor_id']);
-            $table->dropColumn(['supervisor_id', 'supervisor_status', 'supervisor_approved_at']);
+            // supervisor_id will be dropped by the previous migration
+            $table->dropColumn(['supervisor_status', 'supervisor_approved_at']);
         });
     }
 };

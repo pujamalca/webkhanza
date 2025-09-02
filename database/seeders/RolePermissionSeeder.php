@@ -119,6 +119,9 @@ class RolePermissionSeeder extends Seeder
             'system_settings_access',
             'system_logs_access',
             'activity_logs_view',
+            
+            // Multi Device Login
+            'multi_device_login',
         ];
 
         foreach ($permissions as $permission) {
@@ -148,6 +151,7 @@ class RolePermissionSeeder extends Seeder
             'users_view', 'users_create', 'users_edit', 'users_reset_device',
             'roles_view',
             'system_settings_access', 'system_logs_access', 'activity_logs_view',
+            'multi_device_login',
             'erm_access',
             'pasien_view', 'pasien_create', 'pasien_edit', 'pasien_delete', 'pasien_view_details',
             'registrasi_view', 'registrasi_create', 'registrasi_edit', 'registrasi_delete', 'registrasi_view_details',
@@ -158,6 +162,9 @@ class RolePermissionSeeder extends Seeder
             'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
             'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
             'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
+            // Pegawai Cluster Permissions
+            'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+            'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
         ]);
         
         // HRD Manager - Full SDM access only
@@ -173,6 +180,9 @@ class RolePermissionSeeder extends Seeder
             'petugas_view', 'petugas_create', 'petugas_edit', 'petugas_delete', 'petugas_view_details',
             'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_delete', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
             'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
+            // Pegawai Cluster Permissions
+            'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
+            'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
         ]);
         
         // Staff HRD - Limited SDM operations
@@ -187,6 +197,9 @@ class RolePermissionSeeder extends Seeder
             'dokter_view', 'dokter_edit', 'dokter_view_details',
             'petugas_view', 'petugas_edit', 'petugas_view_details',
             'berkas_pegawai_view', 'berkas_pegawai_create', 'berkas_pegawai_edit', 'berkas_pegawai_download', 'berkas_pegawai_view_details',
+            // Pegawai Cluster Permissions - View and Create only
+            'view_all_absent', 'create_absent', 'edit_absent',
+            'view_all_cuti', 'create_cuti', 'edit_cuti',
         ]);
         
         // Supervisor - Read access to specific menus
@@ -201,6 +214,9 @@ class RolePermissionSeeder extends Seeder
             'dokter_view', 'dokter_view_details',
             'petugas_view', 'petugas_view_details',
             'berkas_pegawai_view', 'berkas_pegawai_view_details',
+            // Pegawai Cluster Permissions - View only
+            'view_all_absent',
+            'view_all_cuti',
         ]);
         
         // Manager - User management and read access to SDM
@@ -222,6 +238,9 @@ class RolePermissionSeeder extends Seeder
             'dokter_view', 'dokter_view_details',
             'petugas_view', 'petugas_view_details',
             'berkas_pegawai_view', 'berkas_pegawai_view_details',
+            // Pegawai Cluster Permissions - View and Approve
+            'view_all_absent', 'edit_absent',
+            'view_all_cuti', 'approve_cuti', 'edit_cuti',
         ]);
         
         // User - Basic access only
@@ -230,7 +249,10 @@ class RolePermissionSeeder extends Seeder
             ['guard_name' => 'web']
         );
         $user->givePermissionTo([
-            'dashboard_access'
+            'dashboard_access',
+            // Pegawai Cluster Permissions - Own data only
+            'view_own_absent', 'create_absent',
+            'view_own_cuti', 'create_cuti',
         ]);
 
         $this->command->info('Roles and permissions seeded successfully!');

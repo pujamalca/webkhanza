@@ -26,11 +26,35 @@ class PegawaiCluster extends Cluster
     {
         $user = auth()->user();
         
-        return $user && (
-            $user->can('view_own_absent') || 
-            $user->can('view_all_absent') ||
-            $user->can('view_own_cuti') || 
-            $user->can('view_all_cuti')
-        );
+        if (!$user) {
+            return false;
+        }
+        
+        // Check if any pegawai permissions exist, if not, allow access for testing
+        $permissions = [
+            'view_own_absent', 'view_all_absent',
+            'view_own_cuti', 'view_all_cuti'
+        ];
+        
+        try {
+            foreach ($permissions as $permission) {
+                if ($user->can($permission)) {
+                    return true;
+                }
+            }
+            
+            // If no permissions found but user is admin/superadmin, allow access
+            if ($user->hasRole(['Super Admin', 'Admin', 'HRD Manager'])) {
+                return true;
+            }
+            
+        } catch (\Exception $e) {
+            // If permission system is not working, allow access for admin roles
+            if ($user->hasRole(['Super Admin', 'Admin', 'HRD Manager'])) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

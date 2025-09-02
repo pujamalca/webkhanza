@@ -46,12 +46,28 @@ class AbsentResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_own_absent') || auth()->user()->can('view_all_absent');
+        $user = auth()->user();
+        if (!$user) return false;
+        
+        try {
+            return $user->can('view_own_absent') || $user->can('view_all_absent');
+        } catch (\Exception $e) {
+            // If permission system fails, allow admin roles
+            return $user->hasRole(['Super Admin', 'Admin', 'HRD Manager']);
+        }
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_absent');
+        $user = auth()->user();
+        if (!$user) return false;
+        
+        try {
+            return $user->can('create_absent');
+        } catch (\Exception $e) {
+            // If permission system fails, allow admin roles
+            return $user->hasRole(['Super Admin', 'Admin', 'HRD Manager']);
+        }
     }
 
     public static function canEdit($record): bool

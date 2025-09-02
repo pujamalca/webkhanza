@@ -31,7 +31,8 @@
       "Bash(move \"app\\Filament\\Components\\ProfileAction.php\" \"app\\Livewire\\ProfileAction.php\")",
       "Bash(dir:*)",
       "Bash(cd:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(move \"artisan_commands\\SafeMigrationCommand.php\" \"app\\Console\\Commands\\SafeMigrationCommand.php\")"
     ],
     "deny": [],
     "ask": [],

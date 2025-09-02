@@ -165,4 +165,28 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         
         return null;
     }
+
+    /**
+     * Relationship with absents (attendance records)
+     */
+    public function absents()
+    {
+        return $this->hasMany(Absent::class, 'employee_id', 'id');
+    }
+
+    /**
+     * Relationship with leave requests (cutis)
+     */
+    public function cutis()
+    {
+        return $this->hasMany(Cuti::class, 'employee_id', 'id');
+    }
+
+    /**
+     * Relationship with approved leave requests
+     */
+    public function approvedCutis()
+    {
+        return $this->hasMany(Cuti::class, 'approved_by', 'id');
+    }
 }

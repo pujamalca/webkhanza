@@ -38,8 +38,14 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Logout::class, SetUserLoggedOutOnLogout::class);
         Event::listen(Logout::class, CleanupSessionsOnLogout::class);
         
-        // Start SQL query tracking
-        SqlQueryTracker::track();
+        // Start SQL query tracking only if activity_log table exists
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('activity_log')) {
+                SqlQueryTracker::track();
+            }
+        } catch (\Exception $e) {
+            // Skip SQL tracking during migrations
+        }
         
         // Register console commands
         if ($this->app->runningInConsole()) {
