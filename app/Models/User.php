@@ -19,6 +19,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles, LogsActivity;
 
+    /**
+     * Indicates if the model's ID is auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +39,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * @var list<string>
      */
     protected $fillable = [
+        'id',
         'name',
+        'username', 
         'email',
         'password',
         'avatar_url',
