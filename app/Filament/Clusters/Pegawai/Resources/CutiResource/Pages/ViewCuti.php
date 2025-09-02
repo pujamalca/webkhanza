@@ -6,7 +6,7 @@ use App\Filament\Clusters\Pegawai\Resources\CutiResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\TextEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 
 class ViewCuti extends ViewRecord

@@ -58,6 +58,11 @@ class CutiResource extends Resource
     {
         $user = auth()->user();
         
+        // Jika cuti sudah disetujui atau ditolak, tidak bisa diedit oleh siapa pun
+        if (in_array($record->status, ['approved', 'rejected'])) {
+            return false;
+        }
+        
         if ($user->can('edit_cuti')) {
             return true;
         }
@@ -71,6 +76,11 @@ class CutiResource extends Resource
     public static function canDelete($record): bool
     {
         $user = auth()->user();
+        
+        // Jika cuti sudah disetujui atau ditolak, tidak bisa dihapus oleh siapa pun
+        if (in_array($record->status, ['approved', 'rejected'])) {
+            return false;
+        }
         
         if ($user->can('delete_cuti')) {
             return true;
@@ -112,7 +122,12 @@ class CutiResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
+                            ->visible(fn() => auth()->user()->can('view_all_cuti'))
                             ->disabled(fn() => !auth()->user()->can('view_all_cuti')),
+                            
+                        Forms\Components\Hidden::make('employee_id')
+                            ->default(fn() => auth()->id())
+                            ->visible(fn() => !auth()->user()->can('view_all_cuti')),
                     ]),
 
                 Section::make('Periode Cuti')
@@ -203,16 +218,19 @@ class CutiResource extends Resource
                             })->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
-                            ->visible(fn() => auth()->user()->can('approve_cuti'))
                             ->disabled(),
                             
                         Forms\Components\DateTimePicker::make('approved_at')
                             ->label('Waktu Persetujuan')
-                            ->visible(fn() => auth()->user()->can('approve_cuti'))
                             ->disabled(),
                     ])
                     ->columns(3)
                     ->visible(fn() => auth()->user()->can('approve_cuti')),
+                    
+                // Hidden fields for regular users
+                Forms\Components\Hidden::make('status')
+                    ->default('pending')
+                    ->visible(fn() => !auth()->user()->can('approve_cuti')),
             ]);
     }
 
@@ -240,29 +258,29 @@ class CutiResource extends Resource
                 Tables\Columns\TextColumn::make('total_days')
                     ->label('Total Hari')
                     ->badge()
-                    ->color(Color::Indigo)
+                    ->color('primary')
                     ->suffix(' hari'),
                     
                 Tables\Columns\TextColumn::make('leave_type_label')
                     ->label('Jenis Cuti')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'Cuti Tahunan' => Color::Green,
-                        'Cuti Sakit' => Color::Red,
-                        'Cuti Darurat' => Color::Orange,
-                        'Cuti Melahirkan' => Color::Pink,
-                        'Cuti Menikah' => Color::Purple,
-                        default => Color::Gray,
+                        'Cuti Tahunan' => 'success',
+                        'Cuti Sakit' => 'danger',
+                        'Cuti Darurat' => 'warning',
+                        'Cuti Melahirkan' => 'info',
+                        'Cuti Menikah' => 'primary',
+                        default => 'gray',
                     }),
                     
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'pending' => Color::Yellow,
-                        'approved' => Color::Green,
-                        'rejected' => Color::Red,
-                        default => Color::Gray,
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'pending' => 'Menunggu',
@@ -399,7 +417,31 @@ class CutiResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
+                        ->label('Hapus Terpilih')
+                        ->requiresConfirmation()
+                        ->before(function ($records, $action) {
+                            $approvedOrRejected = [];
+                            
+                            foreach ($records as $record) {
+                                if (in_array($record->status, ['approved', 'rejected'])) {
+                                    $statusLabel = $record->status === 'approved' ? 'disetujui' : 'ditolak';
+                                    $approvedOrRejected[] = "Cuti {$record->employee->name} ({$record->start_date->format('d/m/Y')} - {$record->end_date->format('d/m/Y')}) - Status: {$statusLabel}";
+                                }
+                            }
+                            
+                            if (!empty($approvedOrRejected)) {
+                                $recordsList = implode('\n', $approvedOrRejected);
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Tidak dapat menghapus pengajuan cuti')
+                                    ->body("Pengajuan cuti berikut tidak dapat dihapus karena sudah disetujui/ditolak:\n\n{$recordsList}")
+                                    ->persistent()
+                                    ->send();
+                                    
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ])
             ->emptyStateHeading('Belum ada data cuti')
