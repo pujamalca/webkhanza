@@ -37,11 +37,21 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Get website identity data from service
+        $identity = app('website.identity');
+        
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
+            // Set brand name from database
+            ->brandName($identity->name ?? 'WebKhanza')
+            // Set brand logo from database with fallback
+            ->brandLogo(fn () => $identity->logo ? asset('storage/' . $identity->logo) : null)
+            ->brandLogoHeight('2rem')
+            // Set favicon from database with fallback
+            ->favicon(fn () => $identity->favicon ? asset('storage/' . $identity->favicon) : asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Amber,
             ])
