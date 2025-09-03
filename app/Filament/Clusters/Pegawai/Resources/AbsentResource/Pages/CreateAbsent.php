@@ -10,6 +10,13 @@ class CreateAbsent extends CreateRecord
 {
     protected static string $resource = AbsentResource::class;
     
+    protected static ?string $title = 'Absen Masuk';
+    
+    public function getHeading(): string
+    {
+        return 'Absen Masuk';
+    }
+    
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
@@ -17,6 +24,13 @@ class CreateAbsent extends CreateRecord
     
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Debug log to see when this is called
+        \Log::info('CreateAbsent::mutateFormDataBeforeCreate called', [
+            'timestamp' => now()->format('H:i:s.u'),
+            'data_keys' => array_keys($data),
+            'has_photo' => isset($data['check_in_photo']) && !empty($data['check_in_photo'])
+        ]);
+        
         // Set employee_id untuk user yang tidak memiliki akses view_all_absent
         if (!auth()->user()->can('view_all_absent')) {
             $data['employee_id'] = auth()->id();
@@ -25,69 +39,32 @@ class CreateAbsent extends CreateRecord
         // Set tanggal otomatis ke hari ini
         $data['date'] = today();
         
-        // Set status default ke hadir
-        $data['status'] = 'hadir';
+        // Handle absensi masuk (form create hanya untuk absen masuk)
+        $data['check_in'] = now()->format('H:i:s');
         
-        $attendanceType = $data['attendance_type'] ?? 'masuk';
-        
-        if ($attendanceType === 'masuk') {
-            // Handle absensi masuk
-            $data['check_in'] = now()->format('H:i:s');
+        // Handle camera capture photos untuk check_in
+        if (isset($data['check_in_photo']) && !empty($data['check_in_photo'])) {
+            $photoData = is_array($data['check_in_photo']) ? 
+                (isset($data['check_in_photo'][0]) ? $data['check_in_photo'][0] : null) : 
+                $data['check_in_photo'];
             
-            // Handle camera capture photos untuk check_in
-            if (isset($data['check_in_photo']) && !empty($data['check_in_photo'])) {
-                $photoData = is_array($data['check_in_photo']) ? 
-                    (isset($data['check_in_photo'][0]) ? $data['check_in_photo'][0] : null) : 
-                    $data['check_in_photo'];
-                
-                if (!empty($photoData) && is_string($photoData)) {
-                    $savedPath = $this->saveBase64Image($photoData, 'check_in');
-                    if ($savedPath) {
-                        $data['check_in_photo'] = $savedPath;
-                    } else {
-                        unset($data['check_in_photo']);
-                    }
+            if (!empty($photoData) && is_string($photoData)) {
+                $savedPath = $this->saveBase64Image($photoData, 'check_in');
+                if ($savedPath) {
+                    $data['check_in_photo'] = $savedPath;
                 } else {
                     unset($data['check_in_photo']);
                 }
             } else {
                 unset($data['check_in_photo']);
             }
-            
-            // Remove check_out data untuk absen masuk
-            unset($data['check_out_photo']);
-            unset($data['check_out']);
-            
         } else {
-            // Handle absensi pulang
-            $data['check_out'] = now()->format('H:i:s');
-            
-            // Handle camera capture photos untuk check_out
-            if (isset($data['check_out_photo']) && !empty($data['check_out_photo'])) {
-                $photoData = is_array($data['check_out_photo']) ? 
-                    (isset($data['check_out_photo'][0]) ? $data['check_out_photo'][0] : null) : 
-                    $data['check_out_photo'];
-                
-                if (!empty($photoData) && is_string($photoData)) {
-                    $savedPath = $this->saveBase64Image($photoData, 'check_out');
-                    if ($savedPath) {
-                        $data['check_out_photo'] = $savedPath;
-                    } else {
-                        unset($data['check_out_photo']);
-                    }
-                } else {
-                    unset($data['check_out_photo']);
-                }
-            } else {
-                unset($data['check_out_photo']);
-            }
-            
-            // Remove check_in data untuk absen pulang
             unset($data['check_in_photo']);
-            unset($data['check_in']);
         }
         
-        // Remove attendance_type dari data (tidak disimpan ke database)
+        // Remove check_out data dan attendance_type (tidak disimpan ke database)
+        unset($data['check_out_photo']);
+        unset($data['check_out']);
         unset($data['attendance_type']);
         
         return $data;

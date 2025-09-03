@@ -112,7 +112,7 @@ class AbsentResource extends Resource
     {        
         return $schema
             ->schema([
-                Section::make('Informasi Pegawai')
+                Section::make('Absen Masuk')
                     ->schema([
                         Forms\Components\Select::make('employee_id')
                             ->label('Pegawai')
@@ -135,73 +135,32 @@ class AbsentResource extends Resource
                             ->default(today())
                             ->disabled()
                             ->maxDate(today()),
-                    ])
-                    ->columns(2),
 
-                Section::make('Jenis Absensi')
-                    ->schema([
-                        Forms\Components\Select::make('attendance_type')
-                            ->label('Pilih Jenis Absensi')
-                            ->options([
-                                'masuk' => 'Absen Masuk',
-                                'pulang' => 'Absen Pulang',
-                            ])
-                            ->required()
-                            ->default('masuk')
-                            ->live(),
+                        Forms\Components\Hidden::make('attendance_type')
+                            ->default('masuk'),
                             
-                        Forms\Components\Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'hadir' => 'Hadir',
-                                'tidak_hadir' => 'Tidak Hadir',
-                                'terlambat' => 'Terlambat',
-                                'izin' => 'Izin',
-                            ])
-                            ->required()
+                        Forms\Components\Hidden::make('status')
                             ->default('hadir'),
-                    ])
-                    ->columns(2),
 
-                Section::make('Foto Absensi')
-                    ->schema([
-                        // Camera capture untuk foto masuk
-                        ViewField::make('check_in_photo_capture')
-                            ->label('Foto Masuk')
-                            ->view('filament.forms.camera-capture')
-                            ->viewData([
-                                'field_name' => 'check_in_photo',
-                                'label' => 'Ambil Foto Masuk'
-                            ])
-                            ->columnSpanFull()
-                            ->visible(fn($get) => $get('attendance_type') === 'masuk'),
-                            
-                        Forms\Components\Hidden::make('check_in_photo')
-                            ->visible(fn($get) => $get('attendance_type') === 'masuk'),
-                            
-                        // Camera capture untuk foto pulang
-                        ViewField::make('check_out_photo_capture')
-                            ->label('Foto Pulang')
-                            ->view('filament.forms.camera-capture')
-                            ->viewData([
-                                'field_name' => 'check_out_photo',
-                                'label' => 'Ambil Foto Pulang'
-                            ])
-                            ->columnSpanFull()
-                            ->visible(fn($get) => $get('attendance_type') === 'pulang'),
-                            
-                        Forms\Components\Hidden::make('check_out_photo')
-                            ->visible(fn($get) => $get('attendance_type') === 'pulang'),
-                    ])
-                    ->columns(1),
-
-                Section::make('Catatan')
-                    ->schema([
                         Forms\Components\Textarea::make('notes')
                             ->label('Catatan')
                             ->rows(3)
                             ->placeholder('Catatan tambahan (opsional)...'),
-                    ]),
+
+                        ViewField::make('check_in_photo_capture')
+                            ->label('Foto Absensi Masuk')
+                            ->view('filament.forms.absen-camera')
+                            ->viewData([
+                                'field_name' => 'check_in_photo',
+                                'label' => 'Ambil Foto Masuk'
+                            ])
+                            ->columnSpanFull(),
+                            
+                        Forms\Components\Hidden::make('check_in_photo')
+                            ->dehydrated()
+                            ->live(false),
+                    ])
+                    ->columns(1),
             ]);
     }
 
@@ -263,16 +222,16 @@ class AbsentResource extends Resource
                     ->label('Foto Masuk')
                     ->circular()
                     ->size(40)
+                    ->disk('public')
                     ->defaultImageUrl(url('/images/placeholder.png'))
-                    ->visible(false)
                     ->toggleable(),
                     
                 ImageColumn::make('check_out_photo')
                     ->label('Foto Pulang')
                     ->circular()
                     ->size(40)
+                    ->disk('public')
                     ->defaultImageUrl(url('/images/placeholder.png'))
-                    ->visible(false)
                     ->toggleable(),
                     
                 Tables\Columns\TextColumn::make('notes')
@@ -351,6 +310,8 @@ class AbsentResource extends Resource
                     ->form([
                         Forms\Components\Hidden::make('photo_data')
                             ->required()
+                            ->dehydrated()
+                            ->live(false)
                             ->rule('required', 'Foto diperlukan untuk absen pulang'),
                             
                         Forms\Components\ViewField::make('camera_capture')
@@ -364,10 +325,20 @@ class AbsentResource extends Resource
                             ->placeholder('Contoh: Lembur sampai malam, menyelesaikan laporan bulanan...')
                             ->maxLength(500),
                     ])
+                    ->before(function (array $data, $record) {
+                        \Log::info('Before action - Raw form data:', $data);
+                    })
                     ->action(function (array $data, $record) {
                         try {
                             // Debug log
-                            \Log::info('Absen pulang data:', $data);
+                            \Log::info('Absen pulang data received:', [
+                                'has_photo_data' => isset($data['photo_data']),
+                                'photo_data_length' => isset($data['photo_data']) ? strlen($data['photo_data']) : 0,
+                                'all_keys' => array_keys($data),
+                                'data_sample' => array_map(function($v) { 
+                                    return is_string($v) && strlen($v) > 100 ? substr($v, 0, 100) . '...' : $v; 
+                                }, $data)
+                            ]);
                             
                             // Validate photo data
                             if (empty($data['photo_data'])) {
@@ -432,7 +403,7 @@ class AbsentResource extends Resource
     {
         return [
             'index' => Pages\ListAbsents::route('/'),
-            'create' => Pages\CreateAbsent::route('/create'),
+            'create' => Pages\CreateAbsent::route('/absen-masuk'),
             'view' => Pages\ViewAbsent::route('/{record}'),
         ];
     }

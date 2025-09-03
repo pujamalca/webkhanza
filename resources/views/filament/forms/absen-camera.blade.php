@@ -1,53 +1,78 @@
-<div x-data="{
-    status: 'inactive',
-    captured: false,
-    stream: null,
-    
-    async startCamera() {
-        this.status = 'loading';
-        try {
-            this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-            this.$refs.video.srcObject = this.stream;
-            this.status = 'active';
-        } catch (error) {
-            this.status = 'error';
-        }
-    },
-    
-    capture() {
-        const video = this.$refs.video;
-        const canvas = this.$refs.canvas;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
+<div 
+    x-data="{ 
+        status: 'inactive', 
+        captured: false, 
+        stream: null,
         
-        canvas.toBlob((blob) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.$refs.preview.src = e.target.result;
-                document.querySelector('[name=photo_data]').value = e.target.result;
-                this.captured = true;
-                this.stopCamera();
-            };
-            reader.readAsDataURL(blob);
-        });
-    },
-    
-    retake() {
-        this.captured = false;
-        this.startCamera();
-    },
-    
-    stopCamera() {
-        if (this.stream) {
-            this.stream.getTracks().forEach(track => track.stop());
-            this.status = 'inactive';
+        init() {
+            this.startCamera();
+        },
+        
+        async startCamera() {
+            this.status = 'loading';
+            try {
+                this.stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' } 
+                });
+                this.$refs.video.srcObject = this.stream;
+                this.status = 'active';
+            } catch (error) {
+                console.error('Camera error:', error);
+                this.status = 'error';
+            }
+        },
+        
+        capturePhoto() {
+            const canvas = this.$refs.canvas;
+            const video = this.$refs.video;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.$refs.preview.src = e.target.result;
+                    
+                    // ONLY save to field, DO NOT trigger any events
+                    const fields = ['photo_data', 'check_in_photo', 'check_out_photo'];
+                    let fieldFound = false;
+                    for (const fieldName of fields) {
+                        const field = document.querySelector('[name=' + fieldName + ']');
+                        if (field) {
+                            field.value = e.target.result;
+                            console.log('Photo saved to field:', fieldName, 'Length:', e.target.result.length);
+                            fieldFound = true;
+                            break;
+                        }
+                    }
+                    if (!fieldFound) {
+                        console.error('No photo field found! Available fields:', 
+                            Array.from(document.querySelectorAll('input[type=hidden]')).map(f => f.name));
+                    }
+                    
+                    this.captured = true;
+                    this.stopCamera();
+                };
+                reader.readAsDataURL(blob);
+            });
+        },
+        
+        retake() {
+            this.captured = false;
+            this.startCamera();
+        },
+        
+        stopCamera() {
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.status = 'inactive';
+            }
         }
-    }
-}" 
-x-init="startCamera()" 
-class="space-y-4">
-
+    }"
+    x-init="init()"
+    class="space-y-4">
+    
     <!-- Status -->
     <div class="text-center">
         <span x-show="status === 'loading'">📷 Mengaktifkan kamera...</span>
@@ -58,7 +83,6 @@ class="space-y-4">
     
     <!-- Camera Preview -->
     <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="aspect-ratio: 4/3;">
-        
         <!-- Video -->
         <video x-ref="video" 
                x-show="status === 'active' && !captured"
@@ -92,7 +116,6 @@ class="space-y-4">
     
     <!-- Controls -->
     <div class="flex justify-center space-x-3">
-        
         <!-- Start Button -->
         <button x-show="status === 'inactive'" 
                 @click="startCamera()"
@@ -102,7 +125,7 @@ class="space-y-4">
         
         <!-- Capture Button -->
         <button x-show="status === 'active' && !captured" 
-                @click="capture()"
+                @click="capturePhoto()"
                 class="px-6 py-2 bg-green-600 text-white rounded">
             Ambil Foto
         </button>
