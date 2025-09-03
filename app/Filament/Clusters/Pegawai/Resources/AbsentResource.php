@@ -150,15 +150,69 @@ class AbsentResource extends Resource
                         ViewField::make('check_in_photo_capture')
                             ->label('Foto Absensi Masuk')
                             ->view('filament.forms.absen-camera')
-                            ->viewData([
-                                'field_name' => 'check_in_photo',
-                                'label' => 'Ambil Foto Masuk'
-                            ])
                             ->columnSpanFull(),
                             
-                        Forms\Components\Hidden::make('check_in_photo')
+                        Forms\Components\Textarea::make('check_in_photo')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
                             ->dehydrated()
+                            ->rows(1)
                             ->live(false),
+                            
+                        // Emergency backup fields untuk memastikan foto terkirim
+                        Forms\Components\Textarea::make('check_in_photo_backup')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
+                            ->dehydrated()
+                            ->rows(1)
+                            ->live(false),
+                            
+                        Forms\Components\Textarea::make('check_in_photo_emergency')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
+                            ->dehydrated()
+                            ->rows(1)
+                            ->live(false),
+                            
+                        Forms\Components\Textarea::make('check_in_photo_emergency_1')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
+                            ->dehydrated()
+                            ->rows(1)
+                            ->live(false),
+                            
+                        Forms\Components\Textarea::make('check_in_photo_emergency_2')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
+                            ->dehydrated()
+                            ->rows(1)
+                            ->live(false),
+                            
+                        Forms\Components\Textarea::make('check_in_photo_emergency_3')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->extraAttributes(['style' => 'display: none;'])
+                            ->dehydrated()
+                            ->rows(1)
+                            ->live(false),
+                            
+                        // Additional Hidden fields as last resort
+                        Forms\Components\Hidden::make('check_in_photo_hidden_1'),
+                        Forms\Components\Hidden::make('check_in_photo_hidden_2'),
+                        Forms\Components\Hidden::make('check_in_photo_hidden_3'),
+                        
+                        // Chunked data fields for large photos
+                        Forms\Components\Hidden::make('photo_chunk_1'),
+                        Forms\Components\Hidden::make('photo_chunk_2'),
+                        Forms\Components\Hidden::make('photo_chunk_3'),
+                        Forms\Components\Hidden::make('photo_chunk_4'),
+                        Forms\Components\Hidden::make('photo_chunk_5'),
+                        Forms\Components\Hidden::make('photo_chunk_count'),
                     ])
                     ->columns(1),
             ]);
@@ -218,21 +272,21 @@ class AbsentResource extends Resource
                         default => $state,
                     }),
                     
-                ImageColumn::make('check_in_photo')
+                Tables\Columns\ImageColumn::make('check_in_photo')
                     ->label('Foto Masuk')
                     ->circular()
                     ->size(40)
                     ->disk('public')
-                    ->defaultImageUrl(url('/images/placeholder.png'))
-                    ->toggleable(),
+                    ->visibility('public')
+                    ->defaultImageUrl('https://via.placeholder.com/40x40/e5e7eb/9ca3af?text=No+Photo'),
                     
-                ImageColumn::make('check_out_photo')
+                Tables\Columns\ImageColumn::make('check_out_photo')
                     ->label('Foto Pulang')
                     ->circular()
                     ->size(40)
                     ->disk('public')
-                    ->defaultImageUrl(url('/images/placeholder.png'))
-                    ->toggleable(),
+                    ->visibility('public')
+                    ->defaultImageUrl('https://via.placeholder.com/40x40/e5e7eb/9ca3af?text=No+Photo'),
                     
                 Tables\Columns\TextColumn::make('notes')
                     ->label('Catatan')
@@ -326,7 +380,14 @@ class AbsentResource extends Resource
                             ->maxLength(500),
                     ])
                     ->before(function (array $data, $record) {
-                        \Log::info('Before action - Raw form data:', $data);
+                        \Log::info('Before absen pulang action:', [
+                            'record_id' => $record->id,
+                            'employee_id' => $record->employee_id,
+                            'data_keys' => array_keys($data),
+                            'photo_data_exists' => isset($data['photo_data']),
+                            'photo_data_length' => isset($data['photo_data']) ? strlen($data['photo_data']) : 0,
+                            'photo_data_preview' => isset($data['photo_data']) ? substr($data['photo_data'], 0, 50) . '...' : null
+                        ]);
                     })
                     ->action(function (array $data, $record) {
                         try {

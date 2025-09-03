@@ -17,8 +17,17 @@ Route::middleware([
         ->where('filename', '.*');
     
     Route::get('/berkas-pegawai/{filename}/download', [BerkasPegawaiController::class, 'download'])
-        ->name('berkas-pegawai.download')
-        ->where('filename', '.*');
+        ->name('berkas-pegawai.download');
+        
+    // Route for storing photo data via AJAX before form submission
+    Route::post('/store-photo-temp', function() {
+        $photo = request()->input('photo_data');
+        if ($photo) {
+            session()->put('temp_check_in_photo', $photo);
+            return response()->json(['success' => true, 'length' => strlen($photo)]);
+        }
+        return response()->json(['success' => false]);
+    })->name('store-photo-temp');
 });
 
 // Add CORS middleware for storage files
