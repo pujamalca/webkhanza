@@ -32,7 +32,8 @@
       "Bash(dir:*)",
       "Bash(cd:*)",
       "Bash(rg:*)",
-      "Bash(move \"artisan_commands\\SafeMigrationCommand.php\" \"app\\Console\\Commands\\SafeMigrationCommand.php\")"
+      "Bash(move \"artisan_commands\\SafeMigrationCommand.php\" \"app\\Console\\Commands\\SafeMigrationCommand.php\")",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": [],

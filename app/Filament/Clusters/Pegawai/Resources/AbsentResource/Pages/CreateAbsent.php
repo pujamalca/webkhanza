@@ -177,15 +177,23 @@ class CreateAbsent extends CreateRecord
         
         // FIFTH: If still no photo, try session as last resort
         if (empty($photoData)) {
+            // Try check_in photo first (for create absent page)
             $sessionPhoto = session()->get('temp_check_in_photo');
+            
+            // If not found, try check_out photo (fallback)
+            if (!$sessionPhoto) {
+                $sessionPhoto = session()->get('temp_check_out_photo');
+            }
+            
             if (!empty($sessionPhoto)) {
                 \Log::info('✅ Found photo in session!', [
                     'length' => strlen($sessionPhoto),
                     'preview' => substr($sessionPhoto, 0, 100)
                 ]);
                 $photoData = $sessionPhoto;
-                // Clear session photo after use
+                // Clear session photos after use
                 session()->forget('temp_check_in_photo');
+                session()->forget('temp_check_out_photo');
             }
         }
         

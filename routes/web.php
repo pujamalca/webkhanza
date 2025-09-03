@@ -22,12 +22,22 @@ Route::middleware([
     // Route for storing photo data via AJAX before form submission
     Route::post('/store-photo-temp', function() {
         $photo = request()->input('photo_data');
+        $type = request()->input('type', 'check_in'); // Default to check_in
+        
         if ($photo) {
-            session()->put('temp_check_in_photo', $photo);
-            return response()->json(['success' => true, 'length' => strlen($photo)]);
+            $sessionKey = $type === 'check_out' ? 'temp_check_out_photo' : 'temp_check_in_photo';
+            session()->put($sessionKey, $photo);
+            return response()->json(['success' => true, 'length' => strlen($photo), 'type' => $type]);
         }
         return response()->json(['success' => false]);
     })->name('store-photo-temp');
+
+    // Route for checkout photo page
+    Route::get('/checkout-photo/{id}', [\App\Http\Controllers\CheckoutPhotoController::class, 'show'])
+        ->name('checkout-photo.show');
+    
+    Route::post('/checkout-photo/{id}', [\App\Http\Controllers\CheckoutPhotoController::class, 'store'])
+        ->name('checkout-photo.store');
 });
 
 // Add CORS middleware for storage files

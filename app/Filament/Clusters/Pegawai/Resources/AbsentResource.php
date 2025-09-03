@@ -32,6 +32,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage as StorageFacade;
 use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\HtmlString;
 
 class AbsentResource extends Resource
 {
@@ -147,9 +148,132 @@ class AbsentResource extends Resource
                             ->rows(3)
                             ->placeholder('Catatan tambahan (opsional)...'),
 
-                        ViewField::make('check_in_photo_capture')
+                        Forms\Components\Placeholder::make('camera_checkin_inline')
                             ->label('Foto Absensi Masuk')
-                            ->view('filament.forms.absen-camera')
+                            ->content(new HtmlString('
+                                <div class="space-y-4">
+                                    <div class="text-center">
+                                        <div id="camera_status_checkin" class="text-sm font-medium">📷 Memuat kamera...</div>
+                                    </div>
+                                    
+                                    <div class="relative bg-gray-100 rounded-lg overflow-hidden" style="aspect-ratio: 4/3;">
+                                        <div id="my_camera_checkin" class="w-full h-full flex items-center justify-center">
+                                            <div class="text-gray-500">Memuat kamera...</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="results_checkin" class="text-center"></div>
+                                    
+                                    <div class="flex justify-center space-x-3">
+                                        <button id="btn_capture_checkin" type="button"
+                                                onclick="takeSnapshotCheckIn()"
+                                                class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                            📸 Ambil Foto Masuk
+                                        </button>
+                                        
+                                        <button id="btn_retake_checkin" type="button"
+                                                onclick="retakePhotoCheckIn()"
+                                                class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
+                                                style="display: none;">
+                                            🔄 Foto Ulang
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
+                                <script>
+                                console.log("🚀 CHECK-IN CAMERA SCRIPT EXECUTING");
+                                
+                                // Configure webcam for check-in
+                                if (typeof Webcam !== "undefined") {
+                                    Webcam.set({
+                                        width: 370,
+                                        height: 300,
+                                        image_format: "jpeg",
+                                        jpeg_quality: 90
+                                    });
+                                    console.log("✅ Webcam configured for check-in");
+                                }
+                                
+                                // Initialize camera immediately
+                                setTimeout(function() {
+                                    console.log("🎬 Initializing camera for check-in...");
+                                    try {
+                                        Webcam.attach("#my_camera_checkin");
+                                        document.getElementById("camera_status_checkin").innerHTML = "✅ Kamera aktif - Siap mengambil foto masuk";
+                                        console.log("✅ Check-in camera attached successfully");
+                                    } catch(e) {
+                                        console.error("❌ Check-in camera error:", e);
+                                        document.getElementById("camera_status_checkin").innerHTML = "❌ Gagal mengakses kamera";
+                                    }
+                                }, 1000);
+                                
+                                // Simple take snapshot function for check-in
+                                window.takeSnapshotCheckIn = function() {
+                                    console.log("📸 Taking check-in snapshot...");
+                                    
+                                    Webcam.snap(function(data_uri) {
+                                        console.log("📷 Check-in photo captured, length:", data_uri.length);
+                                        
+                                        // Show preview
+                                        document.getElementById("results_checkin").innerHTML = 
+                                            "<img src=\"" + data_uri + "\" style=\"max-width: 300px; border-radius: 8px;\"/>";
+                                        
+                                        // Save to form field
+                                        const photoField = document.querySelector("[name=\"check_in_photo\"]");
+                                        if (photoField) {
+                                            photoField.value = data_uri;
+                                            console.log("✅ Photo saved to check_in_photo field");
+                                        }
+                                        
+                                        // Save to localStorage as backup
+                                        localStorage.setItem("checkin_photo_backup", data_uri);
+                                        
+                                        // Send to session via AJAX
+                                        fetch("/store-photo-temp", {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content
+                                            },
+                                            body: JSON.stringify({
+                                                photo_data: data_uri,
+                                                type: "check_in"
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            console.log("✅ Check-in AJAX response:", data);
+                                        })
+                                        .catch(error => {
+                                            console.error("❌ Check-in AJAX error:", error);
+                                        });
+                                        
+                                        // Update UI
+                                        document.getElementById("camera_status_checkin").innerHTML = "📸 Foto masuk berhasil diambil!";
+                                        document.getElementById("btn_capture_checkin").style.display = "none";
+                                        document.getElementById("btn_retake_checkin").style.display = "inline-block";
+                                    });
+                                };
+                                
+                                // Simple retake function
+                                window.retakePhotoCheckIn = function() {
+                                    console.log("🔄 Retaking check-in photo...");
+                                    
+                                    document.getElementById("results_checkin").innerHTML = "";
+                                    document.getElementById("camera_status_checkin").innerHTML = "✅ Kamera aktif - Siap mengambil foto masuk";
+                                    document.getElementById("btn_capture_checkin").style.display = "inline-block";
+                                    document.getElementById("btn_retake_checkin").style.display = "none";
+                                    
+                                    // Clear form field
+                                    const photoField = document.querySelector("[name=\"check_in_photo\"]");
+                                    if (photoField) photoField.value = "";
+                                    
+                                    // Clear backup
+                                    localStorage.removeItem("checkin_photo_backup");
+                                };
+                                </script>
+                            '))
                             ->columnSpanFull(),
                             
                         Forms\Components\Textarea::make('check_in_photo')
@@ -358,27 +482,8 @@ class AbsentResource extends Resource
                     ->icon('heroicon-o-camera')
                     ->color('success')
                     ->visible(fn($record) => empty($record->check_out))
-                    ->modalHeading('Absen Pulang')
-                    ->modalDescription('Ambil foto dan konfirmasi absen pulang Anda')
-                    ->modalWidth('lg')
-                    ->form([
-                        Forms\Components\Hidden::make('photo_data')
-                            ->required()
-                            ->dehydrated()
-                            ->live(false)
-                            ->rule('required', 'Foto diperlukan untuk absen pulang'),
-                            
-                        Forms\Components\ViewField::make('camera_capture')
-                            ->label('')
-                            ->view('filament.forms.absen-camera')
-                            ->viewData(['type' => 'check_out']),
-                        
-                        Forms\Components\Textarea::make('notes')
-                            ->label('Catatan Pulang (Opsional)')
-                            ->rows(3)
-                            ->placeholder('Contoh: Lembur sampai malam, menyelesaikan laporan bulanan...')
-                            ->maxLength(500),
-                    ])
+                    ->url(fn($record) => '/checkout-photo/' . $record->id)
+                    ->openUrlInNewTab(false)
                     ->before(function (array $data, $record) {
                         \Log::info('Before absen pulang action:', [
                             'record_id' => $record->id,
@@ -401,13 +506,29 @@ class AbsentResource extends Resource
                                 }, $data)
                             ]);
                             
+                            // Check for photo data in form or session
+                            $photoData = $data['photo_data'] ?? null;
+                            
+                            // If no photo in form, try session backup
+                            if (empty($photoData)) {
+                                $photoData = session()->get('temp_check_out_photo');
+                                if ($photoData) {
+                                    \Log::info('✅ Found check_out photo in session!', [
+                                        'length' => strlen($photoData),
+                                        'preview' => substr($photoData, 0, 100)
+                                    ]);
+                                    // Clear session after use
+                                    session()->forget('temp_check_out_photo');
+                                }
+                            }
+                            
                             // Validate photo data
-                            if (empty($data['photo_data'])) {
+                            if (empty($photoData)) {
                                 throw new \Exception('Foto diperlukan untuk absen pulang. Silakan ambil foto terlebih dahulu.');
                             }
                             
                             // Save photo
-                            $photoPath = self::saveBase64Image($data['photo_data'], 'check_out', $record->employee_id);
+                            $photoPath = self::saveBase64Image($photoData, 'check_out', $record->employee_id);
                             
                             if (!$photoPath) {
                                 throw new \Exception('Gagal menyimpan foto. Silakan coba lagi.');
