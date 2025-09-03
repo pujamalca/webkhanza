@@ -33,6 +33,9 @@ class CreateRole extends CreateRecord
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
+        if (!empty($data['pegawai_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['pegawai_permissions']);
+        }
         if (!empty($data['master_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['master_permissions']);
         }
@@ -47,6 +50,7 @@ class CreateRole extends CreateRecord
         unset($data['admin_permissions']);
         unset($data['erm_permissions']);
         unset($data['sdm_permissions']);
+        unset($data['pegawai_permissions']);
         unset($data['master_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error
         

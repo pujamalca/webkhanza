@@ -67,6 +67,7 @@ class RoleForm
                                     ->orWhere('name', 'like', 'users_%')
                                     ->orWhere('name', 'like', 'roles_%')
                                     ->orWhere('name', '=', 'multi_device_login')
+                                    ->orWhere('name', '=', 'manage_website_identity')
                                     ->pluck('name', 'id')
                                     ->map(function ($name) {
                                         return match($name) {
@@ -81,6 +82,7 @@ class RoleForm
                                             'roles_edit' => '✏️ Roles - Edit role',
                                             'roles_delete' => '🗑️ Roles - Hapus role',
                                             'multi_device_login' => '📱 Multi Device - Login dari multiple perangkat',
+                                            'manage_website_identity' => '🏢 Website Identity - Kelola identitas website',
                                             default => $name
                                         };
                                     })->toArray();

@@ -33,7 +33,8 @@
       "Bash(cd:*)",
       "Bash(rg:*)",
       "Bash(move \"artisan_commands\\SafeMigrationCommand.php\" \"app\\Console\\Commands\\SafeMigrationCommand.php\")",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(move \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\Administrator\\Resources\\WebsiteIdentityResource.php\" \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\UserRole\\Resources\\WebsiteIdentityResource.php\")"
     ],
     "deny": [],
     "ask": [],

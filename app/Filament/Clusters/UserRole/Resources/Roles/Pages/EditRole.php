@@ -60,6 +60,7 @@ class EditRole extends EditRecord
                 ->orWhere('name', 'like', 'users_%')
                 ->orWhere('name', 'like', 'roles_%')
                 ->orWhere('name', '=', 'multi_device_login')
+                ->orWhere('name', '=', 'manage_website_identity')
                 ->pluck('id')->toArray();
             $data['admin_permissions'] = array_values(array_intersect($permissionIds, $adminIds));
 
