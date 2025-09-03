@@ -90,12 +90,10 @@ class AbsentResource extends Resource
     public static function canDelete($record): bool
     {
         $user = auth()->user();
+        if (!$user) return false;
         
-        if ($user->can('delete_absent')) {
-            return true;
-        }
-        
-        return $user->can('view_own_absent') && $record->employee_id === $user->id;
+        // Use permission-based access control instead of hardcoded roles
+        return $user->can('delete_absent');
     }
 
     public static function getEloquentQuery(): Builder
@@ -563,13 +561,15 @@ class AbsentResource extends Resource
                 ViewAction::make()
                     ->label('Lihat'),
                 DeleteAction::make()
-                    ->label('Hapus'),
+                    ->label('Hapus')
+                    ->visible(fn() => auth()->user()->can('delete_absent')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->label('Hapus Terpilih'),
-                ]),
+                ])
+                ->visible(fn() => auth()->user()->can('delete_absent')),
             ])
             ->emptyStateHeading('Belum ada data absensi')
             ->emptyStateDescription('Silahkan tambahkan data absensi baru.')

@@ -92,20 +92,10 @@ class CutiResource extends Resource
     public static function canDelete($record): bool
     {
         $user = auth()->user();
+        if (!$user) return false;
         
-        // Jika cuti sudah disetujui atau ditolak, tidak bisa dihapus oleh siapa pun
-        if (in_array($record->status, ['approved', 'rejected'])) {
-            return false;
-        }
-        
-        if ($user->can('delete_cuti')) {
-            return true;
-        }
-        
-        // Hanya bisa hapus cuti sendiri dan statusnya masih pending
-        return $user->can('view_own_cuti') && 
-               $record->employee_id === $user->id && 
-               $record->status === 'pending';
+        // Use permission-based access control instead of hardcoded roles
+        return $user->can('delete_cuti');
     }
 
     public static function getEloquentQuery(): Builder
@@ -424,37 +414,15 @@ class CutiResource extends Resource
                     ->label('Lihat'),
                     
                 DeleteAction::make()
-                    ->label('Hapus'),
+                    ->label('Hapus')
+                    ->visible(fn() => auth()->user()->can('delete_cuti')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Hapus Terpilih')
-                        ->requiresConfirmation()
-                        ->before(function ($records, $action) {
-                            $approvedOrRejected = [];
-                            
-                            foreach ($records as $record) {
-                                if (in_array($record->status, ['approved', 'rejected'])) {
-                                    $statusLabel = $record->status === 'approved' ? 'disetujui' : 'ditolak';
-                                    $approvedOrRejected[] = "Cuti {$record->employee->name} ({$record->start_date->format('d/m/Y')} - {$record->end_date->format('d/m/Y')}) - Status: {$statusLabel}";
-                                }
-                            }
-                            
-                            if (!empty($approvedOrRejected)) {
-                                $recordsList = implode('\n', $approvedOrRejected);
-                                
-                                \Filament\Notifications\Notification::make()
-                                    ->danger()
-                                    ->title('Tidak dapat menghapus pengajuan cuti')
-                                    ->body("Pengajuan cuti berikut tidak dapat dihapus karena sudah disetujui/ditolak:\n\n{$recordsList}")
-                                    ->persistent()
-                                    ->send();
-                                    
-                                $action->cancel();
-                            }
-                        }),
-                ]),
+                        ->label('Hapus Terpilih'),
+                ])
+                ->visible(fn() => auth()->user()->can('delete_cuti')),
             ])
             ->emptyStateHeading('Belum ada data cuti')
             ->emptyStateDescription('Silahkan tambahkan pengajuan cuti baru.')

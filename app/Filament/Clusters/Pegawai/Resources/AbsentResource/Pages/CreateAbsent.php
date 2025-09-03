@@ -3,6 +3,8 @@
 namespace App\Filament\Clusters\Pegawai\Resources\AbsentResource\Pages;
 
 use App\Filament\Clusters\Pegawai\Resources\AbsentResource;
+use App\Models\Absent;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,6 +14,28 @@ class CreateAbsent extends CreateRecord
     
     public function create(bool $another = false): void
     {
+        // Check if user already has absent record for today
+        $employeeId = auth()->user()->can('view_all_absent') 
+            ? $this->data['employee_id'] ?? auth()->id()
+            : auth()->id();
+            
+        $existingAbsent = \App\Models\Absent::where('employee_id', $employeeId)
+            ->whereDate('date', today())
+            ->first();
+            
+        if ($existingAbsent) {
+            \Filament\Notifications\Notification::make()
+                ->title('Absen Sudah Ada!')
+                ->body('Anda sudah melakukan absen masuk hari ini pada ' . $existingAbsent->check_in . '. Tidak dapat melakukan absen masuk lagi.')
+                ->warning()
+                ->persistent()
+                ->send();
+                
+            // Redirect to index with warning
+            $this->redirect($this->getResource()::getUrl('index'));
+            return;
+        }
+        
         // Try to get photo from session before normal processing
         $sessionPhoto = session()->get('temp_check_in_photo');
         if ($sessionPhoto) {
