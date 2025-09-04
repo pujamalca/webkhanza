@@ -30,7 +30,22 @@ class LandingPageController extends Controller
             ->limit(6)
             ->get();
 
-        return view('landing.index', compact('websiteIdentity', 'colors', 'blogs'));
+        // Determine which template to use based on website identity setting
+        $template = $websiteIdentity->landing_template ?? 'default';
+        
+        // Route to appropriate template view
+        switch ($template) {
+            case 'doctor':
+                return view('templates.doctor.index', compact('websiteIdentity', 'colors', 'blogs'));
+            case 'clinic':
+                return view('templates.clinic.index', compact('websiteIdentity', 'colors', 'blogs'));
+            case 'hospital':
+                return view('templates.hospital.index', compact('websiteIdentity', 'colors', 'blogs'));
+            case 'pharmacy':
+                return view('templates.pharmacy.index', compact('websiteIdentity', 'colors', 'blogs'));
+            default:
+                return view('landing.index', compact('websiteIdentity', 'colors', 'blogs'));
+        }
     }
 
     /**

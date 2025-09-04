@@ -55,6 +55,28 @@ class WebsiteIdentityResource extends Resource
     {
         return $schema
             ->schema([
+                Section::make('Template Landing Page')
+                    ->description('Pilih template untuk tampilan halaman utama website')
+                    ->schema([
+                        Forms\Components\Select::make('landing_template')
+                            ->label('Template')
+                            ->options(function () {
+                                $templates = WebsiteIdentity::getAvailableTemplates();
+                                $options = [];
+                                foreach ($templates as $key => $template) {
+                                    if (empty($template['disabled'])) {
+                                        $options[$key] = $template['name'];
+                                    }
+                                }
+                                return $options;
+                            })
+                            ->default('default')
+                            ->required()
+                            ->native(false)
+                            ->helperText('Template yang dipilih akan mengubah tampilan landing page website'),
+                    ])
+                    ->columns(1),
+
                 Section::make('Informasi Utama')
                     ->description('Informasi dasar identitas website')
                     ->schema([
@@ -178,6 +200,21 @@ class WebsiteIdentityResource extends Resource
                     ->label('Nama Website')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('landing_template')
+                    ->label('Template')
+                    ->formatStateUsing(function ($state) {
+                        $templates = WebsiteIdentity::getAvailableTemplates();
+                        return $templates[$state]['name'] ?? 'Default';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'doctor' => 'success',
+                        'clinic' => 'warning', 
+                        'hospital' => 'info',
+                        'pharmacy' => 'danger',
+                        default => 'gray',
+                    }),
                     
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')

@@ -45,6 +45,7 @@ class WebsiteIdentity extends Model
         'primary_color',
         'secondary_color',
         'accent_color',
+        'landing_template',
     ];
 
     /**
@@ -173,6 +174,56 @@ class WebsiteIdentity extends Model
         }
 
         $this->update(['favicon' => $newFavicon]);
+    }
+
+    /**
+     * Get available landing page templates
+     * 
+     * @return array
+     */
+    public static function getAvailableTemplates(): array
+    {
+        return [
+            'default' => [
+                'name' => 'Default (Perusahaan)',
+                'description' => 'Template untuk perusahaan, teknologi, dan layanan umum',
+                'preview' => '/images/templates/default.png',
+            ],
+            'doctor' => [
+                'name' => 'Dokter Praktek Pribadi',
+                'description' => 'Template khusus untuk dokter praktek pribadi',
+                'preview' => '/images/templates/doctor.png',
+            ],
+            'clinic' => [
+                'name' => 'Klinik (Coming Soon)',
+                'description' => 'Template untuk klinik dan fasilitas kesehatan',
+                'preview' => '/images/templates/clinic.png',
+                'disabled' => true,
+            ],
+            'hospital' => [
+                'name' => 'Rumah Sakit (Coming Soon)',
+                'description' => 'Template untuk rumah sakit dan fasilitas kesehatan besar',
+                'preview' => '/images/templates/hospital.png',
+                'disabled' => true,
+            ],
+            'pharmacy' => [
+                'name' => 'Apotek (Coming Soon)',
+                'description' => 'Template untuk apotek dan farmasi',
+                'preview' => '/images/templates/pharmacy.png',
+                'disabled' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Get current template info
+     * 
+     * @return array
+     */
+    public function getCurrentTemplateInfo(): array
+    {
+        $templates = static::getAvailableTemplates();
+        return $templates[$this->landing_template ?? 'default'] ?? $templates['default'];
     }
 
     /**
