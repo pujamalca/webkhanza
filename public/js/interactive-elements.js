@@ -383,5 +383,3 @@ document.head.appendChild(styleSheet);
 document.addEventListener('DOMContentLoaded', () => {
     window.interactiveElements = new InteractiveElements();
 });
-
-export default InteractiveElements;

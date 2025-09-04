@@ -293,18 +293,7 @@ class AdvancedLazyLoading {
     }
     
     monitorPerformance() {
-        // Monitor Core Web Vitals
-        if ('web-vital' in window) {
-            import('https://unpkg.com/web-vitals@3/dist/web-vitals.js').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-                getCLS(console.log);
-                getFID(console.log);
-                getFCP(console.log);
-                getLCP(console.log);
-                getTTFB(console.log);
-            });
-        }
-        
-        // Monitor image loading performance
+        // Monitor image loading performance only (removed web-vitals import)
         document.addEventListener('lazyloaded', (e) => {
             console.log(`📸 Image loaded in ${e.detail.loadTime.toFixed(2)}ms:`, e.detail.src);
         });
@@ -411,7 +400,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.lazyLoader = new AdvancedLazyLoading();
 });
 
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AdvancedLazyLoading;
-}
+// Make available globally
+window.AdvancedLazyLoading = AdvancedLazyLoading;

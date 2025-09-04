@@ -219,11 +219,12 @@
                 const targetElement = document.getElementById(targetId);
                 
                 if (targetElement) {
-                    const headerHeight = document.querySelector('.navbar').offsetHeight;
-                    const targetPosition = targetElement.offsetTop - headerHeight;
+                    const navbar = document.querySelector('.navbar') || document.querySelector('nav');
+                    const headerHeight = navbar ? (navbar.offsetHeight || 80) : 80;
+                    const targetPosition = (targetElement.offsetTop || 0) - headerHeight;
                     
                     window.scrollTo({
-                        top: targetPosition,
+                        top: Math.max(0, targetPosition),
                         behavior: 'smooth'
                     });
                 }
@@ -231,12 +232,13 @@
         });
         
         // Parallax effect for hero section
-        const heroSection = document.querySelector('.hero-section');
+        const heroSection = document.querySelector('.hero-section') || document.querySelector('#beranda');
         if (heroSection) {
             window.addEventListener('scroll', function() {
-                const scrolled = window.pageYOffset;
+                const scrolled = window.pageYOffset || 0;
                 const parallax = heroSection.querySelector('.hero-content');
-                if (parallax && scrolled < heroSection.offsetHeight) {
+                const heroHeight = heroSection.offsetHeight || 0;
+                if (parallax && scrolled < heroHeight) {
                     parallax.style.transform = `translateY(${scrolled * 0.1}px)`;
                 }
             });
@@ -263,34 +265,46 @@
         
         // Add hover effects to interactive elements
         document.querySelectorAll('.feature-card, .contact-card').forEach(card => {
-            card.classList.add('hover-lift');
+            if (card) {
+                card.classList.add('hover-lift');
+            }
         });
         
         // Enhanced navbar scroll effect
         let lastScrollTop = 0;
-        const navbar = document.querySelector('.navbar');
+        const navbar = document.querySelector('.navbar') || document.querySelector('nav');
         
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Add/remove scrolled class
-            if (scrollTop > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            // Hide/show navbar on scroll
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // Scrolling down
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                // Scrolling up
-                navbar.style.transform = 'translateY(0)';
-            }
-            
-            lastScrollTop = scrollTop;
-        });
+        if (navbar) {
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+                
+                // Add/remove scrolled class
+                if (scrollTop > 50) {
+                    if (navbar.classList) {
+                        navbar.classList.add('scrolled');
+                    }
+                } else {
+                    if (navbar.classList) {
+                        navbar.classList.remove('scrolled');
+                    }
+                }
+                
+                // Hide/show navbar on scroll
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scrolling down
+                    if (navbar.style) {
+                        navbar.style.transform = 'translateY(-100%)';
+                    }
+                } else {
+                    // Scrolling up
+                    if (navbar.style) {
+                        navbar.style.transform = 'translateY(0)';
+                    }
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+        }
         
         // Form validation enhancement
         const contactForm = document.getElementById('contactForm');
@@ -317,18 +331,21 @@
         }
         
         // Add loading states to buttons
-        document.querySelectorAll('.btn-primary-custom').forEach(button => {
-            button.addEventListener('click', function() {
-                if (this.type === 'submit') {
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
-                    this.disabled = true;
-                    
-                    setTimeout(() => {
-                        this.disabled = false;
-                        this.innerHTML = this.dataset.originalText || this.innerHTML;
-                    }, 3000);
-                }
-            });
+        document.querySelectorAll('.btn-primary-custom, .btn-primary, .btn-outline').forEach(button => {
+            if (button) {
+                button.addEventListener('click', function() {
+                    if (this.type === 'submit') {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+                        this.disabled = true;
+                        
+                        setTimeout(() => {
+                            this.disabled = false;
+                            this.innerHTML = originalText;
+                        }, 3000);
+                    }
+                });
+            }
         });
     });
     

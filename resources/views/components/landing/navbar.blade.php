@@ -22,6 +22,7 @@
                 <a href="#beranda" class="navbar-link">Beranda</a>
                 <a href="#tentang" class="navbar-link">Tentang</a>
                 <a href="#fitur" class="navbar-link">Fitur</a>
+                <a href="#blog" class="navbar-link">Blog</a>
                 <a href="#kontak" class="navbar-link">Kontak</a>
                 <a href="/admin" class="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 group">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -70,6 +71,10 @@
                 <a href="#fitur" @click="open = false" 
                    class="navbar-link text-center py-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                     Fitur
+                </a>
+                <a href="#blog" @click="open = false" 
+                   class="navbar-link text-center py-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                    Blog
                 </a>
                 <a href="#kontak" @click="open = false" 
                    class="navbar-link text-center py-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
