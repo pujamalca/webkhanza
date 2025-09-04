@@ -53,6 +53,9 @@
     <!-- Features Section -->
     <x-landing.features />
     
+    <!-- Blog Section -->
+    <x-landing.blog :blogs="$blogs" :website-identity="$websiteIdentity" />
+    
     <!-- Contact Section -->
     <x-landing.contact :website-identity="$websiteIdentity" />
     

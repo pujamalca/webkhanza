@@ -38,7 +38,8 @@
       "Bash(npm install:*)",
       "Bash(npx tailwindcss init:*)",
       "Bash(node_modules/.bin/tailwindcss init:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(move:*)"
     ],
     "deny": [],
     "ask": [],

@@ -64,7 +64,15 @@ class WebsiteIdentity extends Model
      */
     public static function getInstance(): static
     {
-        $instance = static::first();
+        try {
+            $instance = static::first();
+        } catch (\Exception $e) {
+            // Handle case when table doesn't exist yet (during migration)
+            if (str_contains($e->getMessage(), 'Table') && str_contains($e->getMessage(), 'doesn\'t exist')) {
+                return static::getDefaultInstance();
+            }
+            throw $e;
+        }
         
         if (!$instance) {
             // Create default instance if not exists
@@ -80,6 +88,29 @@ class WebsiteIdentity extends Model
                 'accent_color' => '#EF4444',
             ]);
         }
+        
+        return $instance;
+    }
+
+    /**
+     * Get default instance when table doesn't exist
+     * 
+     * @return static
+     */
+    public static function getDefaultInstance(): static
+    {
+        $instance = new static();
+        $instance->name = 'WebKhanza';
+        $instance->description = 'Sistem Manajemen Pegawai dan Absensi';
+        $instance->email = 'admin@webkhanza.local';
+        $instance->phone = '021-12345678';
+        $instance->address = 'Jalan Contoh No. 123, Jakarta, Indonesia';
+        $instance->tagline = 'Sistem Terpadu untuk Manajemen Pegawai';
+        $instance->colors = [
+            'primary_color' => '#3B82F6',
+            'secondary_color' => '#1E40AF',
+            'accent_color' => '#F59E0B'
+        ];
         
         return $instance;
     }
