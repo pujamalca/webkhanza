@@ -76,11 +76,11 @@
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-2xl"></div>
                         
                         <!-- Content -->
-                        <div class="relative z-10 flex items-center">
+                        <div class="relative z-10 flex items-center text-white">
                             <div class="w-6 h-6 mr-3 bg-white/20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:rotate-90">
                                 <i class="fas fa-rocket text-white text-sm"></i>
                             </div>
-                            Get Started Today
+                            <span class="text-white font-bold">Get Started Today</span>
                         </div>
                         
                         <!-- Shine Effect -->

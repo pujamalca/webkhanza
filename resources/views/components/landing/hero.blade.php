@@ -59,7 +59,7 @@
                             <div class="w-6 h-6 mr-3 bg-white/20 group-hover:bg-blue-600 rounded-full flex items-center justify-center transition-all duration-300">
                                 <i class="fas fa-phone text-white group-hover:text-white text-sm transition-all duration-300 group-hover:rotate-12"></i>
                             </div>
-                            Contact Us
+                           <span class="text-white font-bold">Contact Us</span>
                         </div>
                     </a>
                 </div>
