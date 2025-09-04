@@ -6,6 +6,10 @@ use App\Http\Controllers\LandingPageController;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landing.index');
 
+// Blog routes
+Route::get('/blog', [LandingPageController::class, 'blog'])->name('blog.index');
+Route::get('/blog/{slug}', [LandingPageController::class, 'blogDetail'])->name('blog.detail');
+
 // Protected routes for berkas pegawai files - using same middleware as Filament admin
 Route::middleware([
     'web',

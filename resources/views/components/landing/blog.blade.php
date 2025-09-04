@@ -72,7 +72,7 @@
                                 </div>
 
                                 <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">
-                                    <a href="#" class="hover:text-blue-600 transition-colors duration-200">
+                                    <a href="{{ route('blog.detail', $blog->slug) }}" class="hover:text-blue-600 transition-colors duration-200">
                                         {{ $blog->title }}
                                     </a>
                                 </h3>
@@ -108,7 +108,7 @@
 
             <!-- View All Button -->
             <div class="text-center mt-12">
-                <a href="#" class="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">
+                <a href="{{ route('blog.index') }}" class="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">
                     <i class="fas fa-th-large mr-3 group-hover:rotate-3 transition-transform duration-300"></i>
                     Lihat Semua Artikel
                     <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
