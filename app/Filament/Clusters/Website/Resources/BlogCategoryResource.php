@@ -65,77 +65,50 @@ class BlogCategoryResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Category Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                            
-                        Forms\Components\TextInput::make('slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(BlogCategory::class, 'slug', ignoreRecord: true),
-                            
-                        Forms\Components\Textarea::make('description')
-                            ->maxLength(1000)
-                            ->rows(3),
-                            
-                        Forms\Components\ColorPicker::make('color')
-                            ->default('#3b82f6'),
-                            
-                        Forms\Components\TextInput::make('icon')
-                            ->maxLength(255)
-                            ->placeholder('fas fa-folder')
-                            ->helperText('Font Awesome icon class'),
-                    ])
-                    ->columns(2),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
                     
-                Forms\Components\Section::make('Settings')
-                    ->schema([
-                        Forms\Components\Select::make('parent_id')
-                            ->label('Parent Category')
-                            ->relationship('parent', 'name')
-                            ->searchable()
-                            ->preload(),
-                            
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'active' => 'Active',
-                                'inactive' => 'Inactive',
-                            ])
-                            ->default('active')
-                            ->required(),
-                            
-                        Forms\Components\TextInput::make('sort_order')
-                            ->numeric()
-                            ->default(0),
-                    ])
-                    ->columns(3),
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
                     
-                Forms\Components\Section::make('SEO Settings')
-                    ->schema([
-                        Forms\Components\TextInput::make('meta_title')
-                            ->maxLength(60)
-                            ->helperText('Leave blank to use category name'),
-                            
-                        Forms\Components\Textarea::make('meta_description')
-                            ->maxLength(160)
-                            ->rows(3)
-                            ->helperText('Leave blank to use description'),
-                            
-                        Forms\Components\TagsInput::make('meta_keywords')
-                            ->separator(',')
-                            ->placeholder('Add keywords'),
-                    ])
-                    ->columns(1)
-                    ->collapsible(),
+                Forms\Components\Textarea::make('description')
+                    ->maxLength(1000)
+                    ->rows(3),
                     
                 Forms\Components\FileUpload::make('image')
+                    ->label('Category Image')
                     ->image()
+                    ->disk('public')
                     ->directory('blog-categories')
-                    ->imageEditor(),
+                    ->nullable(),
+                    
+                Forms\Components\ColorPicker::make('color')
+                    ->label('Category Color')
+                    ->default('#3b82f6'),
+                    
+                Forms\Components\TextInput::make('icon')
+                    ->label('Icon Class')
+                    ->placeholder('fas fa-folder')
+                    ->maxLength(255),
+                    
+                Forms\Components\Select::make('parent_id')
+                    ->label('Parent Category')
+                    ->relationship('parent', 'name'),
+                    
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                    ])
+                    ->default('active')
+                    ->required(),
+                    
+                Forms\Components\TextInput::make('sort_order')
+                    ->label('Sort Order')
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 
@@ -196,18 +169,10 @@ class BlogCategoryResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                //
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                //
             ])
             ->defaultSort('sort_order');
     }

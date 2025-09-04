@@ -36,6 +36,21 @@ class WebsiteIdentityResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('view_any_website_identity') ?? false;
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()?->can('view_website_identity') ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->can('update_website_identity') ?? false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -214,8 +229,8 @@ class WebsiteIdentityResource extends Resource
 
     public static function canCreate(): bool
     {
-        // Hanya bisa create jika belum ada data
-        return WebsiteIdentity::count() === 0;
+        // Hanya bisa create jika belum ada data dan user punya permission
+        return WebsiteIdentity::count() === 0 && (auth()->user()?->can('create_website_identity') ?? false);
     }
 
     public static function canDelete($record): bool

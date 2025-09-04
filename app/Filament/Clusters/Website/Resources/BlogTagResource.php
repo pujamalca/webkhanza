@@ -65,45 +65,21 @@ class BlogTagResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Tag Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                            
-                        Forms\Components\TextInput::make('slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(BlogTag::class, 'slug', ignoreRecord: true),
-                            
-                        Forms\Components\Textarea::make('description')
-                            ->maxLength(500)
-                            ->rows(3),
-                            
-                        Forms\Components\ColorPicker::make('color')
-                            ->default('#10b981'),
-                    ])
-                    ->columns(2),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
                     
-                Forms\Components\Section::make('SEO Settings')
-                    ->schema([
-                        Forms\Components\TextInput::make('meta_title')
-                            ->maxLength(60)
-                            ->helperText('Leave blank to use tag name'),
-                            
-                        Forms\Components\Textarea::make('meta_description')
-                            ->maxLength(160)
-                            ->rows(3)
-                            ->helperText('Leave blank to use description'),
-                            
-                        Forms\Components\TagsInput::make('meta_keywords')
-                            ->separator(',')
-                            ->placeholder('Add keywords'),
-                    ])
-                    ->columns(1)
-                    ->collapsible(),
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
+                    
+                Forms\Components\Textarea::make('description')
+                    ->maxLength(500)
+                    ->rows(3),
+                    
+                Forms\Components\ColorPicker::make('color')
+                    ->label('Tag Color')
+                    ->default('#10b981'),
             ]);
     }
 
@@ -138,18 +114,10 @@ class BlogTagResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                //
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                //
             ])
             ->defaultSort('name');
     }

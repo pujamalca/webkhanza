@@ -67,133 +67,72 @@ class BlogResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Tabs::make('Blog Content')
-                    ->tabs([
-                        Forms\Components\Tabs\Tab::make('Basic Info')
-                            ->schema([
-                                Forms\Components\TextInput::make('title')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                                    
-                                Forms\Components\TextInput::make('slug')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->unique(Blog::class, 'slug', ignoreRecord: true),
-                                    
-                                Forms\Components\Textarea::make('excerpt')
-                                    ->maxLength(500)
-                                    ->rows(3),
-                                    
-                                Forms\Components\Select::make('blog_category_id')
-                                    ->label('Category')
-                                    ->relationship('category', 'name')
-                                    ->createOptionForm([
-                                        Forms\Components\TextInput::make('name')->required(),
-                                        Forms\Components\Textarea::make('description'),
-                                        Forms\Components\ColorPicker::make('color'),
-                                    ])
-                                    ->searchable()
-                                    ->preload(),
-                                    
-                                Forms\Components\Select::make('tags')
-                                    ->relationship('tags', 'name')
-                                    ->multiple()
-                                    ->createOptionForm([
-                                        Forms\Components\TextInput::make('name')->required(),
-                                        Forms\Components\Textarea::make('description'),
-                                        Forms\Components\ColorPicker::make('color'),
-                                    ])
-                                    ->searchable()
-                                    ->preload(),
-                            ]),
-                            
-                        Forms\Components\Tabs\Tab::make('Content')
-                            ->schema([
-                                Forms\Components\RichEditor::make('content')
-                                    ->required()
-                                    ->fileAttachmentsDirectory('blog-attachments'),
-                                    
-                                Forms\Components\FileUpload::make('featured_image')
-                                    ->image()
-                                    ->directory('blog-images')
-                                    ->imageEditor(),
-                                    
-                                Forms\Components\FileUpload::make('gallery_images')
-                                    ->image()
-                                    ->multiple()
-                                    ->directory('blog-galleries')
-                                    ->reorderable(),
-                            ]),
-                            
-                        Forms\Components\Tabs\Tab::make('Settings')
-                            ->schema([
-                                Forms\Components\Select::make('status')
-                                    ->options([
-                                        'draft' => 'Draft',
-                                        'published' => 'Published',
-                                        'scheduled' => 'Scheduled',
-                                        'archived' => 'Archived',
-                                    ])
-                                    ->default('draft')
-                                    ->required()
-                                    ->live(),
-                                    
-                                Forms\Components\DateTimePicker::make('published_at')
-                                    ->label('Publish Date')
-                                    ->visible(fn (Forms\Get $get) => in_array($get('status'), ['published', 'scheduled'])),
-                                    
-                                Forms\Components\DateTimePicker::make('scheduled_at')
-                                    ->label('Schedule Date')
-                                    ->visible(fn (Forms\Get $get) => $get('status') === 'scheduled'),
-                                    
-                                Forms\Components\Toggle::make('is_featured')
-                                    ->label('Featured Post'),
-                                    
-                                Forms\Components\Toggle::make('allow_comments')
-                                    ->label('Allow Comments')
-                                    ->default(true),
-                                    
-                                Forms\Components\Toggle::make('is_sticky')
-                                    ->label('Pin to Top'),
-                                    
-                                Forms\Components\TextInput::make('sort_order')
-                                    ->numeric()
-                                    ->default(0),
-                            ]),
-                            
-                        Forms\Components\Tabs\Tab::make('SEO')
-                            ->schema([
-                                Forms\Components\TextInput::make('meta_title')
-                                    ->maxLength(60)
-                                    ->helperText('Leave blank to use post title'),
-                                    
-                                Forms\Components\Textarea::make('meta_description')
-                                    ->maxLength(160)
-                                    ->rows(3)
-                                    ->helperText('Leave blank to use excerpt'),
-                                    
-                                Forms\Components\TagsInput::make('meta_keywords')
-                                    ->separator(',')
-                                    ->placeholder('Add keywords')
-                                    ->helperText('Separate keywords with commas'),
-                                    
-                                Forms\Components\TextInput::make('canonical_url')
-                                    ->url()
-                                    ->helperText('Leave blank to use default URL'),
-                                    
-                                Forms\Components\Fieldset::make('Social Media')
-                                    ->schema([
-                                        Forms\Components\KeyValue::make('social_meta')
-                                            ->keyLabel('Property')
-                                            ->valueLabel('Content')
-                                            ->addActionLabel('Add Meta Tag')
-                                            ->helperText('Custom Open Graph and Twitter Card meta tags'),
-                                    ]),
-                            ]),
+                Forms\Components\TextInput::make('title')
+                    ->required()
+                    ->maxLength(255),
+                    
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
+                    
+                Forms\Components\Textarea::make('excerpt')
+                    ->maxLength(500)
+                    ->rows(3),
+                    
+                Forms\Components\RichEditor::make('content')
+                    ->required()
+                    ->toolbarButtons([
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
                     ])
-                    ->columnSpanFull(),
+                    ->fileAttachmentsDirectory('blog-attachments')
+                    ->fileAttachmentsVisibility('public'),
+                    
+                Forms\Components\FileUpload::make('featured_image')
+                    ->label('Featured Image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('blog-images')
+                    ->nullable(),
+                    
+                Forms\Components\Select::make('blog_category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name'),
+                    
+                Forms\Components\Select::make('tags')
+                    ->label('Tags')
+                    ->relationship('tags', 'name')
+                    ->multiple(),
+                    
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                        'scheduled' => 'Scheduled',
+                        'archived' => 'Archived',
+                    ])
+                    ->default('draft')
+                    ->required(),
+                    
+                Forms\Components\DateTimePicker::make('published_at')
+                    ->label('Publish Date')
+                    ->nullable(),
+                    
+                Forms\Components\Toggle::make('is_featured')
+                    ->label('Featured Post')
+                    ->default(false),
             ]);
     }
 
@@ -275,18 +214,10 @@ class BlogResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                //
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                //
             ])
             ->defaultSort('created_at', 'desc');
     }
