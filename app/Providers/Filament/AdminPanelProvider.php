@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Login;
 use App\Http\Controllers\LogoutController;
 use App\Http\Middleware\SingleDeviceLogin;
+use App\Services\WebsiteThemeService;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,6 +41,10 @@ class AdminPanelProvider extends PanelProvider
         // Get website identity data from service
         $identity = app('website.identity');
         
+        // Get theme service for dynamic colors
+        $themeService = app(WebsiteThemeService::class);
+        $colors = $themeService->getAllColors();
+        
         return $panel
             ->default()
             ->id('admin')
@@ -53,7 +58,9 @@ class AdminPanelProvider extends PanelProvider
             // Set favicon from database with fallback
             ->favicon(fn () => $identity->favicon ? asset('storage/' . $identity->favicon) : asset('favicon.ico'))
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => $colors['primary'],
+                'secondary' => $colors['secondary'], 
+                'danger' => $colors['accent'],
             ])
             ->sidebarCollapsibleOnDesktop()
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')

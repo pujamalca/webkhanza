@@ -34,7 +34,11 @@
       "Bash(rg:*)",
       "Bash(move \"artisan_commands\\SafeMigrationCommand.php\" \"app\\Console\\Commands\\SafeMigrationCommand.php\")",
       "Bash(netstat:*)",
-      "Bash(move \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\Administrator\\Resources\\WebsiteIdentityResource.php\" \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\UserRole\\Resources\\WebsiteIdentityResource.php\")"
+      "Bash(move \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\Administrator\\Resources\\WebsiteIdentityResource.php\" \"D:\\laragon\\www\\webkhanza\\app\\Filament\\Clusters\\UserRole\\Resources\\WebsiteIdentityResource.php\")",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(node_modules/.bin/tailwindcss init:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": [],

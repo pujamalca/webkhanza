@@ -1,0 +1,475 @@
+/* Enhanced Responsive Design for Landing Page */
+
+/* Extra small devices (phones, 320px and up) */
+@media (max-width: 575.98px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .hero-title {
+        font-size: 1.75rem !important;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.75rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+    
+    .section-padding {
+        padding: 2.5rem 0;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .hero-buttons .btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+        font-size: 1.1rem;
+    }
+    
+    .contact-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .navbar-brand img {
+        height: 30px !important;
+        margin-right: 8px !important;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .hero-title {
+        font-size: 2.25rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.05rem !important;
+    }
+    
+    .section-title {
+        font-size: 1.75rem !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: row;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .hero-buttons .btn {
+        flex: 1;
+        max-width: 200px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .hero-title {
+        font-size: 2.75rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.15rem !important;
+    }
+    
+    .section-title {
+        font-size: 2.25rem !important;
+    }
+    
+    .hero-buttons {
+        justify-content: flex-start;
+    }
+    
+    .feature-card {
+        margin-bottom: 2rem;
+    }
+    
+    /* Adjust grid for tablets */
+    .features-grid .col-lg-4:nth-child(3n+1) {
+        clear: both;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .hero-title {
+        font-size: 3.25rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem !important;
+    }
+    
+    .container {
+        max-width: 960px;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .hero-title {
+        font-size: 3.5rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem !important;
+    }
+    
+    .container {
+        max-width: 1140px;
+    }
+    
+    /* Add some breathing room on very large screens */
+    .section-padding {
+        padding: 100px 0;
+    }
+}
+
+/* Ultra wide screens (1400px and up) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+    
+    .hero-section {
+        padding: 0 2rem;
+    }
+    
+    .section-padding {
+        padding: 120px 0;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 767.98px) and (orientation: landscape) {
+    .hero-section {
+        min-height: 70vh;
+        padding: 2rem 0;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.75rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-buttons .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .section-padding {
+        padding: 2rem 0;
+    }
+}
+
+/* High resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hero-image img,
+    .navbar-brand img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn-primary-custom,
+    .btn-outline-custom,
+    .feature-card,
+    .contact-card {
+        transform: none !important;
+    }
+    
+    .btn-primary-custom:active,
+    .btn-outline-custom:active {
+        transform: scale(0.98);
+    }
+    
+    .feature-card:active,
+    .contact-card:active {
+        transform: scale(0.99);
+    }
+    
+    /* Larger touch targets */
+    .navbar-toggler {
+        padding: 0.5rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .btn {
+        min-height: 44px;
+        padding: 12px 24px;
+    }
+    
+    .nav-link {
+        padding: 12px 16px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .hero-section {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    .feature-card,
+    .contact-card {
+        background: #2a2a2a;
+        color: #ffffff;
+    }
+    
+    .contact-section {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    }
+    
+    .section-title,
+    .feature-title {
+        color: #ffffff;
+    }
+    
+    .section-subtitle {
+        color: #cccccc;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .hero-section::before {
+        animation: none;
+    }
+    
+    .floating-shape {
+        animation: none;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border-top-color: var(--color-primary);
+    }
+    
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    .hero-section {
+        background: white !important;
+        color: black !important;
+        min-height: auto;
+        padding: 1rem 0;
+    }
+    
+    .hero-title {
+        color: black !important;
+        font-size: 2rem !important;
+    }
+    
+    .section-padding {
+        padding: 1rem 0;
+    }
+    
+    .btn {
+        border: 2px solid black;
+        color: black !important;
+        background: white !important;
+    }
+    
+    .navbar,
+    .footer,
+    #backToTop,
+    .floating-shape,
+    .loading-screen {
+        display: none !important;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+    }
+    
+    a[href^="#"]:after,
+    a[href^="tel:"]:after,
+    a[href^="mailto:"]:after {
+        content: "";
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .hero-section {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    .feature-card,
+    .contact-card {
+        border: 3px solid #000000;
+        background: #ffffff;
+        color: #000000;
+    }
+    
+    .btn-primary-custom {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 3px solid #000000;
+    }
+    
+    .btn-outline-custom {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 3px solid #000000;
+    }
+}
+
+/* Container queries for better responsive design */
+@supports (container-type: inline-size) {
+    .feature-card {
+        container-type: inline-size;
+    }
+    
+    @container (max-width: 300px) {
+        .feature-card {
+            padding: 1rem;
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-title {
+            font-size: 1rem;
+        }
+    }
+}
+
+/* Specific fixes for common devices */
+
+/* iPhone SE */
+@media (max-width: 375px) and (max-height: 667px) {
+    .hero-section {
+        min-height: 90vh;
+    }
+    
+    .hero-title {
+        font-size: 1.6rem !important;
+    }
+}
+
+/* iPhone 12/13/14 */
+@media (max-width: 390px) and (max-height: 844px) {
+    .hero-buttons {
+        margin-top: 1.5rem;
+    }
+}
+
+/* iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .hero-section {
+        min-height: 80vh;
+    }
+    
+    .navbar-nav {
+        margin-top: 0;
+    }
+    
+    .navbar-collapse {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        margin-top: 1rem;
+        padding: 1.5rem;
+    }
+}
+
+/* Desktop hover states (only on devices that support hover) */
+@media (hover: hover) and (pointer: fine) {
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary-custom:hover,
+    .btn-outline-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Performance optimization for animations on low-end devices */
+@media (max-width: 768px) {
+    .hero-section::before {
+        display: none;
+    }
+    
+    .floating-shape {
+        display: none;
+    }
+}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use App\Services\WebsiteThemeService;
 
 /**
  * Model untuk menyimpan identitas website
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Storage;
  * @property string $phone Nomor telepon
  * @property string $address Alamat lengkap
  * @property string $tagline Tagline atau motto website
+ * @property string $primary_color Warna utama website (hex code)
+ * @property string $secondary_color Warna sekunder website (hex code)  
+ * @property string $accent_color Warna aksen website (hex code)
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -38,6 +42,9 @@ class WebsiteIdentity extends Model
         'phone',
         'address',
         'tagline',
+        'primary_color',
+        'secondary_color',
+        'accent_color',
     ];
 
     /**
@@ -68,6 +75,9 @@ class WebsiteIdentity extends Model
                 'phone' => '021-12345678',
                 'address' => 'Jalan Contoh No. 123, Jakarta, Indonesia',
                 'tagline' => 'Sistem Terpadu untuk Manajemen Pegawai',
+                'primary_color' => '#3B82F6',
+                'secondary_color' => '#1E40AF',
+                'accent_color' => '#EF4444',
             ]);
         }
         
@@ -159,6 +169,12 @@ class WebsiteIdentity extends Model
             if ($model->favicon && Storage::disk('public')->exists($model->favicon)) {
                 Storage::disk('public')->delete($model->favicon);
             }
+        });
+
+        // Clear theme cache when updating colors
+        static::updated(function ($model) {
+            $themeService = app(WebsiteThemeService::class);
+            $themeService->clearCache();
         });
     }
 }

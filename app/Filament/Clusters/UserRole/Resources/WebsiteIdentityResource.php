@@ -129,6 +129,29 @@ class WebsiteIdentityResource extends Resource
                             ->nullable(),
                     ])
                     ->columns(2),
+
+                Section::make('Tema & Warna')
+                    ->description('Pilih warna untuk tema website')
+                    ->schema([
+                        Forms\Components\ColorPicker::make('primary_color')
+                            ->label('Warna Utama')
+                            ->helperText('Warna utama yang akan digunakan untuk header, tombol, dan elemen utama')
+                            ->default('#3B82F6')
+                            ->required(),
+
+                        Forms\Components\ColorPicker::make('secondary_color')
+                            ->label('Warna Sekunder')
+                            ->helperText('Warna sekunder untuk elemen pendukung dan hover states')
+                            ->default('#1E40AF')
+                            ->required(),
+
+                        Forms\Components\ColorPicker::make('accent_color')
+                            ->label('Warna Aksen')
+                            ->helperText('Warna aksen untuk notifikasi, peringatan, dan highlight')
+                            ->default('#EF4444')
+                            ->required(),
+                    ])
+                    ->columns(3),
             ]);
     }
 
@@ -153,6 +176,18 @@ class WebsiteIdentityResource extends Resource
                     ->label('Logo')
                     ->disk('public')
                     ->size(40),
+
+                Tables\Columns\ColorColumn::make('primary_color')
+                    ->label('Warna Utama')
+                    ->sortable(),
+
+                Tables\Columns\ColorColumn::make('secondary_color')
+                    ->label('Warna Sekunder')
+                    ->sortable(),
+
+                Tables\Columns\ColorColumn::make('accent_color')
+                    ->label('Warna Aksen')
+                    ->sortable(),
                     
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Terakhir Diperbarui')

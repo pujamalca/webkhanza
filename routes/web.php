@@ -2,10 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BerkasPegawaiController;
+use App\Http\Controllers\LandingPageController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [LandingPageController::class, 'index'])->name('landing.index');
 
 // Protected routes for berkas pegawai files - using same middleware as Filament admin
 Route::middleware([

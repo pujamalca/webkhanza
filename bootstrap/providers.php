@@ -6,5 +6,6 @@ return [
     App\Providers\EventServiceProvider::class,
     App\Providers\Filament\AdminPanelProvider::class,
     App\Providers\ScheduleServiceProvider::class,
+    App\Providers\ThemeServiceProvider::class,
     App\Providers\WebsiteIdentityServiceProvider::class,
 ];
