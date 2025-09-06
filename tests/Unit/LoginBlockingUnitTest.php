@@ -4,15 +4,15 @@ namespace Tests\Unit;
 
 use App\Filament\Pages\Login;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 
-class LoginBlockingUnitTest extends TestCase
+class LoginBlockingUnitTest extends BaseTestCase
 {
-    use RefreshDatabase;
+    // REMOVED RefreshDatabase - DANGEROUS for production database!
 
     protected function setUp(): void
     {

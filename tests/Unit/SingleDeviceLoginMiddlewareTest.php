@@ -4,16 +4,15 @@ namespace Tests\Unit;
 
 use App\Http\Middleware\SingleDeviceLogin;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Tests\TestCase;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 
-class SingleDeviceLoginMiddlewareTest extends TestCase
+class SingleDeviceLoginMiddlewareTest extends BaseTestCase
 {
-    use RefreshDatabase;
+    // REMOVED RefreshDatabase - DANGEROUS for production database!
 
     protected SingleDeviceLogin $middleware;
 
