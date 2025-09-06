@@ -11,17 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('blogs', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        if (!Schema::hasColumn('blogs', 'deleted_at')) {
+            Schema::table('blogs', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
         
-        Schema::table('blog_categories', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        if (!Schema::hasColumn('blog_categories', 'deleted_at')) {
+            Schema::table('blog_categories', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
         
-        Schema::table('blog_tags', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        if (!Schema::hasColumn('blog_tags', 'deleted_at')) {
+            Schema::table('blog_tags', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
     }
 
     /**

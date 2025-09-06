@@ -41,7 +41,15 @@
       "Bash(npm run build:*)",
       "Bash(move:*)",
       "Bash(npm init:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
+      "Bash(npm test)"
     ],
     "deny": [],
     "ask": [],

@@ -24,7 +24,8 @@ return new class extends Migration
             
             // Relationships
             $table->foreignId('blog_category_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Author
+            $table->string('user_id', 20);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Author
             
             // SEO Fields
             $table->string('meta_title')->nullable();
