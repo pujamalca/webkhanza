@@ -100,7 +100,11 @@ class LandingPageController extends Controller
                 $query->orderBy('published_at', 'desc');
         }
 
-        $blogs = $query->paginate(12);
+        // Configure pagination - bisa disesuaikan sesuai kebutuhan
+        $perPage = $request->get('per_page', 12); // Default 12 artikel per halaman
+        $perPage = in_array($perPage, [6, 12, 18, 24]) ? $perPage : 12; // Batasi pilihan
+        
+        $blogs = $query->paginate($perPage);
         
         // Get categories for filter
         $categories = \App\Models\BlogCategory::withCount('blogs')

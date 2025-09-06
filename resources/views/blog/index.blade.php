@@ -60,8 +60,8 @@
                 <!-- Main Content -->
                 <div class="w-full lg:w-2/3 px-4 mb-12 lg:mb-0">
                     <!-- Filter & Sort -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6 mb-8">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                             <!-- Category Filter -->
                             <div class="flex flex-wrap items-center gap-3">
                                 <span class="text-gray-700 font-medium">Kategori:</span>
@@ -77,17 +77,30 @@
                                 @endforeach
                             </div>
                             
-                            <!-- Sort Options -->
-                            <div class="flex items-center gap-3">
-                                <span class="text-gray-700 font-medium">Urutkan:</span>
-                                <select name="sort" onchange="window.location.href='{{ route('blog.index') }}?' + new URLSearchParams(Object.assign({}, Object.fromEntries(new URLSearchParams(window.location.search)), {sort: this.value})).toString()" 
-                                        class="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>Terbaru</option>
-                                    <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
-                                    <option value="popular" {{ request('sort') === 'popular' ? 'selected' : '' }}>Terpopuler</option>
-                                    <option value="featured" {{ request('sort') === 'featured' ? 'selected' : '' }}>Unggulan</option>
-                                    <option value="title" {{ request('sort') === 'title' ? 'selected' : '' }}>Judul A-Z</option>
-                                </select>
+                            <!-- Sort & Per Page Options -->
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-gray-700 font-medium">Urutkan:</span>
+                                    <select name="sort" onchange="window.location.href='{{ route('blog.index') }}?' + new URLSearchParams(Object.assign({}, Object.fromEntries(new URLSearchParams(window.location.search)), {sort: this.value})).toString()" 
+                                            class="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                        <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                        <option value="popular" {{ request('sort') === 'popular' ? 'selected' : '' }}>Terpopuler</option>
+                                        <option value="featured" {{ request('sort') === 'featured' ? 'selected' : '' }}>Unggulan</option>
+                                        <option value="title" {{ request('sort') === 'title' ? 'selected' : '' }}>Judul A-Z</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center gap-3">
+                                    <span class="text-gray-700 font-medium">Tampilkan:</span>
+                                    <select name="per_page" onchange="window.location.href='{{ route('blog.index') }}?' + new URLSearchParams(Object.assign({}, Object.fromEntries(new URLSearchParams(window.location.search)), {per_page: this.value, page: 1})).toString()" 
+                                            class="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="6" {{ request('per_page') == '6' ? 'selected' : '' }}>6 artikel</option>
+                                        <option value="12" {{ request('per_page', 12) == '12' ? 'selected' : '' }}>12 artikel</option>
+                                        <option value="18" {{ request('per_page') == '18' ? 'selected' : '' }}>18 artikel</option>
+                                        <option value="24" {{ request('per_page') == '24' ? 'selected' : '' }}>24 artikel</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         
@@ -121,7 +134,7 @@
 
                     <!-- Blog Grid -->
                     @if($blogs->count() > 0)
-                        <div class="grid md:grid-cols-2 gap-8 mb-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
                             @foreach($blogs as $blog)
                                 <article class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group">
                                     @if($blog->featured_image)
@@ -237,10 +250,8 @@
 
                         <!-- Pagination -->
                         @if($blogs->hasPages())
-                            <div class="flex justify-center">
-                                <div class="bg-white rounded-2xl shadow-lg p-4">
-                                    {{ $blogs->appends(request()->query())->links() }}
-                                </div>
+                            <div class="bg-white rounded-2xl shadow-lg p-6">
+                                <x-custom-pagination :paginator="$blogs->appends(request()->query())" />
                             </div>
                         @endif
                     @else
