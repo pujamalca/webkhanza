@@ -834,26 +834,36 @@ class BlogSeeder extends Seeder
 
                 $content = $blogContents[$blogIndex];
                 
-                Blog::create([
-                    'title' => $content['title'],
-                    'slug' => Str::slug($content['title']),
-                    'excerpt' => $content['excerpt'],
-                    'content' => $content['content'],
-                    'blog_category_id' => $category->id,
-                    'user_id' => $user->id,
-                    'status' => 'published',
-                    'published_at' => now()->subDays(rand(1, 30)),
-                    'is_featured' => rand(0, 1),
-                    'allow_comments' => true,
-                    'views_count' => rand(100, 2000),
-                    'likes_count' => rand(10, 200),
-                    'shares_count' => rand(5, 100),
-                    'meta_title' => $content['meta_title'],
-                    'meta_description' => $content['meta_description'],
-                    'meta_keywords' => $content['meta_keywords'],
-                    'reading_time' => rand(3, 8),
-                    'sort_order' => $blogIndex + 1,
-                ]);
+                $slug = Str::slug($content['title']);
+                
+                $blog = Blog::updateOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'title' => $content['title'],
+                        'excerpt' => $content['excerpt'],
+                        'content' => $content['content'],
+                        'blog_category_id' => $category->id,
+                        'user_id' => $user->id,
+                        'status' => 'published',
+                        'published_at' => now()->subDays(rand(1, 30)),
+                        'is_featured' => rand(0, 1),
+                        'allow_comments' => true,
+                        'views_count' => rand(100, 2000),
+                        'likes_count' => rand(10, 200),
+                        'shares_count' => rand(5, 100),
+                        'meta_title' => $content['meta_title'],
+                        'meta_description' => $content['meta_description'],
+                        'meta_keywords' => $content['meta_keywords'],
+                        'reading_time' => rand(3, 8),
+                        'sort_order' => $blogIndex + 1,
+                    ]
+                );
+                
+                if ($blog->wasRecentlyCreated) {
+                    $this->command->info("✓ Created blog: {$blog->title}");
+                } else {
+                    $this->command->info("✓ Updated blog: {$blog->title}");
+                }
 
                 $blogIndex++;
             }

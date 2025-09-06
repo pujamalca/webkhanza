@@ -141,7 +141,7 @@
                         @endif
 
                         <!-- Share Buttons -->
-                        <div class="mb-12 p-6 bg-gray-50 rounded-2xl">
+                        <div class="mb-12 p-6 bg-gray-50 rounded-2xl btn-override">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Bagikan Artikel:</h3>
                             <div class="flex flex-wrap gap-3">
                                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" 
@@ -230,7 +230,7 @@
                         @endif
 
                         <!-- Back to Blog -->
-                        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl p-6 text-center">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl p-6 text-center btn-override">
                             <i class="fas fa-arrow-left text-3xl mb-4"></i>
                             <h3 class="text-xl font-bold mb-3">Lihat Artikel Lainnya</h3>
                             <p class="text-blue-100 mb-6">
@@ -414,6 +414,62 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+    
+    /* Override global link colors for buttons */
+    .btn-override a,
+    .btn-override button {
+        color: inherit !important;
+    }
+    
+    .btn-override a:hover,
+    .btn-override button:hover {
+        color: inherit !important;
+    }
+    
+    /* Specific button color overrides */
+    .btn-override .bg-blue-600,
+    .btn-override .bg-blue-700,
+    .btn-override .bg-blue-800 {
+        color: white !important;
+    }
+    
+    .btn-override .bg-sky-500,
+    .btn-override .bg-sky-600 {
+        color: white !important;
+    }
+    
+    .btn-override .bg-green-600,
+    .btn-override .bg-green-700 {
+        color: white !important;
+    }
+    
+    .btn-override .bg-gray-600,
+    .btn-override .bg-gray-700 {
+        color: white !important;
+    }
+    
+    .btn-override .bg-white {
+        color: #2563eb !important;
+    }
+    
+    .btn-override .text-white {
+        color: white !important;
+    }
+    
+    .btn-override .text-blue-600 {
+        color: #2563eb !important;
+    }
+    
+    .btn-override .hover\:bg-blue-700:hover,
+    .btn-override .hover\:bg-sky-600:hover,
+    .btn-override .hover\:bg-green-700:hover,
+    .btn-override .hover\:bg-gray-700:hover {
+        color: white !important;
+    }
+    
+    .btn-override .hover\:bg-gray-50:hover {
+        color: #2563eb !important;
     }
 </style>
 @endpush

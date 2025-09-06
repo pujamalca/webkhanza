@@ -126,6 +126,36 @@ class RolePermissionSeeder extends Seeder
             
             // Multi Device Login
             'multi_device_login',
+            
+            // Website Management
+            'website_management_access',
+            'view_any_website_identity',
+            'view_website_identity',
+            'create_website_identity',
+            'update_website_identity',
+            
+            // Blog Management
+            'blog_management_access',
+            'view_any_blog',
+            'view_blog',
+            'create_blog',
+            'update_blog',
+            'delete_blog',
+            'publish_blog',
+            
+            // Blog Category Management
+            'view_any_blog_category',
+            'view_blog_category',
+            'create_blog_category',
+            'update_blog_category',
+            'delete_blog_category',
+            
+            // Blog Tag Management
+            'view_any_blog_tag',
+            'view_blog_tag',
+            'create_blog_tag',
+            'update_blog_tag',
+            'delete_blog_tag',
         ];
 
         foreach ($permissions as $permission) {
@@ -175,6 +205,11 @@ class RolePermissionSeeder extends Seeder
                 'master_bidang_create', 'master_departemen_create', 'master_jabatan_create', 'master_spesialis_create',
                 'view_all_absent', 'create_absent', 'edit_absent', 'delete_absent',
                 'view_all_cuti', 'create_cuti', 'approve_cuti', 'edit_cuti', 'delete_cuti',
+                // Website & Blog Management
+                'website_management_access', 'view_any_website_identity', 'view_website_identity', 'create_website_identity', 'update_website_identity',
+                'blog_management_access', 'view_any_blog', 'view_blog', 'create_blog', 'update_blog', 'delete_blog', 'publish_blog',
+                'view_any_blog_category', 'view_blog_category', 'create_blog_category', 'update_blog_category', 'delete_blog_category',
+                'view_any_blog_tag', 'view_blog_tag', 'create_blog_tag', 'update_blog_tag', 'delete_blog_tag',
             ],
             'HRD Manager' => [
                 'dashboard_access', 'sdm_access',

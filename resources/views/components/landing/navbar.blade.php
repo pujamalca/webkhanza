@@ -18,7 +18,7 @@
             </a>
             
             <!-- Desktop Navigation -->
-            <div class="hidden lg:flex items-center space-x-8">
+            <div class="hidden lg:flex items-center space-x-8 ">
                 <a href="#beranda" class="navbar-link">Beranda</a>
                 <a href="#tentang" class="navbar-link">Tentang</a>
                 <a href="#fitur" class="navbar-link">Fitur</a>
@@ -96,6 +96,54 @@
         </div>
     </div>
 </nav>
+
+<style>
+/* Force white text color for admin button */
+nav a[href="/admin"] {
+    color: white !important;
+}
+
+nav a[href="/admin"] * {
+    color: white !important;
+}
+
+nav a[href="/admin"]:hover {
+    color: white !important;
+}
+
+nav a[href="/admin"]:hover * {
+    color: white !important;
+}
+
+/* Target gradient buttons specifically */
+nav .bg-gradient-to-r {
+    color: white !important;
+}
+
+nav .bg-gradient-to-r * {
+    color: white !important;
+}
+
+nav .bg-gradient-to-r:hover {
+    color: white !important;
+}
+
+nav .bg-gradient-to-r:hover * {
+    color: white !important;
+}
+
+/* Override text-white class */
+nav .text-white {
+    color: white !important;
+}
+
+/* Specific targeting for all child elements */
+nav .bg-gradient-to-r span,
+nav .bg-gradient-to-r div,
+nav .bg-gradient-to-r i {
+    color: white !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

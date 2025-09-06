@@ -183,6 +183,70 @@
     </div>
 </section>
 
+<style>
+/* Fix button text colors in contact section */
+#kontak .bg-green-500,
+#kontak .bg-blue-500,
+#kontak .bg-purple-500 {
+    color: white !important;
+}
+
+#kontak .bg-green-500 *,
+#kontak .bg-blue-500 *,
+#kontak .bg-purple-500 * {
+    color: white !important;
+}
+
+#kontak .hover\:bg-green-400:hover,
+#kontak .hover\:bg-blue-400:hover,
+#kontak .hover\:bg-purple-400:hover {
+    color: white !important;
+}
+
+#kontak .hover\:bg-green-400:hover *,
+#kontak .hover\:bg-blue-400:hover *,
+#kontak .hover\:bg-purple-400:hover * {
+    color: white !important;
+}
+
+/* Fix contact form button */
+#kontak .bg-gradient-to-r.from-blue-500 {
+    color: white !important;
+}
+
+#kontak .bg-gradient-to-r.from-blue-500 * {
+    color: white !important;
+}
+
+#kontak .hover\:from-blue-600:hover {
+    color: white !important;
+}
+
+#kontak .hover\:from-blue-600:hover * {
+    color: white !important;
+}
+
+/* Specific button targeting */
+#kontak a[href^="tel:"],
+#kontak a[href^="mailto:"],
+#kontak a[href*="maps.google.com"],
+#kontak button[type="submit"] {
+    color: white !important;
+}
+
+#kontak a[href^="tel:"] *,
+#kontak a[href^="mailto:"] *,
+#kontak a[href*="maps.google.com"] *,
+#kontak button[type="submit"] * {
+    color: white !important;
+}
+
+/* Override text-white class in contact section */
+#kontak .text-white {
+    color: white !important;
+}
+</style>
+
 <script>
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();

@@ -250,7 +250,7 @@
 
                         <!-- Pagination -->
                         @if($blogs->hasPages())
-                            <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="bg-white rounded-2xl shadow-lg p-6 pagination-container">
                                 <x-custom-pagination :paginator="$blogs->appends(request()->query())" />
                             </div>
                         @endif
@@ -355,6 +355,45 @@
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+    
+    /* Override global link colors for pagination */
+    .pagination-container a,
+    .pagination-container span {
+        color: inherit !important;
+    }
+    
+    .pagination-container a:hover {
+        color: inherit !important;
+    }
+    
+    /* Specific button color overrides */
+    .pagination-container .bg-blue-600 {
+        color: white !important;
+    }
+    
+    .pagination-container .text-white {
+        color: white !important;
+    }
+    
+    .pagination-container .text-gray-700 {
+        color: #374151 !important;
+    }
+    
+    .pagination-container .text-gray-600 {
+        color: #4b5563 !important;
+    }
+    
+    .pagination-container .text-gray-400 {
+        color: #9ca3af !important;
+    }
+    
+    .pagination-container .hover\:text-blue-600:hover {
+        color: #2563eb !important;
+    }
+    
+    .pagination-container .hover\:text-gray-600:hover {
+        color: #4b5563 !important;
     }
 </style>
 @endpush

@@ -18,23 +18,34 @@ class WebsiteIdentitySeeder extends Seeder
         // Create default website identity
         WebsiteIdentity::create([
             'name' => 'WebKhanza',
-            'tagline' => 'Sistem Informasi Kesehatan',
-            'description' => 'Platform terintegrasi untuk manajemen rumah sakit dan fasilitas kesehatan.',
-            'address' => 'Jl. Sehat No. 123, Jakarta',
-            'phone' => '+62 21 1234567',
+            'tagline' => 'Sistem Informasi Kesehatan Terpadu',
+            'description' => 'Platform terintegrasi untuk manajemen rumah sakit, klinik, dan fasilitas kesehatan dengan teknologi modern dan user-friendly interface.',
+            'address' => 'Jl. Kesehatan Raya No. 123, Jakarta Pusat, DKI Jakarta 10110, Indonesia',
+            'phone' => '+62 21 8012-3456',
             'email' => 'info@webkhanza.com',
-            'website' => 'https://webkhanza.com',
-            'facebook' => 'https://facebook.com/webkhanza',
-            'twitter' => 'https://twitter.com/webkhanza',
-            'instagram' => 'https://instagram.com/webkhanza',
-            'linkedin' => 'https://linkedin.com/company/webkhanza',
-            'youtube' => 'https://youtube.com/@webkhanza',
+            'social_media' => json_encode([
+                'website' => 'https://webkhanza.com',
+                'facebook' => 'https://facebook.com/webkhanza',
+                'twitter' => 'https://twitter.com/webkhanza',
+                'instagram' => 'https://instagram.com/webkhanza',
+                'linkedin' => 'https://linkedin.com/company/webkhanza',
+                'youtube' => 'https://youtube.com/@webkhanza',
+                'whatsapp' => '+62 812-3456-7890',
+                'telegram' => 'https://t.me/webkhanza'
+            ]),
+            'colors' => json_encode([
+                'primary' => '#2563eb',
+                'secondary' => '#1e40af',
+                'accent' => '#dc2626',
+                'success' => '#059669',
+                'warning' => '#d97706',
+                'danger' => '#dc2626',
+                'info' => '#0284c7'
+            ]),
             'primary_color' => '#2563eb',
             'secondary_color' => '#1e40af',
             'accent_color' => '#dc2626',
-            'meta_title' => 'WebKhanza - Sistem Informasi Kesehatan',
-            'meta_description' => 'Platform terintegrasi untuk manajemen rumah sakit dan fasilitas kesehatan dengan teknologi modern.',
-            'meta_keywords' => json_encode(['webkhanza', 'sistem informasi', 'kesehatan', 'rumah sakit', 'manajemen']),
+            'landing_template' => 'default'
         ]);
 
         $this->command->info('Website identity seeded successfully!');

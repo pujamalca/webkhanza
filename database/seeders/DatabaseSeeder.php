@@ -14,9 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Note: RolePermissionSeeder may have issues with permission tables
+            // Run individually if needed: php artisan db:seed --class=RolePermissionSeeder
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
-            BlogCategorySeeder::class,
+            CoreDataSeeder::class, // Essential data seperti WebsiteIdentity - VERIFIED WORKING
+            BlogCategorySeeder::class, // VERIFIED WORKING
             BlogSeeder::class,
         ]);
     }

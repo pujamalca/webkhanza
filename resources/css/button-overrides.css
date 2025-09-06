@@ -1,0 +1,204 @@
+/* Global Button Color Overrides */
+/* This CSS fixes the issue where global link styles override button text colors */
+
+/* Button containers with override class */
+.btn-override a,
+.btn-override button,
+.button-fix a,
+.button-fix button {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.btn-override a:hover,
+.btn-override button:hover,
+.button-fix a:hover,
+.button-fix button:hover {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+/* Blue button variants */
+.btn-override .bg-blue-600,
+.btn-override .bg-blue-700,
+.btn-override .bg-blue-800,
+.button-fix .bg-blue-600,
+.button-fix .bg-blue-700,
+.button-fix .bg-blue-800 {
+    color: white !important;
+}
+
+.btn-override .hover\:bg-blue-700:hover,
+.btn-override .hover\:bg-blue-800:hover,
+.button-fix .hover\:bg-blue-700:hover,
+.button-fix .hover\:bg-blue-800:hover {
+    color: white !important;
+}
+
+/* Sky/Light blue button variants */
+.btn-override .bg-sky-500,
+.btn-override .bg-sky-600,
+.button-fix .bg-sky-500,
+.button-fix .bg-sky-600 {
+    color: white !important;
+}
+
+.btn-override .hover\:bg-sky-600:hover,
+.button-fix .hover\:bg-sky-600:hover {
+    color: white !important;
+}
+
+/* Green button variants */
+.btn-override .bg-green-600,
+.btn-override .bg-green-700,
+.button-fix .bg-green-600,
+.button-fix .bg-green-700 {
+    color: white !important;
+}
+
+.btn-override .hover\:bg-green-700:hover,
+.button-fix .hover\:bg-green-700:hover {
+    color: white !important;
+}
+
+/* Gray button variants */
+.btn-override .bg-gray-600,
+.btn-override .bg-gray-700,
+.button-fix .bg-gray-600,
+.button-fix .bg-gray-700 {
+    color: white !important;
+}
+
+.btn-override .hover\:bg-gray-700:hover,
+.button-fix .hover\:bg-gray-700:hover {
+    color: white !important;
+}
+
+/* White button variants */
+.btn-override .bg-white,
+.button-fix .bg-white {
+    color: #2563eb !important;
+}
+
+.btn-override .hover\:bg-gray-50:hover,
+.button-fix .hover\:bg-gray-50:hover {
+    color: #2563eb !important;
+}
+
+/* Text color overrides */
+.btn-override .text-white,
+.button-fix .text-white {
+    color: white !important;
+}
+
+.btn-override .text-blue-600,
+.button-fix .text-blue-600 {
+    color: #2563eb !important;
+}
+
+.btn-override .text-gray-700,
+.button-fix .text-gray-700 {
+    color: #374151 !important;
+}
+
+.btn-override .text-gray-600,
+.button-fix .text-gray-600 {
+    color: #4b5563 !important;
+}
+
+.btn-override .text-gray-400,
+.button-fix .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+/* Hover text color overrides */
+.btn-override .hover\:text-blue-600:hover,
+.button-fix .hover\:text-blue-600:hover {
+    color: #2563eb !important;
+}
+
+.btn-override .hover\:text-gray-600:hover,
+.button-fix .hover\:text-gray-600:hover {
+    color: #4b5563 !important;
+}
+
+/* Gradient button overrides */
+.btn-override .bg-gradient-to-r,
+.button-fix .bg-gradient-to-r {
+    color: white !important;
+}
+
+/* Specific navbar button fix */
+nav .bg-gradient-to-r.from-blue-600,
+nav .bg-gradient-to-r.from-blue-500 {
+    color: white !important;
+}
+
+nav .bg-gradient-to-r.from-blue-600 *,
+nav .bg-gradient-to-r.from-blue-500 * {
+    color: white !important;
+}
+
+/* Pagination specific fixes */
+.pagination-container a,
+.pagination-container span {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.pagination-container a:hover {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.pagination-container .bg-blue-600 {
+    color: white !important;
+}
+
+.pagination-container .text-white {
+    color: white !important;
+}
+
+.pagination-container .text-gray-700 {
+    color: #374151 !important;
+}
+
+.pagination-container .text-gray-600 {
+    color: #4b5563 !important;
+}
+
+.pagination-container .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+.pagination-container .hover\:text-blue-600:hover {
+    color: #2563eb !important;
+}
+
+.pagination-container .hover\:text-gray-600:hover {
+    color: #4b5563 !important;
+}
+
+/* Tag button overrides */
+.tag-button {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.tag-button:hover {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+/* Universal button fix class */
+.fix-button-colors a,
+.fix-button-colors button {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.fix-button-colors a:hover,
+.fix-button-colors button:hover {
+    color: inherit !important;
+    text-decoration: none !important;
+}

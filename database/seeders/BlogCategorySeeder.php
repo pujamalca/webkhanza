@@ -77,8 +77,19 @@ class BlogCategorySeeder extends Seeder
             ],
         ];
 
-        foreach ($categories as $category) {
-            BlogCategory::create($category);
+        foreach ($categories as $categoryData) {
+            $category = BlogCategory::updateOrCreate(
+                ['slug' => $categoryData['slug']], 
+                $categoryData
+            );
+            
+            if ($category->wasRecentlyCreated) {
+                $this->command->info("✓ Created blog category: {$category->name}");
+            } else {
+                $this->command->info("✓ Updated blog category: {$category->name}");
+            }
         }
+        
+        $this->command->info('✅ Blog categories seeded successfully!');
     }
 }
