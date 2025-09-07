@@ -20,12 +20,17 @@ return new class extends Migration
             $table->string('icon')->nullable(); // Font Awesome icon class
             $table->string('image')->nullable(); // Category image
             
+            // Hierarchical Structure
+            $table->unsignedBigInteger('parent_id')->nullable(); // For sub-categories
+            $table->foreign('parent_id')->references('id')->on('blog_categories')->onDelete('cascade');
+            
             // SEO Fields
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->json('meta_keywords')->nullable(); // JSON array of keywords
             
             // Status & Ordering
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             
