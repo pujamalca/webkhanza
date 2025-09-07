@@ -41,6 +41,12 @@ Route::middleware([
     
     Route::post('/checkout-photo/{id}', [\App\Http\Controllers\CheckoutPhotoController::class, 'store'])
         ->name('checkout-photo.store');
+    
+    // Marketing task API
+    Route::get('/admin/api/marketing-task/test', [\App\Http\Controllers\Api\MarketingTaskController::class, 'test'])
+        ->name('api.marketing-task.test');
+    Route::post('/admin/api/marketing-task/toggle', [\App\Http\Controllers\Api\MarketingTaskController::class, 'toggle'])
+        ->name('api.marketing-task.toggle');
 });
 
 // Add CORS middleware for storage files

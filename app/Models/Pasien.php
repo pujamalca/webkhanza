@@ -101,4 +101,9 @@ class Pasien extends Model
         }
         return $this->attributes['umur'] ?? '-';
     }
+
+    public function marketingTasks()
+    {
+        return $this->hasMany(MarketingPatientTask::class, 'patient_id', 'no_rkm_medis');
+    }
 }

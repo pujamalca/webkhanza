@@ -156,6 +156,19 @@ class RolePermissionSeeder extends Seeder
             'create_blog_tag',
             'update_blog_tag',
             'delete_blog_tag',
+            
+            // Marketing Cluster
+            'marketing_access',
+            
+            // Marketing Categories
+            'marketing_categories_view',
+            'marketing_categories_create',
+            'marketing_categories_edit',
+            'marketing_categories_delete',
+            
+            // Patient Marketing
+            'patient_marketing_view',
+            'patient_marketing_edit',
         ];
 
         foreach ($permissions as $permission) {
@@ -210,6 +223,9 @@ class RolePermissionSeeder extends Seeder
                 'blog_management_access', 'view_any_blog', 'view_blog', 'create_blog', 'update_blog', 'delete_blog', 'publish_blog',
                 'view_any_blog_category', 'view_blog_category', 'create_blog_category', 'update_blog_category', 'delete_blog_category',
                 'view_any_blog_tag', 'view_blog_tag', 'create_blog_tag', 'update_blog_tag', 'delete_blog_tag',
+                // Marketing Management
+                'marketing_access', 'marketing_categories_view', 'marketing_categories_create', 'marketing_categories_edit', 'marketing_categories_delete',
+                'patient_marketing_view', 'patient_marketing_edit',
             ],
             'HRD Manager' => [
                 'dashboard_access', 'sdm_access',
