@@ -117,29 +117,6 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-clipboard-document-list')
                     ->visible(fn (): bool => auth()->user()?->can('activity_logs_view') ?? false),
                 
-                // Device management
-                MenuItem::make('device-management')
-                    ->label('Reset Device Session')
-                    ->action(function () {
-                        $user = auth()->user();
-                        $user->update([
-                            'device_token' => null,
-                            'device_info' => null,
-                            'is_logged_in' => false,
-                        ]);
-                        
-                        Notification::make()
-                            ->title('Device Reset Successfully')
-                            ->body('Your device session has been reset. You may need to login again from other devices.')
-                            ->success()
-                            ->send();
-                    })
-                    ->icon('heroicon-o-device-phone-mobile')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalHeading('Reset Device Session')
-                    ->modalDescription('This will reset your device session and may log you out from other devices. Continue?'),
-                
                 // Quick role info
                 MenuItem::make('role-info')
                     ->label(function (): string {
@@ -148,8 +125,7 @@ class AdminPanelProvider extends PanelProvider
                         return 'Role: ' . $roleName;
                     })
                     ->url('#')
-                    ->icon('heroicon-o-shield-check')
-                    ->disabled(),
+                    ->icon('heroicon-o-shield-check'),
                 
                 // Website identity quick access (for admins)
                 MenuItem::make('website-settings')
@@ -158,14 +134,6 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-globe-alt')
                     ->visible(fn (): bool => auth()->user()?->can('view_any_website_identity') ?? false),
                 
-                // System info
-                MenuItem::make('system-info')
-                    ->label(function (): string {
-                        return 'Laravel ' . app()->version();
-                    })
-                    ->url('#')
-                    ->icon('heroicon-o-information-circle')
-                    ->disabled(),
             ])
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
