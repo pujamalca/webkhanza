@@ -36,11 +36,23 @@ class PatientMarketingResource extends Resource
                 ->searchable()
                 ->sortable(),
             Tables\Columns\TextColumn::make('no_rkm_medis')
-                ->label('No. Kartu')
-                ->searchable(),
+                ->label('No. RM')
+                ->searchable()
+                ->copyable()
+                ->copyMessage('No. RM berhasil disalin!')
+                ->tooltip('Klik untuk menyalin'),
+            Tables\Columns\TextColumn::make('pasien.no_peserta')
+                ->label('No. Peserta')
+                ->searchable()
+                ->copyable()
+                ->copyMessage('No. Peserta berhasil disalin!')
+                ->tooltip('Klik untuk menyalin'),
             Tables\Columns\TextColumn::make('pasien.no_ktp')
                 ->label('NIK')
-                ->searchable(),
+                ->searchable()
+                ->copyable()
+                ->copyMessage('NIK berhasil disalin!')
+                ->tooltip('Klik untuk menyalin'),
             Tables\Columns\TextColumn::make('tgl_registrasi')
                 ->label('Tgl Registrasi')
                 ->date()
