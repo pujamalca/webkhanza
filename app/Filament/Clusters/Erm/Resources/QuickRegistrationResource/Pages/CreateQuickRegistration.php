@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\Erm\Resources\QuickRegistrationResource\Pages;
 
 use App\Filament\Clusters\Erm\Resources\QuickRegistrationResource;
+use App\Filament\Clusters\Erm\Resources\RegistrasiResource;
 use App\Models\RegPeriksa;
 use App\Models\Pasien;
 use Filament\Resources\Pages\CreateRecord;
@@ -75,7 +76,7 @@ class CreateQuickRegistration extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return RegistrasiResource::getUrl('index');
     }
 
     private function calculateAge($birthDate): int

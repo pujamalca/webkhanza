@@ -41,6 +41,8 @@ class QuickRegistrationResource extends Resource
     protected static ?string $pluralModelLabel = 'Registrasi Cepat';
 
     protected static ?int $navigationSort = 1;
+    
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $form): Schema
     {

@@ -41,6 +41,8 @@ class RegistrationTemplateResource extends Resource
     protected static ?string $pluralModelLabel = 'Template Registrasi';
 
     protected static ?int $navigationSort = 2;
+    
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $form): Schema
     {
