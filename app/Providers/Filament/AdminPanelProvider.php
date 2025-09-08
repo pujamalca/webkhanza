@@ -22,6 +22,10 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
+use App\Filament\Widgets\PatientMarketingStatsWidget;
+use App\Filament\Widgets\BpjsTransferStatsWidget;
+use App\Filament\Widgets\MarketingTaskCompletionWidget;
+use App\Filament\Widgets\TopMarketingCategoriesWidget;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -82,7 +86,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+                PatientMarketingStatsWidget::class,
+                BpjsTransferStatsWidget::class,
+                MarketingTaskCompletionWidget::class,
+                TopMarketingCategoriesWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

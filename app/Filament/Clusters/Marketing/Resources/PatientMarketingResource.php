@@ -59,8 +59,8 @@ class PatientMarketingResource extends Resource
                 ->sortable(),
         ];
 
-        // Tambah kolom dinamis untuk setiap kategori marketing
-        $categories = MarketingCategory::active()->orderBy('name')->get();
+        // Tambah kolom dinamis untuk setiap kategori marketing (hanya untuk patient marketing)
+        $categories = MarketingCategory::active()->forPatientMarketing()->orderBy('name')->get();
         $categoryColumns = [];
         
         foreach ($categories as $category) {

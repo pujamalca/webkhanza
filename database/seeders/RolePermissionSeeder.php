@@ -169,6 +169,12 @@ class RolePermissionSeeder extends Seeder
             // Patient Marketing
             'patient_marketing_view',
             'patient_marketing_edit',
+            
+            // BPJS Transfer Management
+            'bpjs_transfer_view',
+            'bpjs_transfer_create',
+            'bpjs_transfer_edit',
+            'bpjs_transfer_delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -182,14 +188,14 @@ class RolePermissionSeeder extends Seeder
         $this->createRolesWithPermissions();
 
         $this->command->info('Roles and permissions seeded successfully!');
-        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, User');
-        $this->command->info('Created ' . count($permissions) . ' permissions (including activity logs)');
+        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, Marketing, User');
+        $this->command->info('Created ' . count($permissions) . ' permissions (including Marketing and BPJS Transfer)');
     }
 
     private function createRolesWithPermissions(): void
     {
         // First, create all roles to ensure they exist
-        $roleNames = ['Super Admin', 'Admin', 'HRD Manager', 'Staff HRD', 'Supervisor', 'Manager', 'User'];
+        $roleNames = ['Super Admin', 'Admin', 'HRD Manager', 'Staff HRD', 'Supervisor', 'Manager', 'Marketing', 'User'];
         
         foreach ($roleNames as $roleName) {
             Role::firstOrCreate([
@@ -226,6 +232,7 @@ class RolePermissionSeeder extends Seeder
                 // Marketing Management
                 'marketing_access', 'marketing_categories_view', 'marketing_categories_create', 'marketing_categories_edit', 'marketing_categories_delete',
                 'patient_marketing_view', 'patient_marketing_edit',
+                'bpjs_transfer_view', 'bpjs_transfer_create', 'bpjs_transfer_edit', 'bpjs_transfer_delete',
             ],
             'HRD Manager' => [
                 'dashboard_access', 'sdm_access',
@@ -266,6 +273,19 @@ class RolePermissionSeeder extends Seeder
                 'berkas_pegawai_view', 'berkas_pegawai_view_details',
                 'view_all_absent', 'edit_absent',
                 'view_all_cuti', 'approve_cuti', 'edit_cuti',
+                // Marketing Management for Manager
+                'marketing_access', 'marketing_categories_view', 'patient_marketing_view',
+                'bpjs_transfer_view', 'bpjs_transfer_edit',
+            ],
+            'Marketing' => [
+                'dashboard_access',
+                // Marketing Management full access
+                'marketing_access', 'marketing_categories_view', 'marketing_categories_create', 'marketing_categories_edit',
+                'patient_marketing_view', 'patient_marketing_edit',
+                'bpjs_transfer_view', 'bpjs_transfer_create', 'bpjs_transfer_edit', 'bpjs_transfer_delete',
+                // Basic ERM access untuk lihat data pasien
+                'erm_access', 'pasien_view', 'pasien_view_details',
+                'registrasi_view', 'registrasi_view_details',
             ],
             'User' => [
                 'dashboard_access',

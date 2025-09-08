@@ -37,6 +37,15 @@ class MarketingCategoryResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->label('Deskripsi')
                     ->rows(3),
+                Forms\Components\Select::make('category_type')
+                    ->label('Tipe Kategori')
+                    ->options([
+                        'patient_marketing' => 'Data Pasien Marketing',
+                        'bpjs_transfer' => 'Pindah BPJS',
+                    ])
+                    ->default('patient_marketing')
+                    ->required()
+                    ->helperText('Pilih tipe kategori untuk menentukan penggunaan'),
                 Forms\Components\Toggle::make('is_active')
                     ->label('Aktif')
                     ->default(true),
@@ -53,6 +62,19 @@ class MarketingCategoryResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                     ->label('Deskripsi')
                     ->limit(50),
+                Tables\Columns\TextColumn::make('category_type')
+                    ->label('Tipe Kategori')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'patient_marketing' => 'Data Pasien Marketing',
+                        'bpjs_transfer' => 'Pindah BPJS',
+                        default => $state,
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'patient_marketing' => 'info',
+                        'bpjs_transfer' => 'success',
+                        default => 'gray',
+                    }),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),
@@ -68,6 +90,12 @@ class MarketingCategoryResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('category_type')
+                    ->label('Tipe Kategori')
+                    ->options([
+                        'patient_marketing' => 'Data Pasien Marketing',
+                        'bpjs_transfer' => 'Pindah BPJS',
+                    ]),
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Status')
                     ->boolean()

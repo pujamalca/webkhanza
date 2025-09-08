@@ -14,6 +14,7 @@ class MarketingCategory extends Model
     protected $fillable = [
         'name',
         'description',
+        'category_type',
         'is_active',
     ];
 
@@ -37,5 +38,15 @@ class MarketingCategory extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForPatientMarketing($query)
+    {
+        return $query->where('category_type', 'patient_marketing');
+    }
+
+    public function scopeForBpjsTransfer($query)
+    {
+        return $query->where('category_type', 'bpjs_transfer');
     }
 }

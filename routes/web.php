@@ -47,6 +47,10 @@ Route::middleware([
         ->name('api.marketing-task.test');
     Route::post('/admin/api/marketing-task/toggle', [\App\Http\Controllers\Api\MarketingTaskController::class, 'toggle'])
         ->name('api.marketing-task.toggle');
+    
+    // BPJS Transfer task API
+    Route::post('/admin/api/bpjs-transfer-task/toggle', [\App\Http\Controllers\Api\BpjsTransferTaskController::class, 'toggle'])
+        ->name('api.bpjs-transfer-task.toggle');
 });
 
 // Add CORS middleware for storage files
