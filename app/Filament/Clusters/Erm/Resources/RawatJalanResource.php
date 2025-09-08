@@ -609,8 +609,7 @@ class RawatJalanResource extends Resource
         return $table
             ->defaultSort('tgl_registrasi', 'desc')
             ->modifyQueryUsing(function ($query) {
-                return $query->with(['pasien:no_rkm_medis,nm_pasien,jk,no_ktp,no_peserta', 'poliklinik:kd_poli,nm_poli', 'dokter:kd_dokter,nm_dokter', 'penjab:kd_pj,png_jawab'])
-                    ->whereDate('tgl_registrasi', today());
+                return $query->with(['pasien:no_rkm_medis,nm_pasien,jk,no_ktp,no_peserta', 'poliklinik:kd_poli,nm_poli', 'dokter:kd_dokter,nm_dokter', 'penjab:kd_pj,png_jawab']);
             })
             ->deferLoading()
             ->paginationPageOptions([10, 25, 50, 100])
@@ -799,37 +798,6 @@ class RawatJalanResource extends Resource
                         'Baru' => 'Pasien Baru',
                     ]),
 
-                Filter::make('tgl_registrasi')
-                    ->form([
-                        DatePicker::make('from_date')
-                            ->label('Dari Tanggal'),
-                        DatePicker::make('to_date')
-                            ->label('Sampai Tanggal'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['from_date'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '>=', $date)
-                            )
-                            ->when(
-                                $data['to_date'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '<=', $date)
-                            );
-                    })
-                    ->indicateUsing(function (array $data): array {
-                        $indicators = [];
-
-                        if ($data['from_date'] ?? null) {
-                            $indicators[] = 'Dari: ' . \Carbon\Carbon::parse($data['from_date'])->format('d M Y');
-                        }
-
-                        if ($data['to_date'] ?? null) {
-                            $indicators[] = 'Sampai: ' . \Carbon\Carbon::parse($data['to_date'])->format('d M Y');
-                        }
-
-                        return $indicators;
-                    }),
             ])
             ->recordActions([
                 ActionGroup::make([
