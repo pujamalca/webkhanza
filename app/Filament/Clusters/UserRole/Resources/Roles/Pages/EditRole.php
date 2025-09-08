@@ -89,13 +89,28 @@ class EditRole extends EditRecord
                 ->pluck('id')->toArray();
             $data['master_permissions'] = array_values(array_intersect($permissionIds, $masterIds));
             
+            $marketingIds = Permission::where('name', 'like', 'marketing_%')
+                ->orWhere('name', 'like', 'patient_marketing_%')
+                ->orWhere('name', 'like', 'bpjs_transfer_%')
+                ->pluck('id')->toArray();
+            $data['marketing_permissions'] = array_values(array_intersect($permissionIds, $marketingIds));
+            
+            $websiteIds = Permission::where('name', 'like', 'website_management_%')
+                ->orWhere('name', 'like', '%website_identity')
+                ->orWhere('name', 'like', 'blog_%')
+                ->orWhere('name', '=', 'activity_logs_view')
+                ->pluck('id')->toArray();
+            $data['website_permissions'] = array_values(array_intersect($permissionIds, $websiteIds));
+            
             \Log::info('EditRole populated checkboxes with permissions:', [
                 'dashboard_permissions' => $data['dashboard_permissions'],
                 'admin_permissions' => $data['admin_permissions'],
                 'erm_permissions' => $data['erm_permissions'],
                 'sdm_permissions' => $data['sdm_permissions'],
                 'pegawai_permissions' => $data['pegawai_permissions'],
-                'master_permissions' => $data['master_permissions']
+                'master_permissions' => $data['master_permissions'],
+                'marketing_permissions' => $data['marketing_permissions'],
+                'website_permissions' => $data['website_permissions']
             ]);
         }
         
@@ -128,6 +143,12 @@ class EditRole extends EditRecord
         if (!empty($data['master_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['master_permissions']);
         }
+        if (!empty($data['marketing_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['marketing_permissions']);
+        }
+        if (!empty($data['website_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['website_permissions']);
+        }
         
         // Store permissions for afterSave
         $this->selectedPermissions = array_unique($allPermissions);
@@ -141,6 +162,8 @@ class EditRole extends EditRecord
         unset($data['sdm_permissions']);
         unset($data['pegawai_permissions']);
         unset($data['master_permissions']);
+        unset($data['marketing_permissions']);
+        unset($data['website_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error
         
         // Remove any other permission-related fields that might be added by Filament

@@ -39,6 +39,12 @@ class CreateRole extends CreateRecord
         if (!empty($data['master_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['master_permissions']);
         }
+        if (!empty($data['marketing_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['marketing_permissions']);
+        }
+        if (!empty($data['website_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['website_permissions']);
+        }
         
         // Store permissions for afterCreate
         $this->selectedPermissions = array_unique($allPermissions);
@@ -52,6 +58,8 @@ class CreateRole extends CreateRecord
         unset($data['sdm_permissions']);
         unset($data['pegawai_permissions']);
         unset($data['master_permissions']);
+        unset($data['marketing_permissions']);
+        unset($data['website_permissions']);
         unset($data['permissions']); // Also remove this to avoid column error
         
         // Remove any other permission-related fields that might be added by Filament

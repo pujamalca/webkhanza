@@ -137,7 +137,7 @@ class AdminPanelProvider extends PanelProvider
                 // Website identity quick access (for admins)
                 MenuItem::make('website-settings')
                     ->label('Website Settings')
-                    ->url('/admin/user-role/website-identities')
+                    ->url('/admin/administrator/website-identities')
                     ->icon('heroicon-o-globe-alt')
                     ->visible(fn (): bool => auth()->user()?->can('view_any_website_identity') ?? false),
                 

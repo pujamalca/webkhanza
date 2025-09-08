@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources;
+namespace App\Filament\Clusters\Administrator\Resources;
 
-use App\Filament\Clusters\UserRole\UserRoleCluster;
-use App\Filament\Clusters\UserRole\Resources\WebsiteIdentityResource\Pages;
+use App\Filament\Clusters\Administrator\AdministratorCluster;
+use App\Filament\Clusters\Administrator\Resources\WebsiteIdentityResource\Pages;
 use App\Models\WebsiteIdentity;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -26,7 +26,7 @@ class WebsiteIdentityResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
     
-    protected static ?string $cluster = UserRoleCluster::class;
+    protected static ?string $cluster = AdministratorCluster::class;
 
     protected static ?string $navigationLabel = 'Identitas Website';
     

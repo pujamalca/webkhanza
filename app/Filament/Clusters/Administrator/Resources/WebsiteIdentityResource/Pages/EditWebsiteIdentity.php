@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\WebsiteIdentityResource\Pages;
+namespace App\Filament\Clusters\Administrator\Resources\WebsiteIdentityResource\Pages;
 
-use App\Filament\Clusters\UserRole\Resources\WebsiteIdentityResource;
+use App\Filament\Clusters\Administrator\Resources\WebsiteIdentityResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Storage;

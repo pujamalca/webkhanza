@@ -50,7 +50,8 @@
       "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
       "Read(/D:\\d\\laragon\\www\\webkhanza/**)",
       "Bash(npm test)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": [],

@@ -99,6 +99,7 @@ class BpjsTransferResource extends Resource
                     ->schema([
                         Forms\Components\Toggle::make('is_edukasi_completed')
                             ->label('Pasien sudah diedukasi tentang proses pemindahan BPJS')
+                            ->default(true)
                             ->helperText('Centang jika pasien sudah dijelaskan mengenai proses pemindahan BPJS'),
                         Forms\Components\Textarea::make('notes')
                             ->label('Catatan')
