@@ -23,9 +23,12 @@ return new class extends Migration
             $table->json('gallery_images')->nullable(); // Additional images
             
             // Relationships
-            $table->foreignId('blog_category_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('blog_category_id')->nullable();
             $table->string('user_id', 20);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Author
+            
+            // Add indexes for relationships
+            $table->index('blog_category_id');
+            $table->index('user_id');
             
             // SEO Fields
             $table->string('meta_title')->nullable();
