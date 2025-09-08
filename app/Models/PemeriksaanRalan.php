@@ -12,10 +12,32 @@ class PemeriksaanRalan extends Model
     use HasFactory, LogsActivity;
 
     protected $table = 'pemeriksaan_ralan';
-    protected $primaryKey = 'no_rawat';
+    protected $primaryKey = ['no_rawat', 'tgl_perawatan', 'jam_rawat'];
     protected $keyType = 'string';
     public $incrementing = false;
     public $timestamps = false;
+    
+    public function getKeyName()
+    {
+        return $this->primaryKey;
+    }
+    
+    public function getKey()
+    {
+        $attributes = [];
+        foreach ($this->getKeyName() as $key) {
+            $attributes[$key] = $this->getAttribute($key);
+        }
+        return $attributes;
+    }
+    
+    protected function setKeysForSaveQuery($query)
+    {
+        foreach ($this->getKeyName() as $key) {
+            $query->where($key, '=', $this->getAttribute($key));
+        }
+        return $query;
+    }
 
     protected $fillable = [
         'no_rawat',

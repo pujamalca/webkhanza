@@ -74,7 +74,14 @@ class RegPeriksa extends Model
 
     public function pemeriksaanRalan()
     {
-        return $this->hasOne(PemeriksaanRalan::class, 'no_rawat', 'no_rawat');
+        return $this->hasMany(PemeriksaanRalan::class, 'no_rawat', 'no_rawat');
+    }
+    
+    public function pemeriksaanRalanLatest()
+    {
+        return $this->hasOne(PemeriksaanRalan::class, 'no_rawat', 'no_rawat')
+                   ->latest('tgl_perawatan')
+                   ->latest('jam_rawat');
     }
 
     public function resepObat()
