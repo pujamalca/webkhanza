@@ -23,6 +23,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Actions\ActionGroup;
@@ -495,8 +496,7 @@ class RegistrasiResource extends Resource
         return $table
             ->defaultSort('tgl_registrasi', 'desc')
             ->modifyQueryUsing(function ($query) {
-                return $query->with(['pasien:no_rkm_medis,nm_pasien,jk,no_ktp,no_peserta', 'poliklinik:kd_poli,nm_poli', 'dokter:kd_dokter,nm_dokter', 'penjab:kd_pj,png_jawab'])
-                    ->whereDate('tgl_registrasi', today());
+                return $query->with(['pasien:no_rkm_medis,nm_pasien,jk,no_ktp,no_peserta', 'poliklinik:kd_poli,nm_poli', 'dokter:kd_dokter,nm_dokter', 'penjab:kd_pj,png_jawab']);
             })
             ->deferLoading()
             ->paginationPageOptions([10, 25, 50, 100])
@@ -668,33 +668,36 @@ class RegistrasiResource extends Resource
 
                 Filter::make('tgl_registrasi')
                     ->form([
-                        DatePicker::make('from_date')
-                            ->label('Dari Tanggal'),
-                        DatePicker::make('to_date')
-                            ->label('Sampai Tanggal'),
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal')
+                            ->default(now())
+                            ->displayFormat('d/m/Y'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal') 
+                            ->default(now())
+                            ->displayFormat('d/m/Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['from_date'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '>=', $date)
+                                $data['dari_tanggal'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '>=', $date),
                             )
                             ->when(
-                                $data['to_date'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '<=', $date)
+                                $data['sampai_tanggal'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-
-                        if ($data['from_date'] ?? null) {
-                            $indicators[] = 'Dari: ' . \Carbon\Carbon::parse($data['from_date'])->format('d M Y');
+                        if ($data['dari_tanggal']) {
+                            $indicators[] = Indicator::make('Dari: ' . \Carbon\Carbon::parse($data['dari_tanggal'])->format('d/m/Y'))
+                                ->removeField('dari_tanggal');
                         }
-
-                        if ($data['to_date'] ?? null) {
-                            $indicators[] = 'Sampai: ' . \Carbon\Carbon::parse($data['to_date'])->format('d M Y');
+                        if ($data['sampai_tanggal']) {
+                            $indicators[] = Indicator::make('Sampai: ' . \Carbon\Carbon::parse($data['sampai_tanggal'])->format('d/m/Y'))
+                                ->removeField('sampai_tanggal');
                         }
-
                         return $indicators;
                     }),
             ])

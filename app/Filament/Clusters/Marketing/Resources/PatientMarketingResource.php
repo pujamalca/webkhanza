@@ -12,6 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -76,69 +79,40 @@ class PatientMarketingResource extends Resource
         }
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('tgl_registrasi', today()))
             ->columns(array_merge($baseColumns, $categoryColumns))
             ->filters([
-                Tables\Filters\Filter::make('all_dates')
-                    ->label('Semua Tanggal')
-                    ->query(fn (Builder $query): Builder => $query->withoutGlobalScope('today'))
-                    ->toggle(),
-                Tables\Filters\SelectFilter::make('quick_date')
-                    ->label('Tanggal Cepat')
-                    ->options([
-                        now()->format('Y-m-d') => 'Hari Ini (' . now()->format('d/m/Y') . ')',
-                        now()->subDay()->format('Y-m-d') => 'Kemarin (' . now()->subDay()->format('d/m/Y') . ')',
-                        now()->subDays(2)->format('Y-m-d') => now()->subDays(2)->format('d/m/Y'),
-                        now()->subDays(3)->format('Y-m-d') => now()->subDays(3)->format('d/m/Y'),
-                        now()->subDays(4)->format('Y-m-d') => now()->subDays(4)->format('d/m/Y'),
-                        now()->subDays(5)->format('Y-m-d') => now()->subDays(5)->format('d/m/Y'),
-                        now()->subDays(6)->format('Y-m-d') => now()->subDays(6)->format('d/m/Y'),
-                    ])
-                    ->query(function (Builder $query, array $data) {
-                        if (filled($data['value'])) {
-                            return $query->withoutGlobalScope('today')->whereDate('tgl_registrasi', $data['value']);
-                        }
-                        return $query;
-                    }),
-                Tables\Filters\Filter::make('tgl_registrasi')
-                    ->label('Filter Tanggal Registrasi')
+                Filter::make('tgl_registrasi')
                     ->form([
-                        Forms\Components\DatePicker::make('dari_tanggal')
+                        DatePicker::make('dari_tanggal')
                             ->label('Dari Tanggal')
+                            ->default(now())
                             ->displayFormat('d/m/Y'),
-                        Forms\Components\DatePicker::make('sampai_tanggal')
-                            ->label('Sampai Tanggal')
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal') 
+                            ->default(now())
                             ->displayFormat('d/m/Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        // Jika ada filter tanggal, override default today filter
-                        if ($data['dari_tanggal'] || $data['sampai_tanggal']) {
-                            $query = $query->withoutGlobalScope('today');
-                        }
-                        
                         return $query
                             ->when(
-                                $data['dari_tanggal'] ?? null,
+                                $data['dari_tanggal'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '>=', $date),
                             )
                             ->when(
-                                $data['sampai_tanggal'] ?? null,
+                                $data['sampai_tanggal'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-                        
-                        if ($data['dari_tanggal'] ?? null) {
-                            $indicators[] = Tables\Filters\Indicator::make('Dari: ' . \Carbon\Carbon::parse($data['dari_tanggal'])->format('d/m/Y'))
+                        if ($data['dari_tanggal']) {
+                            $indicators[] = Indicator::make('Dari: ' . \Carbon\Carbon::parse($data['dari_tanggal'])->format('d/m/Y'))
                                 ->removeField('dari_tanggal');
                         }
-                        
-                        if ($data['sampai_tanggal'] ?? null) {
-                            $indicators[] = Tables\Filters\Indicator::make('Sampai: ' . \Carbon\Carbon::parse($data['sampai_tanggal'])->format('d/m/Y'))
+                        if ($data['sampai_tanggal']) {
+                            $indicators[] = Indicator::make('Sampai: ' . \Carbon\Carbon::parse($data['sampai_tanggal'])->format('d/m/Y'))
                                 ->removeField('sampai_tanggal');
                         }
-                        
                         return $indicators;
                     }),
             ])

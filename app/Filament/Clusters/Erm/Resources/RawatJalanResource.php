@@ -23,6 +23,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Actions\ActionGroup;
@@ -734,6 +735,41 @@ class RawatJalanResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
+                Filter::make('tgl_registrasi')
+                    ->form([
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal')
+                            ->default(now())
+                            ->displayFormat('d/m/Y'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal')
+                            ->default(now())
+                            ->displayFormat('d/m/Y'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['dari_tanggal'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '>=', $date),
+                            )
+                            ->when(
+                                $data['sampai_tanggal'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tgl_registrasi', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['dari_tanggal']) {
+                            $indicators[] = Indicator::make('Dari: ' . \Carbon\Carbon::parse($data['dari_tanggal'])->format('d/m/Y'))
+                                ->removeField('dari_tanggal');
+                        }
+                        if ($data['sampai_tanggal']) {
+                            $indicators[] = Indicator::make('Sampai: ' . \Carbon\Carbon::parse($data['sampai_tanggal'])->format('d/m/Y'))
+                                ->removeField('sampai_tanggal');
+                        }
+                        return $indicators;
+                    }),
+
                 SelectFilter::make('kd_poli')
                     ->label('Poliklinik')
                     ->relationship('poliklinik', 'nm_poli')
