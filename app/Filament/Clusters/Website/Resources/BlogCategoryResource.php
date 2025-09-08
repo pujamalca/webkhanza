@@ -117,8 +117,11 @@ class BlogCategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
+                    ->disk('public')
                     ->circular()
-                    ->size(40),
+                    ->size(40)
+                    ->defaultImageUrl('/images/default-category.png')
+                    ->visibility('public'),
                     
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()

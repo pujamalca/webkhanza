@@ -53,17 +53,18 @@ Route::middleware([
         ->name('api.bpjs-transfer-task.toggle');
 });
 
-// Add CORS middleware for storage files
-Route::middleware([
-    \App\Http\Middleware\CorsMiddleware::class,
-])->group(function () {
-    Route::get('/storage/{path}', function ($path) {
-        $filePath = storage_path('app/public/' . $path);
-        
-        if (!file_exists($filePath)) {
-            abort(404);
-        }
-        
-        return response()->file($filePath);
-    })->where('path', '.*');
-});
+// Simple storage route
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found');
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.files');
+
