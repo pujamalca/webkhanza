@@ -71,7 +71,7 @@
                 <form method="POST" action="{{ route('checkout-photo.store', $absent->id) }}" id="checkout_form">
                     @csrf
                     
-                    <input type="hidden" name="photo_data" id="photo_data_field" required>
+                    <input type="hidden" name="photo_data" id="photo_data_field">
                     
                     <div class="mb-4">
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
@@ -89,8 +89,7 @@
                         </a>
                         
                         <button type="submit" id="submit_btn"
-                                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                                disabled>
+                                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
                             ✅ Konfirmasi Absen Pulang
                         </button>
                     </div>
@@ -181,8 +180,7 @@
                 document.getElementById('camera_status').innerHTML = '📸 Foto pulang berhasil diambil!';
                 document.getElementById('btn_capture').style.display = 'none';
                 document.getElementById('btn_retake').style.display = 'inline-block';
-                document.getElementById('submit_btn').disabled = false;
-                document.getElementById('submit_btn').classList.remove('opacity-50');
+                // Photo captured - submit button already enabled
                 
                 console.log('✅ Checkout photo ready for submit');
             });
@@ -196,8 +194,7 @@
             document.getElementById('camera_status').innerHTML = '✅ Kamera aktif - Siap mengambil foto pulang';
             document.getElementById('btn_capture').style.display = 'inline-block';
             document.getElementById('btn_retake').style.display = 'none';
-            document.getElementById('submit_btn').disabled = true;
-            document.getElementById('submit_btn').classList.add('opacity-50');
+            // Photo cleared - submit button remains enabled
             
             // Clear form field
             document.getElementById('photo_data_field').value = '';
@@ -212,20 +209,15 @@
         document.getElementById('checkout_form').addEventListener('submit', function(e) {
             const photoField = document.getElementById('photo_data_field');
             
-            if (!photoField.value) {
-                e.preventDefault();
-                alert('Silakan ambil foto terlebih dahulu!');
-                return false;
-            }
-            
-            // Final backup: inject backup photo if field is empty
+            // Photo is optional - no validation required
+            // Final backup: inject backup photo if available
             const backupPhoto = localStorage.getItem('checkout_photo_backup');
             if (!photoField.value && backupPhoto) {
                 photoField.value = backupPhoto;
                 console.log('✅ Injected backup photo to form field');
             }
             
-            console.log('✅ Form submitting with photo data:', photoField.value.length, 'characters');
+            console.log('✅ Form submitting, photo data length:', photoField.value ? photoField.value.length : 0);
             return true;
         });
         

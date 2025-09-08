@@ -252,16 +252,13 @@ class CreateAbsent extends CreateRecord
         }
         
         if (empty($photoData)) {
-            \Log::warning('❌ CRITICAL: No photo data found in ANY source!', [
+            \Log::info('No photo data found, proceeding without photo', [
                 'all_form_fields' => array_keys($data),
-                'request_all' => $request->all(),
-                'post_keys' => array_keys($_POST),
                 'session_photo_exists' => session()->has('temp_check_in_photo')
             ]);
             
-            // Force photo requirement - do not allow creation without photo
-            // Comment this out if you want to allow creation without photo
-            throw new \Exception('Foto diperlukan untuk absen masuk. Silakan ambil foto terlebih dahulu.');
+            // Allow creation without photo - photo is optional
+            unset($data['check_in_photo']);
         }
         
         // Remove check_out data dan attendance_type (tidak disimpan ke database)

@@ -200,6 +200,8 @@ class AbsentResource extends Resource
                                         Webcam.attach("#my_camera_checkin");
                                         document.getElementById("camera_status_checkin").innerHTML = "✅ Kamera aktif - Siap mengambil foto masuk";
                                         console.log("✅ Check-in camera attached successfully");
+                                        
+                                        // Submit button available without photo requirement
                                     } catch(e) {
                                         console.error("❌ Check-in camera error:", e);
                                         document.getElementById("camera_status_checkin").innerHTML = "❌ Gagal mengakses kamera";
@@ -251,6 +253,8 @@ class AbsentResource extends Resource
                                         document.getElementById("camera_status_checkin").innerHTML = "📸 Foto masuk berhasil diambil!";
                                         document.getElementById("btn_capture_checkin").style.display = "none";
                                         document.getElementById("btn_retake_checkin").style.display = "inline-block";
+                                        
+                                        // Photo captured successfully
                                     });
                                 };
                                 
@@ -262,6 +266,8 @@ class AbsentResource extends Resource
                                     document.getElementById("camera_status_checkin").innerHTML = "✅ Kamera aktif - Siap mengambil foto masuk";
                                     document.getElementById("btn_capture_checkin").style.display = "inline-block";
                                     document.getElementById("btn_retake_checkin").style.display = "none";
+                                    
+                                    // Photo cleared for retake
                                     
                                     // Clear form field
                                     const photoField = document.querySelector("[name=\"check_in_photo\"]");
@@ -520,16 +526,18 @@ class AbsentResource extends Resource
                                 }
                             }
                             
-                            // Validate photo data
+                            // Process photo data if available  
                             if (empty($photoData)) {
-                                throw new \Exception('Foto diperlukan untuk absen pulang. Silakan ambil foto terlebih dahulu.');
-                            }
-                            
-                            // Save photo
-                            $photoPath = self::saveBase64Image($photoData, 'check_out', $record->employee_id);
-                            
-                            if (!$photoPath) {
-                                throw new \Exception('Gagal menyimpan foto. Silakan coba lagi.');
+                                \Log::info('No photo data found for absen pulang action, proceeding without photo');
+                                $photoPath = null;
+                            } else {
+                                // Save photo
+                                $photoPath = self::saveBase64Image($photoData, 'check_out', $record->employee_id);
+                                
+                                if (!$photoPath) {
+                                    \Log::warning('Failed to save photo, but continuing without photo');
+                                    $photoPath = null;
+                                }
                             }
                             
                             // Update record

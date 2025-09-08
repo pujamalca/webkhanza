@@ -62,22 +62,26 @@ class CheckoutPhotoController extends Controller
                 }
             }
             
-            // Validate photo data
+            // Process photo data if available
             if (empty($photoData)) {
-                throw new \Exception('Foto diperlukan untuk absen pulang. Silakan ambil foto terlebih dahulu.');
+                \Log::info('No photo data found for checkout, proceeding without photo');
+                $photoPath = null;
+            } else {
+                // Save photo
+                $photoPath = $this->saveBase64Image($photoData, 'check_out', $absent->employee_id);
             }
             
-            \Log::info('Processing check_out photo', [
-                'photo_data_type' => gettype($photoData),
-                'photo_data_length' => is_string($photoData) ? strlen($photoData) : null,
-                'is_base64' => is_string($photoData) && str_starts_with($photoData, 'data:image')
-            ]);
-            
-            // Save photo
-            $photoPath = $this->saveBase64Image($photoData, 'check_out', $absent->employee_id);
-            
-            if (!$photoPath) {
-                throw new \Exception('Gagal menyimpan foto. Silakan coba lagi.');
+            if ($photoData) {
+                \Log::info('Processing check_out photo', [
+                    'photo_data_type' => gettype($photoData),
+                    'photo_data_length' => is_string($photoData) ? strlen($photoData) : null,
+                    'is_base64' => is_string($photoData) && str_starts_with($photoData, 'data:image')
+                ]);
+                
+                if (!$photoPath) {
+                    \Log::warning('Failed to save checkout photo, but continuing without photo');
+                    $photoPath = null;
+                }
             }
             
             // Update record
