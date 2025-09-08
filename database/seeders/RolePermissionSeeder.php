@@ -59,6 +59,10 @@ class RolePermissionSeeder extends Seeder
             'registrasi_delete',
             'registrasi_view_details',
             
+            // Registrasi Cepat Menu
+            'registration_quick_access',
+            'registration_template_manage',
+            
             // Rawat Jalan Menu
             'rawat_jalan_view',
             'rawat_jalan_create',

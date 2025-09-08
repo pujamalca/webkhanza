@@ -148,6 +148,7 @@ class RoleForm
                             ->options(function () {
                                 return Permission::where('name', 'like', 'erm_access')
                                     ->orWhere('name', 'like', 'registrasi_%')
+                                    ->orWhere('name', 'like', 'registration_%')
                                     ->orWhere('name', 'like', 'rawat_jalan_%')
                                     ->orWhere('name', 'like', 'pasien_%')
                                     ->pluck('name', 'id')
@@ -160,6 +161,9 @@ class RoleForm
                                             'registrasi_edit' => '✏️ Registrasi - Edit data registrasi',
                                             'registrasi_delete' => '🗑️ Registrasi - Hapus registrasi',
                                             'registrasi_view_details' => '📄 Registrasi - Lihat detail registrasi',
+                                            
+                                            'registration_quick_access' => '⚡ Registrasi Cepat - Akses fitur registrasi cepat',
+                                            'registration_template_manage' => '📋 Template Registrasi - Kelola template registrasi',
                                             
                                             'rawat_jalan_view' => '👁️ Rawat Jalan - Lihat daftar rawat jalan',
                                             'rawat_jalan_create' => '➕ Rawat Jalan - Buat registrasi rawat jalan baru',

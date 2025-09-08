@@ -13,7 +13,6 @@ class RegistrationTemplate extends Model
         'kd_pj',
         'biaya_reg',
         'status_lanjut',
-        'stts_daftar',
         'is_active',
         'description'
     ];
