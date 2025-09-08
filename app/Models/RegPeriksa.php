@@ -77,6 +77,31 @@ class RegPeriksa extends Model
         return $this->hasOne(PemeriksaanRalan::class, 'no_rawat', 'no_rawat');
     }
 
+    public function resepObat()
+    {
+        return $this->hasMany(ResepObat::class, 'no_rawat', 'no_rawat');
+    }
+
+    public function diagnosaPasien()
+    {
+        return $this->hasMany(DiagnosaPasien::class, 'no_rawat', 'no_rawat');
+    }
+
+    public function catatanPasien()
+    {
+        return $this->hasMany(CatatanPasien::class, 'no_rawat', 'no_rawat');
+    }
+
+    public function tindakanRalan()
+    {
+        return $this->hasMany(TindakanRalan::class, 'no_rawat', 'no_rawat');
+    }
+
+    public function permintaanLab()
+    {
+        return $this->hasMany(PermintaanLab::class, 'no_rawat', 'no_rawat');
+    }
+
     public function getNoRawatFormatAttribute()
     {
         return str_replace('/', '-', $this->no_rawat);
