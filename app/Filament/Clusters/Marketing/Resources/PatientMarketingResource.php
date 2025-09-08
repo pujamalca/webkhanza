@@ -35,12 +35,16 @@ class PatientMarketingResource extends Resource
                 ->label('Nama Pasien')
                 ->searchable()
                 ->sortable(),
-            Tables\Columns\TextColumn::make('no_rkm_medis')
-                ->label('No. RM')
+            Tables\Columns\TextColumn::make('penjab.png_jawab')
+                ->label('Cara Bayar')
                 ->searchable()
-                ->copyable()
-                ->copyMessage('No. RM berhasil disalin!')
-                ->tooltip('Klik untuk menyalin'),
+                ->badge()
+                ->color(fn($state) => match(strtolower($state ?? '')) {
+                    'bpjs kesehatan' => 'success',
+                    'umum' => 'info', 
+                    'pribadi' => 'warning',
+                    default => 'gray'
+                }),
             Tables\Columns\TextColumn::make('pasien.no_peserta')
                 ->label('No. Peserta')
                 ->searchable()
@@ -132,6 +136,6 @@ class PatientMarketingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['pasien.marketingTasks.category', 'pasien', 'dokter', 'poliklinik']);
+            ->with(['pasien.marketingTasks.category', 'pasien', 'dokter', 'poliklinik', 'penjab']);
     }
 }
