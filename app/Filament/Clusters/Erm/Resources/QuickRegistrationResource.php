@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Support\Icons\Heroicon;
@@ -49,7 +50,8 @@ class QuickRegistrationResource extends Resource
                             ->placeholder('Ketik No. RM / Nama / NIK / No. Kartu untuk mencari pasien')
                             ->searchable()
                             ->getSearchResultsUsing(fn (string $search): array => 
-                                Pasien::where('no_rkm_medis', 'like', "%{$search}%")
+                                Pasien::with('marketingTasks')
+                                    ->where('no_rkm_medis', 'like', "%{$search}%")
                                     ->orWhere('nm_pasien', 'like', "%{$search}%")
                                     ->orWhere('no_ktp', 'like', "%{$search}%")
                                     ->orWhere('no_peserta', 'like', "%{$search}%")
@@ -57,12 +59,25 @@ class QuickRegistrationResource extends Resource
                                     ->get()
                                     ->mapWithKeys(function ($patient) {
                                         $label = "{$patient->no_rkm_medis} - {$patient->nm_pasien}";
+                                        
+                                        // Add patient identifiers
                                         if ($patient->no_ktp) {
                                             $label .= " (NIK: {$patient->no_ktp})";
                                         }
                                         if ($patient->no_peserta) {
                                             $label .= " (Kartu: {$patient->no_peserta})";
                                         }
+                                        
+                                        // Add marketing status indicator
+                                        $pendingTasks = $patient->marketingTasks()->where('is_completed', false)->count();
+                                        $completedTasks = $patient->marketingTasks()->where('is_completed', true)->count();
+                                        
+                                        if ($pendingTasks > 0) {
+                                            $label .= " [📋 Marketing: {$pendingTasks} pending]";
+                                        } elseif ($completedTasks > 0) {
+                                            $label .= " [✅ Marketing: completed]";
+                                        }
+                                        
                                         return [$patient->no_rkm_medis => $label];
                                     })->toArray()
                             )
@@ -72,10 +87,25 @@ class QuickRegistrationResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 if ($state) {
-                                    $patient = Pasien::where('no_rkm_medis', $state)->first();
+                                    $patient = Pasien::with('marketingTasks')->where('no_rkm_medis', $state)->first();
                                     if ($patient) {
                                         $set('patient_name', $patient->nm_pasien);
-                                        $set('patient_info', "NIK: {$patient->no_ktp} | Kartu: {$patient->no_peserta}");
+                                        
+                                        // Build patient info with marketing status
+                                        $info = "NIK: {$patient->no_ktp} | Kartu: {$patient->no_peserta}";
+                                        
+                                        $pendingTasks = $patient->marketingTasks()->where('is_completed', false)->count();
+                                        $completedTasks = $patient->marketingTasks()->where('is_completed', true)->count();
+                                        
+                                        if ($pendingTasks > 0) {
+                                            $info .= " | 📋 Marketing: {$pendingTasks} task pending";
+                                        } elseif ($completedTasks > 0) {
+                                            $info .= " | ✅ Marketing: {$completedTasks} task completed";
+                                        } else {
+                                            $info .= " | 📋 Marketing: No tasks";
+                                        }
+                                        
+                                        $set('patient_info', $info);
                                         
                                         // Auto-detect status daftar berdasarkan history registrasi
                                         $hasRegistration = $patient->regPeriksa()->count() > 0;
@@ -167,6 +197,7 @@ class QuickRegistrationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('tgl_registrasi', today()))
             ->columns([
                 Tables\Columns\TextColumn::make('no_rawat')
                     ->label('No. Rawat')
@@ -204,11 +235,29 @@ class QuickRegistrationResource extends Resource
                         default => 'gray'
                     }),
             ])
-            ->defaultSort('tgl_registrasi', 'desc')
+            ->defaultSort('jam_reg', 'desc')
             ->filters([
-                Tables\Filters\Filter::make('today')
-                    ->label('Hari Ini')
-                    ->query(fn (Builder $query): Builder => $query->whereDate('tgl_registrasi', today())),
+                Tables\Filters\Filter::make('all_dates')
+                    ->label('Semua Tanggal')
+                    ->query(fn (Builder $query): Builder => $query->withoutGlobalScope('today'))
+                    ->toggle(),
+                Tables\Filters\SelectFilter::make('tgl_registrasi')
+                    ->label('Tanggal Registrasi')
+                    ->options([
+                        now()->format('Y-m-d') => 'Hari Ini (' . now()->format('d/m/Y') . ')',
+                        now()->subDay()->format('Y-m-d') => 'Kemarin (' . now()->subDay()->format('d/m/Y') . ')',
+                        now()->subDays(2)->format('Y-m-d') => now()->subDays(2)->format('d/m/Y'),
+                        now()->subDays(3)->format('Y-m-d') => now()->subDays(3)->format('d/m/Y'),
+                        now()->subDays(4)->format('Y-m-d') => now()->subDays(4)->format('d/m/Y'),
+                        now()->subDays(5)->format('Y-m-d') => now()->subDays(5)->format('d/m/Y'),
+                        now()->subDays(6)->format('Y-m-d') => now()->subDays(6)->format('d/m/Y'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (filled($data['value'])) {
+                            return $query->withoutGlobalScope('today')->whereDate('tgl_registrasi', $data['value']);
+                        }
+                        return $query;
+                    }),
             ]);
     }
 

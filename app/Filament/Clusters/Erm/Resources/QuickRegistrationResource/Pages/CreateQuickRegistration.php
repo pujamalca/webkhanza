@@ -37,8 +37,9 @@ class CreateQuickRegistration extends CreateRecord
         $today = now()->format('Y/m/d');
         $lastReg = RegPeriksa::whereDate('tgl_registrasi', today())->max('no_reg');
         $nextRegNo = str_pad(($lastReg ?? 0) + 1, 3, '0', STR_PAD_LEFT);
+        $nextRegNoFormatted = str_pad(($lastReg ?? 0) + 1, 6, '0', STR_PAD_LEFT);
         
-        $noRawat = $today . '/' . $nextRegNo;
+        $noRawat = $today . '/' . $nextRegNoFormatted;
 
         // Create registration record
         $registration = RegPeriksa::create([
@@ -60,7 +61,7 @@ class CreateQuickRegistration extends CreateRecord
             'umurdaftar' => $this->calculateAge($patient->tgl_lahir),
             'sttsumur' => $this->getAgeStatus($patient->tgl_lahir),
             'status_bayar' => 'Belum Bayar',
-            'status_poli' => 'Belum',
+            'status_poli' => $data['stts_daftar'] ?? 'Lama',
         ]);
 
         Notification::make()
