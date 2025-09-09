@@ -15,19 +15,11 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Tables;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 use Livewire\Component;
 
-class PemeriksaanRalanForm extends Component implements HasForms, HasTable, HasActions
+class PemeriksaanRalanForm extends Component implements HasForms, HasActions
 {
     use InteractsWithForms;
-    use InteractsWithTable;
     use InteractsWithActions;
 
     public string $noRawat;
@@ -42,6 +34,23 @@ class PemeriksaanRalanForm extends Component implements HasForms, HasTable, HasA
         $this->data = [
             'tgl_perawatan' => now()->format('Y-m-d'),
             'jam_rawat' => now()->format('H:i'),
+            'suhu_tubuh' => '',
+            'tensi' => '',
+            'nadi' => '',
+            'respirasi' => '',
+            'spo2' => '',
+            'tinggi' => '',
+            'berat' => '',
+            'gcs' => '',
+            'kesadaran' => '',
+            'keluhan' => '',
+            'pemeriksaan' => '',
+            'penilaian' => '',
+            'alergi' => '',
+            'lingkar_perut' => '',
+            'rtl' => '',
+            'instruksi' => '',
+            'evaluasi' => '',
         ];
     }
     
@@ -128,6 +137,33 @@ class PemeriksaanRalanForm extends Component implements HasForms, HasTable, HasA
                     ->label('Penilaian')
                     ->columnSpanFull()
                     ->rows(3),
+
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('alergi')
+                            ->label('Alergi')
+                            ->maxLength(50),
+
+                        TextInput::make('lingkar_perut')
+                            ->label('Lingkar Perut (cm)')
+                            ->numeric()
+                            ->step(0.1),
+                    ]),
+
+                Textarea::make('rtl')
+                    ->label('Rencana Tindak Lanjut')
+                    ->columnSpanFull()
+                    ->rows(2),
+
+                Textarea::make('instruksi')
+                    ->label('Instruksi')
+                    ->columnSpanFull()
+                    ->rows(2),
+
+                Textarea::make('evaluasi')
+                    ->label('Evaluasi')
+                    ->columnSpanFull()
+                    ->rows(2),
             ];
     }
 
@@ -151,10 +187,26 @@ class PemeriksaanRalanForm extends Component implements HasForms, HasTable, HasA
         $this->data = [
             'tgl_perawatan' => now()->format('Y-m-d'),
             'jam_rawat' => now()->format('H:i'),
+            'suhu_tubuh' => '',
+            'tensi' => '',
+            'nadi' => '',
+            'respirasi' => '',
+            'spo2' => '',
+            'tinggi' => '',
+            'berat' => '',
+            'gcs' => '',
+            'kesadaran' => '',
+            'keluhan' => '',
+            'pemeriksaan' => '',
+            'penilaian' => '',
+            'alergi' => '',
+            'lingkar_perut' => '',
+            'rtl' => '',
+            'instruksi' => '',
+            'evaluasi' => '',
         ];
 
-        // Reset pagination dan kirim notifikasi sukses
-        $this->resetTable();
+        // Kirim notifikasi sukses
         
         Notification::make()
             ->title('Pemeriksaan berhasil disimpan')
@@ -168,13 +220,31 @@ class PemeriksaanRalanForm extends Component implements HasForms, HasTable, HasA
         $this->data = [
             'tgl_perawatan' => now()->format('Y-m-d'),
             'jam_rawat' => now()->format('H:i'),
+            'suhu_tubuh' => '',
+            'tensi' => '',
+            'nadi' => '',
+            'respirasi' => '',
+            'spo2' => '',
+            'tinggi' => '',
+            'berat' => '',
+            'gcs' => '',
+            'kesadaran' => '',
+            'keluhan' => '',
+            'pemeriksaan' => '',
+            'penilaian' => '',
+            'alergi' => '',
+            'lingkar_perut' => '',
+            'rtl' => '',
+            'instruksi' => '',
+            'evaluasi' => '',
         ];
     }
     
-    // Property untuk menyimpan data pemeriksaan
+    // Get examination records
     public function getPemeriksaanListProperty()
     {
         return PemeriksaanRalan::where('no_rawat', $this->noRawat)
+            ->with(['petugas:nik,nama'])
             ->orderBy('tgl_perawatan', 'desc')
             ->orderBy('jam_rawat', 'desc')
             ->get();
