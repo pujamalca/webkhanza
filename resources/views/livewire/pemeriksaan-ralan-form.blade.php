@@ -3,10 +3,14 @@
     <x-filament::section>
         <x-slot name="heading">Input Pemeriksaan Baru</x-slot>
         
-        <form wire:submit="simpanPemeriksaan" class="space-y-6">
+        <form wire:submit="simpanPemeriksaan" class="space-y-6 ">
             {{ $this->form }}
-            
-            <div class="flex justify-end gap-x-3">
+
+        </form>
+    </x-filament::section>
+
+    <x-filament::section>
+            <div class="flex p-5 gap-x-5 ">
                 <x-filament::button type="button" color="gray" wire:click="resetForm">
                     Reset
                 </x-filament::button>
@@ -14,7 +18,6 @@
                     Simpan Pemeriksaan
                 </x-filament::button>
             </div>
-        </form>
     </x-filament::section>
 
     <!-- Data List Section -->
@@ -22,104 +25,67 @@
         <x-slot name="heading">Riwayat Pemeriksaan</x-slot>
         
         @if($this->pemeriksaanList->count() > 0)
-            <div class="space-y-4">
-                @foreach($this->pemeriksaanList as $pemeriksaan)
-                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex gap-4">
-                                <div class="text-sm">
-                                    <span class="font-medium text-gray-900 dark:text-white">
-                                        {{ $pemeriksaan->tgl_perawatan->format('d/m/Y') }}
-                                    </span>
-                                    <span class="text-gray-600 dark:text-gray-400 ml-2">
-                                        {{ substr($pemeriksaan->jam_rawat, 0, 5) }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <x-filament::button 
-                                    size="xs" 
-                                    color="gray"
-                                    wire:click="editPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
-                                >
-                                    Edit
-                                </x-filament::button>
-                                <x-filament::button 
-                                    size="xs" 
-                                    color="danger"
-                                    wire:click="hapusPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
-                                    wire:confirm="Yakin ingin menghapus pemeriksaan ini?"
-                                >
-                                    Hapus
-                                </x-filament::button>
-                            </div>
-                        </div>
-                        
-                        <!-- Tanda Vital -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
-                            @if($pemeriksaan->suhu_tubuh)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">Suhu</span>
-                                    <p class="font-medium">{{ $pemeriksaan->suhu_tubuh }}°C</p>
-                                </div>
-                            @endif
-                            @if($pemeriksaan->tensi)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">Tensi</span>
-                                    <p class="font-medium">{{ $pemeriksaan->tensi }}</p>
-                                </div>
-                            @endif
-                            @if($pemeriksaan->nadi)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">Nadi</span>
-                                    <p class="font-medium">{{ $pemeriksaan->nadi }} x/mnt</p>
-                                </div>
-                            @endif
-                            @if($pemeriksaan->respirasi)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">Respirasi</span>
-                                    <p class="font-medium">{{ $pemeriksaan->respirasi }} x/mnt</p>
-                                </div>
-                            @endif
-                            @if($pemeriksaan->spo2)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">SpO2</span>
-                                    <p class="font-medium">{{ $pemeriksaan->spo2 }}%</p>
-                                </div>
-                            @endif
-                            @if($pemeriksaan->kesadaran)
-                                <div>
-                                    <span class="text-xs text-gray-600 dark:text-gray-400">Kesadaran</span>
-                                    <p class="font-medium">{{ $pemeriksaan->kesadaran }}</p>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Detail Info -->
-                        @if($pemeriksaan->keluhan || $pemeriksaan->pemeriksaan || $pemeriksaan->penilaian)
-                            <div class="space-y-2 text-sm">
-                                @if($pemeriksaan->keluhan)
-                                    <div>
-                                        <span class="font-medium text-gray-900 dark:text-white">Keluhan:</span>
-                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->keluhan }}</p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Jam</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Suhu</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Tensi</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Nadi</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">RR</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">SpO2</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">TB</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">BB</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">GCS</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Kesadaran</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Keluhan</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Pemeriksaan</th>
+                            <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Penilaian</th>
+                            <th class="px-2 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach($this->pemeriksaanList as $pemeriksaan)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->tgl_perawatan->format('d/m/Y') }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ substr($pemeriksaan->jam_rawat, 0, 5) }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->suhu_tubuh ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->tensi ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->nadi ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->respirasi ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->spo2 ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->tinggi ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->berat ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->gcs ?: '-' }}</td>
+                                <td class="px-2 py-2 whitespace-nowrap text-xs text-gray-900 dark:text-white">{{ $pemeriksaan->kesadaran ?: '-' }}</td>
+                                <td class="px-2 py-2 text-xs text-gray-900 dark:text-white max-w-32"><div class="truncate">{{ $pemeriksaan->keluhan ?: '-' }}</div></td>
+                                <td class="px-2 py-2 text-xs text-gray-900 dark:text-white max-w-32"><div class="truncate">{{ $pemeriksaan->pemeriksaan ?: '-' }}</div></td>
+                                <td class="px-2 py-2 text-xs text-gray-900 dark:text-white max-w-32"><div class="truncate">{{ $pemeriksaan->penilaian ?: '-' }}</div></td>
+                                <td class="px-2 py-2 whitespace-nowrap text-right">
+                                    <div class="flex justify-end gap-1">
+                                        <x-filament::button 
+                                            size="xs" 
+                                            color="gray"
+                                            wire:click="editPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
+                                        >
+                                            Edit
+                                        </x-filament::button>
+                                        <x-filament::button 
+                                            size="xs" 
+                                            color="danger"
+                                            wire:click="hapusPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
+                                            wire:confirm="Yakin ingin menghapus pemeriksaan ini?"
+                                        >
+                                            Hapus
+                                        </x-filament::button>
                                     </div>
-                                @endif
-                                @if($pemeriksaan->pemeriksaan)
-                                    <div>
-                                        <span class="font-medium text-gray-900 dark:text-white">Pemeriksaan:</span>
-                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->pemeriksaan }}</p>
-                                    </div>
-                                @endif
-                                @if($pemeriksaan->penilaian)
-                                    <div>
-                                        <span class="font-medium text-gray-900 dark:text-white">Penilaian:</span>
-                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->penilaian }}</p>
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @else
             <div class="text-center py-12">

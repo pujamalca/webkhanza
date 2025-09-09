@@ -29,36 +29,10 @@ class ViewRawatJalan extends ViewRecord
                                 ->label('No. RM'),
                             TextEntry::make('pasien.nm_pasien')
                                 ->label('Nama Pasien'),
-                        ])->columns(3),
-                        
-                        Group::make([
-                            TextEntry::make('tgl_registrasi')
-                                ->label('Tanggal Registrasi')
-                                ->date('d/m/Y'),
-                            TextEntry::make('jam_reg')
-                                ->label('Jam Registrasi'),
-                            TextEntry::make('pasien.jk')
-                                ->label('Jenis Kelamin')
-                                ->badge()
-                                ->color(fn (string $state): string => match ($state) {
-                                    'L' => 'blue',
-                                    'P' => 'pink',
-                                    default => 'gray',
-                                }),
-                        ])->columns(3),
-                        
-                        Group::make([
-                            TextEntry::make('poliklinik.nm_poli')
-                                ->label('Poliklinik')
-                                ->badge()
-                                ->color('info'),
                             TextEntry::make('dokter.nm_dokter')
                                 ->label('Dokter'),
-                            TextEntry::make('penjab.png_jawab')
-                                ->label('Cara Bayar')
-                                ->badge()
-                                ->color('success'),
-                        ])->columns(3),
+                        ])->columns(4),
+                        
                     ])
                     ->columnSpanFull(),
                 

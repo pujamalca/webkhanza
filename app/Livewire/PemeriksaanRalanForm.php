@@ -7,6 +7,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Group;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -25,99 +26,118 @@ class PemeriksaanRalanForm extends Component implements HasForms
         $this->no_rawat = $noRawat;
         $this->data = [
             'datetime_pemeriksaan' => now()->format('Y-m-d\TH:i'),
+            'suhu_tubuh' => '',
+            'tensi' => '',
+            'nadi' => '',
+            'respirasi' => '',
+            'tinggi' => '',
+            'berat' => '',
+            'spo2' => '',
+            'gcs' => '',
+            'kesadaran' => '',
+            'lingkar_perut' => '',
+            'keluhan' => '',
+            'pemeriksaan' => '',
+            'alergi' => '',
+            'penilaian' => '',
+            'rtl' => '',
+            'instruksi' => '',
+            'evaluasi' => '',
         ];
     }
     
     protected function getFormSchema(): array
     {
         return [
-            // Baris 1: Tanggal & Jam Pemeriksaan
-            DateTimePicker::make('datetime_pemeriksaan')
+            Group::make([
+                            DateTimePicker::make('datetime_pemeriksaan')
                 ->label('Tanggal & Jam Pemeriksaan')
                 ->required()
                 ->seconds(false)
                 ->displayFormat('d/m/Y H:i')
-                ->columnSpanFull(),
+                ->columnSpan([
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
+                ]),
 
-            // Baris 2: Tanda Vital Dasar (5 fields)
             TextInput::make('suhu_tubuh')
-                ->label('Suhu Tubuh (°C)')
+                ->label('Suhu (°C)')
                 ->numeric()
                 ->step(0.1)
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('tensi')
-                ->label('Tensi (mmHg)')
+                ->label('Tensi')
                 ->placeholder('120/80')
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('nadi')
-                ->label('Nadi (x/menit)')
+                ->label('Nadi')
                 ->numeric()
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('respirasi')
-                ->label('Respirasi (x/menit)')
+                ->label('RR')
                 ->numeric()
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('spo2')
-                ->label('SpO2 (%)')
+                ->label('SpO2')
                 ->numeric()
                 ->step(0.1)
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
 
-            // Baris 3: Antropometri & Status (5 fields)
             TextInput::make('tinggi')
-                ->label('Tinggi (cm)')
+                ->label('TB')
                 ->numeric()
                 ->step(0.1)
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('berat')
-                ->label('Berat (kg)')
+                ->label('BB')
                 ->numeric()
                 ->step(0.1)
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('lingkar_perut')
-                ->label('Lingkar Perut (cm)')
+                ->label('LP')
                 ->numeric()
                 ->step(0.1)
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             TextInput::make('gcs')
                 ->label('GCS')
                 ->placeholder('E4V5M6')
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             Select::make('kesadaran')
                 ->label('Kesadaran')
@@ -127,80 +147,83 @@ class PemeriksaanRalanForm extends Component implements HasForms
                     'Sopor' => 'Sopor',
                     'Coma' => 'Coma',
                 ])
-                ->placeholder('Pilih Kesadaran')
+                ->placeholder('Pilih')
                 ->columnSpan([
                     'default' => 1,
-                    'sm' => 1,
-                    'md' => 2,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
+                                TextInput::make('alergi')
+                ->label('Alergi')
+                ->columnSpan([
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
+                ]),
+            ])->columns(4),
 
-            // Baris 4: Keluhan & Pemeriksaan & Alergi (3 fields)
+            Group::make([
+
             Textarea::make('keluhan')
                 ->label('Keluhan')
                 ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 2,
-                    'md' => 4,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             Textarea::make('pemeriksaan')
                 ->label('Pemeriksaan Fisik')
                 ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 2,
-                    'md' => 4,
-                ]),
-            TextInput::make('alergi')
-                ->label('Alergi')
-                ->columnSpan([
-                    'default' => 5,
-                    'sm' => 1,
-                    'md' => 2,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
 
-            // Baris 5: Detail Lanjutan (4 fields)
             Textarea::make('penilaian')
                 ->label('Penilaian')
-                ->rows(2)
+                ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 5,
-                    'md' => 5,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             Textarea::make('rtl')
                 ->label('RTL (Rencana Tindak Lanjut)')
-                ->rows(2)
+                ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 5,
-                    'md' => 5,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             Textarea::make('instruksi')
                 ->label('Instruksi')
-                ->rows(2)
+                ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 5,
-                    'md' => 5,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
             Textarea::make('evaluasi')
                 ->label('Evaluasi')
-                ->rows(2)
+                ->rows(3)
                 ->columnSpan([
-                    'default' => 5,
-                    'sm' => 5,
-                    'md' => 5,
+                    'default' => 1,
+                    'sm' => 3,
+                    'md' => 1,
                 ]),
+    ])->columns(3),
+            
         ];
     }
 
     protected function getFormColumns(): int | string | array
     {
         return [
-            'default' => 5,
-            'sm' => 5,
-            'md' => 10,
+            'default' => 1,
+            'sm' => 3,
+            'md' => 1,
         ];
     }
 
@@ -233,7 +256,7 @@ class PemeriksaanRalanForm extends Component implements HasForms
                 'respirasi' => $pemeriksaan->respirasi,
                 'tinggi' => $pemeriksaan->tinggi,
                 'berat' => $pemeriksaan->berat,
-                'spo2' => $pemeriksaan->spo2,
+                'spo2' => $pemeriksaan->spo3,
                 'gcs' => $pemeriksaan->gcs,
                 'kesadaran' => $pemeriksaan->kesadaran,
                 'lingkar_perut' => $pemeriksaan->lingkar_perut,
@@ -265,6 +288,23 @@ class PemeriksaanRalanForm extends Component implements HasForms
     {
         $this->data = [
             'datetime_pemeriksaan' => now()->format('Y-m-d\TH:i'),
+            'suhu_tubuh' => '',
+            'tensi' => '',
+            'nadi' => '',
+            'respirasi' => '',
+            'tinggi' => '',
+            'berat' => '',
+            'spo2' => '',
+            'gcs' => '',
+            'kesadaran' => '',
+            'lingkar_perut' => '',
+            'keluhan' => '',
+            'pemeriksaan' => '',
+            'alergi' => '',
+            'penilaian' => '',
+            'rtl' => '',
+            'instruksi' => '',
+            'evaluasi' => '',
         ];
     }
     
