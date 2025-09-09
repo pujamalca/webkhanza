@@ -55,6 +55,9 @@ class PemeriksaanRalanForm extends Component
             ->where('jam_rawat', $jam_rawat)
             ->delete();
             
+        // Force refresh the pemeriksaan property
+        unset($this->pemeriksaan);
+            
         Notification::make()
             ->title('Pemeriksaan berhasil dihapus')
             ->success()
@@ -84,7 +87,7 @@ class PemeriksaanRalanForm extends Component
             'rtl' => $this->rtl,
             'instruksi' => $this->instruksi,
             'evaluasi' => $this->evaluasi,
-            'nip' => auth()->user()->nip ?? auth()->id(),
+            'nip' => '-', // Default petugas entry
         ];
         
         PemeriksaanRalan::create($data);
@@ -98,6 +101,9 @@ class PemeriksaanRalanForm extends Component
         
         $this->tgl_perawatan = now()->format('Y-m-d');
         $this->jam_rawat = now()->format('H:i');
+        
+        // Force refresh the pemeriksaan property
+        unset($this->pemeriksaan);
         
         Notification::make()
             ->title('Pemeriksaan berhasil disimpan')

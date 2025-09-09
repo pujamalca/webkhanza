@@ -26,7 +26,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
-use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Grid;
 use Filament\Notifications\Notification;
 
@@ -106,10 +105,257 @@ class ViewRawatJalan extends ViewRecord
                         Tab::make('Pemeriksaan Ralan')
                             ->icon('heroicon-o-heart')
                             ->schema([
-                                Livewire::make('pemeriksaan-ralan-form', [
-                                    'noRawat' => $this->record->no_rawat
-                                ])
-                                ->columnSpanFull()
+                                Section::make('Input Pemeriksaan Baru')
+                                    ->schema([
+                                        Group::make([
+                                            DatePicker::make('tgl_perawatan')
+                                                ->label('Tanggal Pemeriksaan')
+                                                ->default(now())
+                                                ->required(),
+                                            TimePicker::make('jam_rawat')
+                                                ->label('Jam Pemeriksaan')
+                                                ->default(now()->format('H:i'))
+                                                ->required(),
+                                        ])->columns(2),
+                                        
+                                        Fieldset::make('Tanda Vital')
+                                            ->schema([
+                                                Group::make([
+                                                    TextInput::make('suhu_tubuh')
+                                                        ->label('Suhu Tubuh (°C)')
+                                                        ->numeric()
+                                                        ->step(0.1),
+                                                    TextInput::make('tensi')
+                                                        ->label('Tensi (mmHg)')
+                                                        ->placeholder('120/80'),
+                                                    TextInput::make('nadi')
+                                                        ->label('Nadi (x/menit)')
+                                                        ->numeric(),
+                                                    TextInput::make('respirasi')
+                                                        ->label('Respirasi (x/menit)')
+                                                        ->numeric(),
+                                                ])->columns(4),
+                                                
+                                                Group::make([
+                                                    TextInput::make('tinggi')
+                                                        ->label('Tinggi Badan (cm)')
+                                                        ->numeric()
+                                                        ->step(0.1),
+                                                    TextInput::make('berat')
+                                                        ->label('Berat Badan (kg)')
+                                                        ->numeric()
+                                                        ->step(0.1),
+                                                    TextInput::make('spo2')
+                                                        ->label('SpO2 (%)')
+                                                        ->numeric()
+                                                        ->step(0.1),
+                                                    TextInput::make('gcs')
+                                                        ->label('GCS')
+                                                        ->placeholder('E4V5M6'),
+                                                ])->columns(4),
+                                                
+                                                Group::make([
+                                                    Select::make('kesadaran')
+                                                        ->label('Kesadaran')
+                                                        ->options([
+                                                            'Compos Mentis' => 'Compos Mentis',
+                                                            'Somnolence' => 'Somnolence',
+                                                            'Sopor' => 'Sopor',
+                                                            'Coma' => 'Coma',
+                                                        ]),
+                                                    TextInput::make('lingkar_perut')
+                                                        ->label('Lingkar Perut (cm)')
+                                                        ->numeric()
+                                                        ->step(0.1),
+                                                ])->columns(2),
+                                            ]),
+                                        
+                                        Group::make([
+                                            Textarea::make('keluhan')
+                                                ->label('Keluhan')
+                                                ->rows(3),
+                                            Textarea::make('pemeriksaan')
+                                                ->label('Pemeriksaan Fisik')
+                                                ->rows(3),
+                                        ])->columns(2),
+                                        
+                                        TextInput::make('alergi')
+                                            ->label('Alergi'),
+                                        
+                                        Group::make([
+                                            Textarea::make('penilaian')
+                                                ->label('Penilaian')
+                                                ->rows(3),
+                                            Textarea::make('rtl')
+                                                ->label('RTL (Rencana Tindak Lanjut)')
+                                                ->rows(3),
+                                        ])->columns(2),
+                                        
+                                        Group::make([
+                                            Textarea::make('instruksi')
+                                                ->label('Instruksi')
+                                                ->rows(2),
+                                            Textarea::make('evaluasi')
+                                                ->label('Evaluasi')
+                                                ->rows(2),
+                                        ])->columns(2),
+                                    ])
+                                    ->headerActions([
+                                        Action::make('simpan_pemeriksaan')
+                                            ->label('Simpan Pemeriksaan')
+                                            ->icon('heroicon-o-plus')
+                                            ->action(function (array $data) {
+                                                $data['no_rawat'] = $this->record->no_rawat;
+                                                $data['nip'] = '-';
+                                                
+                                                \App\Models\PemeriksaanRalan::create($data);
+                                                
+                                                Notification::make()
+                                                    ->title('Pemeriksaan berhasil disimpan')
+                                                    ->success()
+                                                    ->send();
+                                                    
+                                                return redirect()->back();
+                                            })
+                                            ->form([
+                                                Group::make([
+                                                    DatePicker::make('tgl_perawatan')
+                                                        ->label('Tanggal Pemeriksaan')
+                                                        ->default(now())
+                                                        ->required(),
+                                                    TimePicker::make('jam_rawat')
+                                                        ->label('Jam Pemeriksaan')
+                                                        ->default(now()->format('H:i'))
+                                                        ->required(),
+                                                ])->columns(2),
+                                                
+                                                Fieldset::make('Tanda Vital')
+                                                    ->schema([
+                                                        Group::make([
+                                                            TextInput::make('suhu_tubuh')
+                                                                ->label('Suhu Tubuh (°C)')
+                                                                ->numeric()
+                                                                ->step(0.1),
+                                                            TextInput::make('tensi')
+                                                                ->label('Tensi (mmHg)')
+                                                                ->placeholder('120/80'),
+                                                            TextInput::make('nadi')
+                                                                ->label('Nadi (x/menit)')
+                                                                ->numeric(),
+                                                            TextInput::make('respirasi')
+                                                                ->label('Respirasi (x/menit)')
+                                                                ->numeric(),
+                                                        ])->columns(4),
+                                                        
+                                                        Group::make([
+                                                            TextInput::make('tinggi')
+                                                                ->label('Tinggi Badan (cm)')
+                                                                ->numeric()
+                                                                ->step(0.1),
+                                                            TextInput::make('berat')
+                                                                ->label('Berat Badan (kg)')
+                                                                ->numeric()
+                                                                ->step(0.1),
+                                                            TextInput::make('spo2')
+                                                                ->label('SpO2 (%)')
+                                                                ->numeric()
+                                                                ->step(0.1),
+                                                            TextInput::make('gcs')
+                                                                ->label('GCS')
+                                                                ->placeholder('E4V5M6'),
+                                                        ])->columns(4),
+                                                        
+                                                        Group::make([
+                                                            Select::make('kesadaran')
+                                                                ->label('Kesadaran')
+                                                                ->options([
+                                                                    'Compos Mentis' => 'Compos Mentis',
+                                                                    'Somnolence' => 'Somnolence',
+                                                                    'Sopor' => 'Sopor',
+                                                                    'Coma' => 'Coma',
+                                                                ]),
+                                                            TextInput::make('lingkar_perut')
+                                                                ->label('Lingkar Perut (cm)')
+                                                                ->numeric()
+                                                                ->step(0.1),
+                                                        ])->columns(2),
+                                                    ]),
+                                                
+                                                Group::make([
+                                                    Textarea::make('keluhan')
+                                                        ->label('Keluhan')
+                                                        ->rows(3),
+                                                    Textarea::make('pemeriksaan')
+                                                        ->label('Pemeriksaan Fisik')
+                                                        ->rows(3),
+                                                ])->columns(2),
+                                                
+                                                TextInput::make('alergi')
+                                                    ->label('Alergi'),
+                                                
+                                                Group::make([
+                                                    Textarea::make('penilaian')
+                                                        ->label('Penilaian')
+                                                        ->rows(3),
+                                                    Textarea::make('rtl')
+                                                        ->label('RTL (Rencana Tindak Lanjut)')
+                                                        ->rows(3),
+                                                ])->columns(2),
+                                                
+                                                Group::make([
+                                                    Textarea::make('instruksi')
+                                                        ->label('Instruksi')
+                                                        ->rows(2),
+                                                    Textarea::make('evaluasi')
+                                                        ->label('Evaluasi')
+                                                        ->rows(2),
+                                                ])->columns(2),
+                                            ])
+                                            ->modalHeading('Input Pemeriksaan Baru')
+                                            ->modalWidth('7xl'),
+                                    ]),
+                                    
+                                Section::make('Riwayat Pemeriksaan')
+                                    ->schema([
+                                        TextEntry::make('pemeriksaan_history')
+                                            ->label('')
+                                            ->formatStateUsing(function () {
+                                                $pemeriksaan = $this->record->pemeriksaanRalan()
+                                                    ->with('petugas')
+                                                    ->orderBy('tgl_perawatan', 'desc')
+                                                    ->orderBy('jam_rawat', 'desc')
+                                                    ->get();
+                                                
+                                                if ($pemeriksaan->isEmpty()) {
+                                                    return 'Belum ada data pemeriksaan';
+                                                }
+                                                
+                                                $html = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+                                                $html .= '<thead><tr class="bg-gray-100">';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Tanggal</th>';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Jam</th>';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Suhu</th>';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Tensi</th>';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Keluhan</th>';
+                                                $html .= '<th class="border border-gray-300 px-3 py-2 text-left">Petugas</th>';
+                                                $html .= '</tr></thead><tbody>';
+                                                
+                                                foreach ($pemeriksaan as $item) {
+                                                    $html .= '<tr>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . ($item->tgl_perawatan ? $item->tgl_perawatan->format('d/m/Y') : '-') . '</td>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . ($item->jam_rawat ?? '-') . '</td>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . ($item->suhu_tubuh ? $item->suhu_tubuh . '°C' : '-') . '</td>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . ($item->tensi ? $item->tensi . ' mmHg' : '-') . '</td>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . \Str::limit($item->keluhan ?? '-', 50) . '</td>';
+                                                    $html .= '<td class="border border-gray-300 px-3 py-2">' . ($item->petugas->nama ?? 'Unknown') . '</td>';
+                                                    $html .= '</tr>';
+                                                }
+                                                
+                                                $html .= '</tbody></table></div>';
+                                                return $html;
+                                            })
+                                            ->html(),
+                                    ]),
                             ]),
                         
                         Tab::make('Input Tindakan')

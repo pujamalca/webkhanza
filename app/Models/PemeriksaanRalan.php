@@ -31,6 +31,15 @@ class PemeriksaanRalan extends Model
         return $attributes;
     }
     
+    public function getKeyForSelectQuery()
+    {
+        $keys = [];
+        foreach ($this->getKeyName() as $key) {
+            $keys[] = $this->getAttribute($key);
+        }
+        return implode('-', $keys);
+    }
+    
     protected function setKeysForSaveQuery($query)
     {
         foreach ($this->getKeyName() as $key) {
@@ -75,7 +84,9 @@ class PemeriksaanRalan extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly($this->fillable)
+            ->dontLogIfAttributesChangedOnly([])
+            ->logOnly([])
+            ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn(string $eventName) => "Pemeriksaan ralan {$eventName}")
             ->useLogName('pemeriksaan_ralan');
     }
@@ -87,6 +98,6 @@ class PemeriksaanRalan extends Model
 
     public function petugas()
     {
-        return $this->belongsTo(Petugas::class, 'nip', 'nip');
+        return $this->belongsTo(Pegawai::class, 'nip', 'nik');
     }
 }
