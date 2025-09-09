@@ -1,165 +1,136 @@
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <!-- Form Input -->
-    <div style="background: #18181b; padding: 24px; margin-bottom: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: white;">Input Pemeriksaan Baru</h3>
+<div>
+    <!-- Form Section -->
+    <x-filament::section>
+        <x-slot name="heading">Input Pemeriksaan Baru</x-slot>
         
-        <form wire:submit="simpan">
-            <!-- Tanggal dan Jam -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Tanggal Pemeriksaan</label>
-                    <input type="date" wire:model="tgl_perawatan" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Jam Pemeriksaan</label>
-                    <input type="time" wire:model="jam_rawat" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-            </div>
-
-            <!-- Tanda Vital -->
-            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: white;">Tanda Vital</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Suhu Tubuh (°C)</label>
-                    <input type="number" step="0.1" wire:model="suhu_tubuh" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Tensi (mmHg)</label>
-                    <input type="text" wire:model="tensi" placeholder="120/80" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Nadi (x/menit)</label>
-                    <input type="number" wire:model="nadi" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Respirasi (x/menit)</label>
-                    <input type="number" wire:model="respirasi" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Tinggi Badan (cm)</label>
-                    <input type="number" step="0.1" wire:model="tinggi" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Berat Badan (kg)</label>
-                    <input type="number" step="0.1" wire:model="berat" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">SpO2 (%)</label>
-                    <input type="number" step="0.1" wire:model="spo2" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">GCS</label>
-                    <input type="text" wire:model="gcs" placeholder="E4V5M6" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Kesadaran</label>
-                    <select wire:model="kesadaran" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                        <option value="">Pilih Kesadaran</option>
-                        <option value="Compos Mentis">Compos Mentis</option>
-                        <option value="Somnolence">Somnolence</option>
-                        <option value="Sopor">Sopor</option>
-                        <option value="Coma">Coma</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Lingkar Perut (cm)</label>
-                    <input type="number" step="0.1" wire:model="lingkar_perut" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-            </div>
-
-            <!-- Pemeriksaan Detail -->
-            <div style="display: grid; gap: 16px; margin-bottom: 24px;">
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Keluhan</label>
-                    <textarea wire:model="keluhan" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Pemeriksaan Fisik</label>
-                    <textarea wire:model="pemeriksaan" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Alergi</label>
-                    <input type="text" wire:model="alergi" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Penilaian</label>
-                    <textarea wire:model="penilaian" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">RTL (Rencana Tindak Lanjut)</label>
-                    <textarea wire:model="rtl" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Instruksi</label>
-                    <textarea wire:model="instruksi" rows="2" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: white; margin-bottom: 8px;">Evaluasi</label>
-                    <textarea wire:model="evaluasi" rows="2" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
-                </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div style="text-align: right;">
-                <button type="submit" style="background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">
+        <form wire:submit="simpanPemeriksaan" class="space-y-6">
+            {{ $this->form }}
+            
+            <div class="flex justify-end gap-x-3">
+                <x-filament::button type="button" color="gray" wire:click="resetForm">
+                    Reset
+                </x-filament::button>
+                <x-filament::button type="submit">
                     Simpan Pemeriksaan
-                </button>
+                </x-filament::button>
             </div>
         </form>
-    </div>
+    </x-filament::section>
 
-    <!-- Riwayat -->
-    <div style="background: #18181b; padding: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: white;">Riwayat Pemeriksaan</h3>
+    <!-- Data List Section -->
+    <x-filament::section>
+        <x-slot name="heading">Riwayat Pemeriksaan</x-slot>
         
-        @php
-            $pemeriksaanData = $this->pemeriksaan ?? collect();
-        @endphp
-        
-        @if($pemeriksaanData->count() > 0)
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #27272a;">
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Tanggal</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Jam</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Suhu</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Tensi</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Nadi</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Keluhan</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Petugas</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #d1d5db; text-transform: uppercase; border-bottom: 1px solid #404040;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pemeriksaanData as $item)
-                            <tr style="border-bottom: 1px solid #404040;">
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->tgl_perawatan ? $item->tgl_perawatan->format('d/m/Y') : '-' }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->jam_rawat ?? '-' }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->suhu_tubuh ? $item->suhu_tubuh . '°C' : '-' }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->tensi ? $item->tensi . ' mmHg' : '-' }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->nadi ? $item->nadi . ' x/mnt' : '-' }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $item->keluhan }}">{{ Str::limit($item->keluhan ?? '-', 50) }}</td>
-                                <td style="padding: 12px; font-size: 14px; color: white;">{{ $item->petugas->nama ?? 'Unknown' }}</td>
-                                <td style="padding: 12px;">
-                                    <button 
-                                        wire:click="hapus('{{ $item->tgl_perawatan->format('Y-m-d') }}', '{{ $item->jam_rawat }}')"
-                                        wire:confirm="Yakin ingin menghapus data pemeriksaan ini?"
-                                        style="background: #dc2626; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;"
-                                    >
-                                        Hapus
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        @if($this->pemeriksaanList->count() > 0)
+            <div class="space-y-4">
+                @foreach($this->pemeriksaanList as $pemeriksaan)
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex gap-4">
+                                <div class="text-sm">
+                                    <span class="font-medium text-gray-900 dark:text-white">
+                                        {{ $pemeriksaan->tgl_perawatan->format('d/m/Y') }}
+                                    </span>
+                                    <span class="text-gray-600 dark:text-gray-400 ml-2">
+                                        {{ substr($pemeriksaan->jam_rawat, 0, 5) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <x-filament::button 
+                                    size="xs" 
+                                    color="gray"
+                                    wire:click="editPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
+                                >
+                                    Edit
+                                </x-filament::button>
+                                <x-filament::button 
+                                    size="xs" 
+                                    color="danger"
+                                    wire:click="hapusPemeriksaan('{{ $pemeriksaan->tgl_perawatan->format('Y-m-d') }}', '{{ $pemeriksaan->jam_rawat }}')"
+                                    wire:confirm="Yakin ingin menghapus pemeriksaan ini?"
+                                >
+                                    Hapus
+                                </x-filament::button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tanda Vital -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
+                            @if($pemeriksaan->suhu_tubuh)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">Suhu</span>
+                                    <p class="font-medium">{{ $pemeriksaan->suhu_tubuh }}°C</p>
+                                </div>
+                            @endif
+                            @if($pemeriksaan->tensi)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">Tensi</span>
+                                    <p class="font-medium">{{ $pemeriksaan->tensi }}</p>
+                                </div>
+                            @endif
+                            @if($pemeriksaan->nadi)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">Nadi</span>
+                                    <p class="font-medium">{{ $pemeriksaan->nadi }} x/mnt</p>
+                                </div>
+                            @endif
+                            @if($pemeriksaan->respirasi)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">Respirasi</span>
+                                    <p class="font-medium">{{ $pemeriksaan->respirasi }} x/mnt</p>
+                                </div>
+                            @endif
+                            @if($pemeriksaan->spo2)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">SpO2</span>
+                                    <p class="font-medium">{{ $pemeriksaan->spo2 }}%</p>
+                                </div>
+                            @endif
+                            @if($pemeriksaan->kesadaran)
+                                <div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400">Kesadaran</span>
+                                    <p class="font-medium">{{ $pemeriksaan->kesadaran }}</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Detail Info -->
+                        @if($pemeriksaan->keluhan || $pemeriksaan->pemeriksaan || $pemeriksaan->penilaian)
+                            <div class="space-y-2 text-sm">
+                                @if($pemeriksaan->keluhan)
+                                    <div>
+                                        <span class="font-medium text-gray-900 dark:text-white">Keluhan:</span>
+                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->keluhan }}</p>
+                                    </div>
+                                @endif
+                                @if($pemeriksaan->pemeriksaan)
+                                    <div>
+                                        <span class="font-medium text-gray-900 dark:text-white">Pemeriksaan:</span>
+                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->pemeriksaan }}</p>
+                                    </div>
+                                @endif
+                                @if($pemeriksaan->penilaian)
+                                    <div>
+                                        <span class="font-medium text-gray-900 dark:text-white">Penilaian:</span>
+                                        <p class="text-gray-700 dark:text-gray-300 mt-1">{{ $pemeriksaan->penilaian }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
         @else
-            <div style="text-align: center; padding: 48px 0;">
-                <div style="color: #d1d5db; font-size: 16px; font-weight: 500;">Belum ada data pemeriksaan</div>
-                <div style="color: #9ca3af; font-size: 14px; margin-top: 8px;">Silakan input pemeriksaan baru menggunakan form di atas</div>
+            <div class="text-center py-12">
+                <div class="text-gray-400 dark:text-gray-600 mb-2">
+                    <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-medium text-gray-900 dark:text-white">Belum ada pemeriksaan</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Silakan input pemeriksaan baru menggunakan form di atas</p>
             </div>
         @endif
-    </div>
+    </x-filament::section>
 </div>
