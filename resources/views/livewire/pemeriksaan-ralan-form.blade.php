@@ -205,7 +205,12 @@
     <!-- History Section -->
     @if(count($riwayatPemeriksaan) > 0)
     <x-filament::section>
-        <x-slot name="heading">Riwayat Pemeriksaan SOAP</x-slot>
+        <x-slot name="heading">
+            Riwayat Pemeriksaan SOAP 
+            <small style="color: var(--gray-500, #6b7280); font-weight: normal;">
+                ({{ $totalRecords }} total, halaman {{ $currentPage }} dari {{ $totalPages }})
+            </small>
+        </x-slot>
         
         <div style="space-y: 16px;">
             @foreach($riwayatPemeriksaan as $pemeriksaan)
@@ -289,6 +294,44 @@
             </div>
             @endforeach
         </div>
+        
+        <!-- Pagination Controls -->
+        @if($totalPages > 1)
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
+            <!-- Previous Button -->
+            <x-filament::button type="button" color="gray" size="sm" 
+                                wire:click="previousPage" 
+                                wire:loading.attr="disabled"
+                                :disabled="$currentPage <= 1">
+                <span wire:loading.remove wire:target="previousPage">← Previous</span>
+                <span wire:loading wire:target="previousPage">Loading...</span>
+            </x-filament::button>
+            
+            <!-- Page Numbers -->
+            @for($i = 1; $i <= $totalPages; $i++)
+                @if($i == $currentPage)
+                    <span style="padding: 6px 12px; background-color: var(--primary-600, #2563eb); color: white; border-radius: 6px; font-size: 14px; font-weight: 500;">
+                        {{ $i }}
+                    </span>
+                @else
+                    <x-filament::button type="button" color="gray" size="sm" 
+                                        wire:click="goToPage({{ $i }})"
+                                        style="min-width: 40px;">
+                        {{ $i }}
+                    </x-filament::button>
+                @endif
+            @endfor
+            
+            <!-- Next Button -->
+            <x-filament::button type="button" color="gray" size="sm" 
+                                wire:click="nextPage" 
+                                wire:loading.attr="disabled"
+                                :disabled="$currentPage >= $totalPages">
+                <span wire:loading.remove wire:target="nextPage">Next →</span>
+                <span wire:loading wire:target="nextPage">Loading...</span>
+            </x-filament::button>
+        </div>
+        @endif
     </x-filament::section>
     @endif
 </div>
