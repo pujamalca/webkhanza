@@ -2,7 +2,12 @@
     <!-- SOAP Form Section -->
     <x-filament::section>
         <x-slot name="heading">
-            <span style="font-size: 18px; font-weight: 600; color: var(--gray-900, #111827);">SOAP Perawatan</span>
+            <span style="font-size: 18px; font-weight: 600; color: var(--gray-900, #111827);">
+                SOAP Perawatan 
+                @if($editingId)
+                    <small style="color: var(--warning-600, #ca8a04); font-weight: 500;">(Mode Edit)</small>
+                @endif
+            </span>
             <small style="color: var(--gray-500, #6b7280); margin-left: 8px;">(Subjective, Objective, Assessment, Plan, Intervention, Evaluation)</small>
         </x-slot>
         
@@ -191,7 +196,7 @@
                     Reset Form
                 </x-filament::button>
                 <x-filament::button type="submit" size="sm">
-                    Simpan SOAP
+                    {{ $editingId ? 'Update SOAP' : 'Simpan SOAP' }}
                 </x-filament::button>
             </div>
         </form>
@@ -204,7 +209,7 @@
         
         <div style="space-y: 16px;">
             @foreach($riwayatPemeriksaan as $pemeriksaan)
-            <div style="border: 1px solid var(--gray-200, #e5e7eb); border-radius: 8px; padding: 16px; background-color: var(--white, #ffffff); transition: box-shadow 0.2s;">
+            <div style="border: 1px solid {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-400, #60a5fa)' : 'var(--gray-200, #e5e7eb)' }}; border-radius: 8px; padding: 16px; background-color: {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-50, #eff6ff)' : 'var(--white, #ffffff)' }}; transition: box-shadow 0.2s;">
                 <!-- Header -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
                     <div style="display: flex; align-items: center; gap: 16px;">
@@ -215,6 +220,12 @@
                         @if($pemeriksaan['petugas'])
                             <span style="font-size: 12px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['petugas']['nama'] ?? $pemeriksaan['nip'] }}</span>
                         @endif
+                        <x-filament::button type="button" color="primary" size="xs" 
+                                            wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
+                                            wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
+                            <span wire:loading wire:target="editPemeriksaan">Loading...</span>
+                        </x-filament::button>
                     </div>
                     
                     <!-- Vital Signs Summary -->

@@ -71,6 +71,9 @@ class PemeriksaanRalanForm extends Component
 
     // History data
     public $riwayatPemeriksaan = [];
+    
+    // Edit mode
+    public $editingId = null;
 
     public function mount(string $noRawat): void
     {
@@ -107,19 +110,37 @@ class PemeriksaanRalanForm extends Component
             'nip' => auth()->user()->pegawai->nik ?? '-',
         ];
 
-        PemeriksaanRalan::create($data);
+        if ($this->editingId) {
+            // Update existing record
+            try {
+                PemeriksaanRalan::where('no_rawat', $this->noRawat)
+                    ->where('tgl_perawatan', $this->tgl_perawatan)
+                    ->where('jam_rawat', $this->jam_rawat)
+                    ->update($data);
+                $message = 'Pemeriksaan SOAP berhasil diupdate';
+            } catch (\Exception $e) {
+                // If update fails, try to create new
+                PemeriksaanRalan::create($data);
+                $message = 'Pemeriksaan SOAP berhasil disimpan';
+            }
+        } else {
+            // Create new record
+            PemeriksaanRalan::create($data);
+            $message = 'Pemeriksaan SOAP berhasil disimpan';
+        }
 
         $this->resetForm();
         $this->loadRiwayat();
 
         Notification::make()
-            ->title('Pemeriksaan SOAP berhasil disimpan')
+            ->title($message)
             ->success()
             ->send();
     }
 
     public function resetForm(): void
     {
+        $this->editingId = null;
         $this->tgl_perawatan = now()->format('Y-m-d');
         $this->jam_rawat = now()->format('H:i');
         $this->suhu_tubuh = '';
@@ -141,14 +162,89 @@ class PemeriksaanRalanForm extends Component
         $this->evaluasi = '';
     }
     
+    public function editPemeriksaan($tglPerawatan, $jamRawat): void
+    {
+        try {
+            \Log::info('EditPemeriksaan called', [
+                'noRawat' => $this->noRawat,
+                'tglPerawatan' => $tglPerawatan,
+                'jamRawat' => $jamRawat
+            ]);
+            
+            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+                ->where('tgl_perawatan', $tglPerawatan)
+                ->where('jam_rawat', $jamRawat)
+                ->first();
+                
+            \Log::info('Pemeriksaan found', ['found' => $pemeriksaan ? 'yes' : 'no']);
+                
+            if ($pemeriksaan) {
+                $rawAttrs = $pemeriksaan->getAttributes();
+                $this->editingId = $rawAttrs['tgl_perawatan'] . '-' . $rawAttrs['jam_rawat'];
+                $this->tgl_perawatan = $rawAttrs['tgl_perawatan'];
+                $this->jam_rawat = substr($rawAttrs['jam_rawat'], 0, 5); // Format HH:MM
+                $this->suhu_tubuh = $pemeriksaan->suhu_tubuh ?? '';
+                $this->tensi = $pemeriksaan->tensi ?? '';
+                $this->nadi = $pemeriksaan->nadi ?? '';
+                $this->respirasi = $pemeriksaan->respirasi ?? '';
+                $this->spo2 = $pemeriksaan->spo2 ?? '';
+                $this->tinggi = $pemeriksaan->tinggi ?? '';
+                $this->berat = $pemeriksaan->berat ?? '';
+                $this->gcs = $pemeriksaan->gcs ?? '';
+                $this->kesadaran = $pemeriksaan->kesadaran ?? '';
+                $this->keluhan = $pemeriksaan->keluhan ?? '';
+                $this->pemeriksaan = $pemeriksaan->pemeriksaan ?? '';
+                $this->penilaian = $pemeriksaan->penilaian ?? '';
+                $this->alergi = $pemeriksaan->alergi ?? '';
+                $this->lingkar_perut = $pemeriksaan->lingkar_perut ?? '';
+                $this->rtl = $pemeriksaan->rtl ?? '';
+                $this->instruksi = $pemeriksaan->instruksi ?? '';
+                $this->evaluasi = $pemeriksaan->evaluasi ?? '';
+                
+                \Log::info('Data loaded', ['keluhan' => $this->keluhan]);
+                
+                Notification::make()
+                    ->title('Data berhasil dimuat untuk edit')
+                    ->success()
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Edit pemeriksaan error', ['error' => $e->getMessage()]);
+            Notification::make()
+                ->title('Error loading data: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+    
     public function loadRiwayat(): void
     {
-        $this->riwayatPemeriksaan = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+        $data = PemeriksaanRalan::where('no_rawat', $this->noRawat)
             ->with(['petugas:nik,nama'])
             ->orderBy('tgl_perawatan', 'desc')
             ->orderBy('jam_rawat', 'desc')
-            ->get()
-            ->toArray();
+            ->get();
+            
+        $this->riwayatPemeriksaan = $data->map(function($item) {
+            $array = $item->toArray();
+            // Keep raw values for edit function - use raw database values
+            $rawAttrs = $item->getAttributes();
+            $array['tgl_perawatan_raw'] = $rawAttrs['tgl_perawatan'];
+            $array['jam_rawat_raw'] = $rawAttrs['jam_rawat'];
+            \Log::info('Item mapped', [
+                'tgl_cast' => $array['tgl_perawatan'],
+                'tgl_raw' => $array['tgl_perawatan_raw'],
+                'jam_raw' => $array['jam_rawat_raw']
+            ]);
+            return $array;
+        })->toArray();
+        
+        \Log::info('Riwayat loaded', ['first_item_raw_date' => $this->riwayatPemeriksaan[0]['tgl_perawatan_raw'] ?? 'none']);
     }
     
     public function render()
