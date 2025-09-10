@@ -13,29 +13,29 @@
         
         <form wire:submit="simpanPemeriksaan" style="space-y: 24px;">
             <!-- Date, Time and Petugas -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
                 <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">Tanggal Perawatan</label>
+                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Tanggal</label>
                     <input type="date" wire:model="tgl_perawatan" required 
-                           style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    @error('tgl_perawatan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                           style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                    @error('tgl_perawatan') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">Jam Rawat</label>
+                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Jam</label>
                     <input type="time" wire:model="jam_rawat" required 
-                           style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    @error('jam_rawat') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                           style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                    @error('jam_rawat') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
                 </div>
-                <div style="grid-column: span 2;">
-                    <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">
-                        Petugas Pemeriksa
+                <div>
+                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">
+                        Petugas
                         @if(!$isAdmin)
                             <small style="color: var(--gray-500, #6b7280);">(Auto)</small>
                         @endif
                     </label>
                     @if($isAdmin)
                         <select wire:model="nip" required 
-                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                                style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                             <option value="">Pilih Petugas</option>
                             @foreach($pegawaiList as $nik => $nama)
                                 <option value="{{ $nik }}">{{ $nama }} ({{ $nik }})</option>
@@ -43,65 +43,72 @@
                         </select>
                     @else
                         <input type="text" wire:model="nip" readonly 
-                               style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151);">
+                               style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151);">
                     @endif
-                    @error('nip') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                    @error('nip') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
                 </div>
             </div>
 
             <!-- Vital Signs -->
-            <div style="background-color: var(--gray-50, #f9fafb); padding: 16px; border: 1px solid var(--gray-200, #e5e7eb); border-radius: 8px;">
-                <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 12px;">Tanda Vital & Pemeriksaan Fisik</h3>
+            <div style="background-color: var(--gray-50, #f9fafb); padding: 8px; border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
+                <h3 style="font-size: 12px; font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <span style="background-color: var(--red-600, #dc2626); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">TTV</span>
+                    Tanda Vital
+                </h3>
                 
-                <!-- First row -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;">
+                <!-- Compact grid layout -->
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px;">
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Suhu (°C)</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Suhu</label>
                         <input type="number" step="0.1" wire:model="suhu_tubuh" placeholder="36.5"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Tensi (mmHg)</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TD</label>
                         <input type="text" wire:model="tensi" placeholder="120/80"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Nadi (/mnt)</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Nadi</label>
                         <input type="number" wire:model="nadi" placeholder="80"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">RR (/mnt)</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">RR</label>
                         <input type="number" wire:model="respirasi" placeholder="20"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">SPO2</label>
+                        <input type="number" min="0" max="100" wire:model="spo2" placeholder="98"
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TB</label>
+                        <input type="number" wire:model="tinggi" placeholder="170"
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                 </div>
                 
-                <!-- Second row -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 12px; margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr 1fr; gap: 8px;">
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">SpO2 (%)</label>
-                        <input type="number" min="0" max="100" wire:model="spo2" placeholder="98"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">TB (cm)</label>
-                        <input type="number" wire:model="tinggi" placeholder="170"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">BB (kg)</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">BB</label>
                         <input type="number" step="0.1" wire:model="berat" placeholder="70"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">GCS</label>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">GCS</label>
                         <input type="text" wire:model="gcs" placeholder="E4V5M6"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Kesadaran</label>
-                        <select wire:model="kesadaran" style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">LP</label>
+                        <input type="number" step="0.1" wire:model="lingkar_perut" placeholder="85"
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Kesadaran</label>
+                        <select wire:model="kesadaran" style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                             <option value="">Pilih</option>
                             <option value="Compos Mentis">Compos Mentis</option>
                             <option value="Apatis">Apatis</option>
@@ -110,19 +117,10 @@
                             <option value="Koma">Koma</option>
                         </select>
                     </div>
-                </div>
-                
-                <!-- Third row -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                     <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Alergi</label>
-                        <input type="text" maxlength="50" wire:model="alergi" placeholder="Tidak ada alergi"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 4px;">Lingkar Perut (cm)</label>
-                        <input type="number" step="0.1" wire:model="lingkar_perut" placeholder="85"
-                               style="width: 100%; padding: 4px 8px; font-size: 14px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Alergi</label>
+                        <input type="text" maxlength="50" wire:model="alergi" placeholder="Tidak ada"
+                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                 </div>
             </div>
@@ -237,7 +235,7 @@
             @foreach($riwayatPemeriksaan as $pemeriksaan)
             <div style="border: 1px solid {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-400, #60a5fa)' : 'var(--gray-200, #e5e7eb)' }}; border-radius: 8px; padding: 16px; background-color: {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-50, #eff6ff)' : 'var(--white, #ffffff)' }}; transition: box-shadow 0.2s;">
                 <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
                     <div style="display: flex; align-items: center; gap: 16px;">
                         <span style="font-weight: 600; color: var(--primary-600, #2563eb);">
                             {{ \Carbon\Carbon::parse($pemeriksaan['tgl_perawatan'])->format('d/m/Y') }}
@@ -246,21 +244,78 @@
                         @if($pemeriksaan['petugas'])
                             <span style="font-size: 12px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['petugas']['nama'] ?? $pemeriksaan['nip'] }}</span>
                         @endif
-                        <x-filament::button type="button" color="primary" size="xs" 
-                                            wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
-                                            wire:loading.attr="disabled">
-                            <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
-                            <span wire:loading wire:target="editPemeriksaan">Loading...</span>
-                        </x-filament::button>
                     </div>
+                    <x-filament::button type="button" color="primary" size="xs" 
+                                        wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
+                                        wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
+                        <span wire:loading wire:target="editPemeriksaan">Loading...</span>
+                    </x-filament::button>
+                </div>
+
+                <!-- Vital Signs (TTV) Rows -->
+                @if($pemeriksaan['suhu_tubuh'] || $pemeriksaan['tensi'] || $pemeriksaan['nadi'] || $pemeriksaan['respirasi'] || $pemeriksaan['spo2'] || $pemeriksaan['tinggi'] || $pemeriksaan['berat'] || $pemeriksaan['gcs'] || $pemeriksaan['kesadaran'] || $pemeriksaan['lingkar_perut'])
+                <div style="margin-bottom: 12px; padding: 8px; background-color: var(--gray-50, #f9fafb); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
+                    <h4 style="font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span style="background-color: var(--red-600, #dc2626); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">TTV</span>
+                        Tanda Vital
+                    </h4>
                     
-                    <!-- Vital Signs Summary -->
-                    <div style="display: flex; align-items: center; gap: 12px; font-size: 12px;">
-                        @if($pemeriksaan['suhu_tubuh'])<span style="background-color: var(--danger-100, #fee2e2); color: var(--danger-700, #b91c1c); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['suhu_tubuh'] }}°C</span>@endif
-                        @if($pemeriksaan['tensi'])<span style="background-color: var(--primary-100, #dbeafe); color: var(--primary-700, #1d4ed8); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['tensi'] }}</span>@endif
-                        @if($pemeriksaan['nadi'])<span style="background-color: var(--success-100, #dcfce7); color: var(--success-700, #15803d); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['nadi'] }}/min</span>@endif
+                    <!-- Compact Vitals in Single Row -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px;">
+                        @if($pemeriksaan['suhu_tubuh'])
+                        <span style="padding: 4px 8px; background-color: var(--red-50, #fef2f2); color: var(--red-700, #b91c1c); border: 1px solid var(--red-200, #fecaca); border-radius: 4px; font-weight: 600;">
+                            SUHU: {{ $pemeriksaan['suhu_tubuh'] }}°C
+                        </span>
+                        @endif
+                        @if($pemeriksaan['tensi'])
+                        <span style="padding: 4px 8px; background-color: var(--blue-50, #eff6ff); color: var(--blue-700, #1d4ed8); border: 1px solid var(--blue-200, #bfdbfe); border-radius: 4px; font-weight: 600;">
+                            TD: {{ $pemeriksaan['tensi'] }}
+                        </span>
+                        @endif
+                        @if($pemeriksaan['nadi'])
+                        <span style="padding: 4px 8px; background-color: var(--green-50, #f0fdf4); color: var(--green-700, #15803d); border: 1px solid var(--green-200, #bbf7d0); border-radius: 4px; font-weight: 600;">
+                            N: {{ $pemeriksaan['nadi'] }}/min
+                        </span>
+                        @endif
+                        @if($pemeriksaan['respirasi'])
+                        <span style="padding: 4px 8px; background-color: var(--purple-50, #faf5ff); color: var(--purple-700, #7c3aed); border: 1px solid var(--purple-200, #e9d5ff); border-radius: 4px; font-weight: 600;">
+                            RR: {{ $pemeriksaan['respirasi'] }}/min
+                        </span>
+                        @endif
+                        @if($pemeriksaan['spo2'])
+                        <span style="padding: 4px 8px; background-color: var(--cyan-50, #ecfeff); color: var(--cyan-700, #0e7490); border: 1px solid var(--cyan-200, #a5f3fc); border-radius: 4px; font-weight: 600;">
+                            SPO2: {{ $pemeriksaan['spo2'] }}%
+                        </span>
+                        @endif
+                        @if($pemeriksaan['tinggi'])
+                        <span style="padding: 4px 8px; background-color: var(--orange-50, #fff7ed); color: var(--orange-700, #c2410c); border: 1px solid var(--orange-200, #fed7aa); border-radius: 4px; font-weight: 600;">
+                            TB: {{ $pemeriksaan['tinggi'] }}cm
+                        </span>
+                        @endif
+                        @if($pemeriksaan['berat'])
+                        <span style="padding: 4px 8px; background-color: var(--yellow-50, #fefce8); color: var(--yellow-700, #a16207); border: 1px solid var(--yellow-200, #fde047); border-radius: 4px; font-weight: 600;">
+                            BB: {{ $pemeriksaan['berat'] }}kg
+                        </span>
+                        @endif
+                        @if($pemeriksaan['gcs'])
+                        <span style="padding: 4px 8px; background-color: var(--indigo-50, #eef2ff); color: var(--indigo-700, #4338ca); border: 1px solid var(--indigo-200, #c7d2fe); border-radius: 4px; font-weight: 600;">
+                            GCS: {{ $pemeriksaan['gcs'] }}
+                        </span>
+                        @endif
+                        @if($pemeriksaan['lingkar_perut'])
+                        <span style="padding: 4px 8px; background-color: var(--pink-50, #fdf2f8); color: var(--pink-700, #be185d); border: 1px solid var(--pink-200, #fbcfe8); border-radius: 4px; font-weight: 600;">
+                            LP: {{ $pemeriksaan['lingkar_perut'] }}cm
+                        </span>
+                        @endif
+                        @if($pemeriksaan['kesadaran'])
+                        <span style="padding: 4px 8px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-800, #1f2937); border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; font-weight: 600;">
+                            Kesadaran: {{ $pemeriksaan['kesadaran'] }}
+                        </span>
+                        @endif
                     </div>
                 </div>
+                @endif
 
                 <!-- SOAP Content Grid -->
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
