@@ -125,9 +125,9 @@
                 </div>
             </div>
 
-            <!-- SOAP Grid -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-                <!-- Left Column: S & O -->
+            <!-- SOAPIE Grid - 3 Columns -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <!-- Column 1: Subjective & Objective -->
                 <div style="space-y: 16px;">
                     <!-- Subjective -->
                     <div style="background: var(--success-50, #f0fdf4); padding: 16px; border: 1px solid var(--success-200, #bbf7d0); border-radius: 8px; border-left: 4px solid var(--success-500, #22c55e);">
@@ -135,7 +135,7 @@
                             <span style="background-color: var(--success-600, #16a34a); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">S</span>
                             SUBJECTIVE (Keluhan Pasien)
                         </h3>
-                        <textarea wire:model="keluhan" rows="6" 
+                        <textarea wire:model="keluhan" rows="8" 
                                   placeholder="Tuliskan keluhan utama pasien, riwayat penyakit sekarang, dan anamnesis..."
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--success-300, #86efac); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('keluhan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
@@ -147,14 +147,14 @@
                             <span style="background-color: var(--primary-600, #2563eb); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">O</span>
                             OBJECTIVE (Pemeriksaan Fisik)
                         </h3>
-                        <textarea wire:model="pemeriksaan" rows="6"
+                        <textarea wire:model="pemeriksaan" rows="8"
                                   placeholder="Hasil pemeriksaan fisik, temuan klinis, hasil laboratorium/radiologi..."
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--primary-300, #93c5fd); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('pemeriksaan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
-                <!-- Right Column: A & P -->
+                <!-- Column 2: Assessment & Plan -->
                 <div style="space-y: 16px;">
                     <!-- Assessment -->
                     <div style="background: var(--warning-50, #fefce8); padding: 16px; border: 1px solid var(--warning-200, #fde68a); border-radius: 8px; border-left: 4px solid var(--warning-500, #f59e0b);">
@@ -162,7 +162,7 @@
                             <span style="background-color: var(--warning-600, #ca8a04); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">A</span>
                             ASSESSMENT (Diagnosis)
                         </h3>
-                        <textarea wire:model="penilaian" rows="6"
+                        <textarea wire:model="penilaian" rows="8"
                                   placeholder="Diagnosis kerja, diagnosis banding, interpretasi hasil pemeriksaan..."
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--warning-300, #fcd34d); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('penilaian') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
@@ -174,38 +174,38 @@
                             <span style="background-color: var(--info-600, #0891b2); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">P</span>
                             PLAN (Rencana Tindakan)
                         </h3>
-                        <textarea wire:model="rtl" rows="6"
+                        <textarea wire:model="rtl" rows="8"
                                   placeholder="Rencana tindak lanjut, terapi, edukasi, kontrol ulang..."
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--info-300, #67e8f9); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('rtl') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
                 </div>
-            </div>
 
-            <!-- I & E Row -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-                <!-- Intervention -->
-                <div style="background: var(--danger-50, #fef2f2); padding: 16px; border: 1px solid var(--danger-200, #fecaca); border-radius: 8px; border-left: 4px solid var(--danger-500, #ef4444);">
-                    <h3 style="font-size: 16px; font-weight: 600; color: var(--danger-700, #b91c1c); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span style="background-color: var(--danger-600, #dc2626); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">I</span>
-                        INTERVENTION (Tindakan yang Dilakukan)
-                    </h3>
-                    <textarea wire:model="instruksi" rows="4"
-                              placeholder="Tindakan medis yang sudah dilakukan, prosedur, pemberian obat..."
-                              style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--danger-300, #fca5a5); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                    @error('instruksi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                </div>
+                <!-- Column 3: Intervention & Evaluation -->
+                <div style="space-y: 16px;">
+                    <!-- Intervention -->
+                    <div style="background: var(--danger-50, #fef2f2); padding: 16px; border: 1px solid var(--danger-200, #fecaca); border-radius: 8px; border-left: 4px solid var(--danger-500, #ef4444);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--danger-700, #b91c1c); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <span style="background-color: var(--danger-600, #dc2626); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">I</span>
+                            INTERVENTION (Tindakan yang Dilakukan)
+                        </h3>
+                        <textarea wire:model="instruksi" rows="8"
+                                  placeholder="Tindakan medis yang sudah dilakukan, prosedur, pemberian obat..."
+                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--danger-300, #fca5a5); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
+                        @error('instruksi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                    </div>
 
-                <!-- Evaluation -->
-                <div style="background: var(--slate-50, #f8fafc); padding: 16px; border: 1px solid var(--slate-200, #e2e8f0); border-radius: 8px; border-left: 4px solid var(--slate-500, #64748b);">
-                    <h3 style="font-size: 16px; font-weight: 600; color: var(--slate-700, #334155); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span style="background-color: var(--slate-600, #475569); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">E</span>
-                        EVALUATION (Evaluasi & Hasil)
-                    </h3>
-                    <textarea wire:model="evaluasi" rows="4"
-                              placeholder="Evaluasi kondisi pasien, respons terhadap terapi, outcome..."
-                              style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--slate-300, #cbd5e1); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                    @error('evaluasi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                    <!-- Evaluation -->
+                    <div style="background: var(--slate-50, #f8fafc); padding: 16px; border: 1px solid var(--slate-200, #e2e8f0); border-radius: 8px; border-left: 4px solid var(--slate-500, #64748b);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--slate-700, #334155); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <span style="background-color: var(--slate-600, #475569); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">E</span>
+                            EVALUATION (Evaluasi & Hasil)
+                        </h3>
+                        <textarea wire:model="evaluasi" rows="8"
+                                  placeholder="Evaluasi kondisi pasien, respons terhadap terapi, outcome..."
+                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--slate-300, #cbd5e1); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
+                        @error('evaluasi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
             
