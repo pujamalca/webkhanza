@@ -74,11 +74,13 @@ class PemeriksaanRalan extends Model
 
     protected $casts = [
         'tgl_perawatan' => 'date',
-        'suhu_tubuh' => 'decimal:1',
-        'tinggi' => 'decimal:1',
-        'berat' => 'decimal:1',
-        'spo2' => 'decimal:1',
-        'lingkar_perut' => 'decimal:1',
+        'suhu_tubuh' => 'integer',
+        'tinggi' => 'integer',
+        'berat' => 'integer',
+        'spo2' => 'integer',
+        'lingkar_perut' => 'integer',
+        'nadi' => 'integer',
+        'respirasi' => 'integer',
     ];
 
     public function getActivitylogOptions(): LogOptions

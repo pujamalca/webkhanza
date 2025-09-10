@@ -69,6 +69,9 @@ class PemeriksaanRalanForm extends Component
     #[Validate('nullable|numeric')]
     public $lingkar_perut;
 
+    #[Validate('required')]
+    public $nip;
+
     // History data
     public $riwayatPemeriksaan = [];
     
