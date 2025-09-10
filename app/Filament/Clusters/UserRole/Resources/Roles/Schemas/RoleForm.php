@@ -151,6 +151,7 @@ class RoleForm
                                     ->orWhere('name', 'like', 'registration_%')
                                     ->orWhere('name', 'like', 'rawat_jalan_%')
                                     ->orWhere('name', 'like', 'pasien_%')
+                                    ->orWhere('name', '=', 'manage_all_examinations')
                                     ->pluck('name', 'id')
                                     ->map(function ($name) {
                                         return match($name) {
@@ -176,6 +177,8 @@ class RoleForm
                                             'pasien_edit' => '✏️ Pasien - Edit data pasien',
                                             'pasien_delete' => '🗑️ Pasien - Hapus pasien',
                                             'pasien_view_details' => '📄 Pasien - Lihat detail pasien',
+                                            
+                                            'manage_all_examinations' => '🩺 Manage All Examinations - Kelola pemeriksaan atas nama petugas lain',
                                             
                                             default => $name
                                         };

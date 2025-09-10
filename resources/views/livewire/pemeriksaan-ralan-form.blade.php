@@ -12,19 +12,40 @@
         </x-slot>
         
         <form wire:submit="simpanPemeriksaan" style="space-y: 24px;">
-            <!-- Date and Time -->
+            <!-- Date, Time and Petugas -->
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 8px;">
-                <div style="grid-column: span 2;">
+                <div>
                     <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">Tanggal Perawatan</label>
                     <input type="date" wire:model="tgl_perawatan" required 
                            style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     @error('tgl_perawatan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                 </div>
-                <div style="grid-column: span 2;">
+                <div>
                     <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">Jam Rawat</label>
                     <input type="time" wire:model="jam_rawat" required 
                            style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     @error('jam_rawat') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 4px;">
+                        Petugas Pemeriksa
+                        @if(!$isAdmin)
+                            <small style="color: var(--gray-500, #6b7280);">(Auto)</small>
+                        @endif
+                    </label>
+                    @if($isAdmin)
+                        <select wire:model="nip" required 
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                            <option value="">Pilih Petugas</option>
+                            @foreach($pegawaiList as $nik => $nama)
+                                <option value="{{ $nik }}">{{ $nama }} ({{ $nik }})</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input type="text" wire:model="nip" readonly 
+                               style="width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 8px; font-size: 14px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151);">
+                    @endif
+                    @error('nip') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                 </div>
             </div>
 

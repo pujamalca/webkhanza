@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\PemeriksaanRalan;
+use App\Models\Pegawai;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
@@ -81,10 +82,27 @@ class PemeriksaanRalanForm extends Component
     // Pagination
     public $currentPage = 1;
     public $perPage = 2;
+    
+    // Pegawai list
+    public $pegawaiList = [];
+    public $isAdmin = false;
 
     public function mount(string $noRawat): void
     {
         $this->noRawat = $noRawat;
+        
+        // Check if user is admin
+        $this->isAdmin = auth()->user()->hasRole('super_admin') || auth()->user()->hasPermissionTo('manage_all_examinations');
+        
+        // Load pegawai list for admin
+        if ($this->isAdmin) {
+            $this->pegawaiList = Pegawai::select('nik', 'nama')
+                ->orderBy('nama')
+                ->get()
+                ->pluck('nama', 'nik')
+                ->toArray();
+        }
+        
         $this->resetForm();
         $this->loadRiwayat();
     }
@@ -114,7 +132,7 @@ class PemeriksaanRalanForm extends Component
             'rtl' => $this->rtl,
             'instruksi' => $this->instruksi,
             'evaluasi' => $this->evaluasi,
-            'nip' => auth()->user()->pegawai->nik ?? '-',
+            'nip' => $this->nip,
         ];
 
         if ($this->editingId) {
@@ -169,6 +187,13 @@ class PemeriksaanRalanForm extends Component
         $this->rtl = '';
         $this->instruksi = '';
         $this->evaluasi = '';
+        
+        // Set NIP based on role
+        if ($this->isAdmin) {
+            $this->nip = ''; // Admin can choose
+        } else {
+            $this->nip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+        }
     }
     
     public function editPemeriksaan($tglPerawatan, $jamRawat): void
@@ -209,6 +234,7 @@ class PemeriksaanRalanForm extends Component
                 $this->rtl = $pemeriksaan->rtl ?? '';
                 $this->instruksi = $pemeriksaan->instruksi ?? '';
                 $this->evaluasi = $pemeriksaan->evaluasi ?? '';
+                $this->nip = $pemeriksaan->nip ?? '';
                 
                 \Log::info('Data loaded', ['keluhan' => $this->keluhan]);
                 

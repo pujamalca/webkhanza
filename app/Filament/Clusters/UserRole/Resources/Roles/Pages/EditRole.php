@@ -66,8 +66,10 @@ class EditRole extends EditRecord
 
             $ermIds = Permission::where('name', 'like', 'erm_access')
                 ->orWhere('name', 'like', 'registrasi_%')
+                ->orWhere('name', 'like', 'registration_%')
                 ->orWhere('name', 'like', 'rawat_jalan_%')
                 ->orWhere('name', 'like', 'pasien_%')
+                ->orWhere('name', '=', 'manage_all_examinations')
                 ->pluck('id')->toArray();
             $data['erm_permissions'] = array_values(array_intersect($permissionIds, $ermIds));
                 
