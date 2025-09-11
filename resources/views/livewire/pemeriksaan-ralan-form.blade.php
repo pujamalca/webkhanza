@@ -1,4 +1,62 @@
-<div style="space-y: 24px;">
+<style>
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .date-time-grid {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+    }
+    .ttv-grid-row1 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+    }
+    .ttv-grid-row2 {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+    }
+    .soap-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    .soap-column {
+        display: block !important;
+    }
+    .soap-section {
+        margin-bottom: 12px !important;
+    }
+    .history-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .history-header {
+        display: block !important;
+    }
+    .ttv-badges {
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    /* Smaller fonts on mobile */
+    .mobile-text {
+        font-size: 11px !important;
+    }
+    .mobile-label {
+        font-size: 9px !important;
+    }
+    .mobile-input {
+        font-size: 11px !important;
+        padding: 2px 4px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ttv-grid-row1 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .space-y-24 > * + * {
+        margin-top: 16px !important;
+    }
+}
+</style>
+
+<div class="space-y-24" style="space-y: 24px;">
     <!-- SOAP Form Section -->
     <x-filament::section>
         <x-slot name="heading">
@@ -13,7 +71,7 @@
         
         <form wire:submit="simpanPemeriksaan" style="space-y: 24px;">
             <!-- Date, Time and Petugas -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
+            <div class="date-time-grid" style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
                 <div>
                     <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Tanggal</label>
                     <input type="date" wire:model="tgl_perawatan" required 
@@ -51,17 +109,22 @@
 
             <!-- Vital Signs -->
             <div style="background-color: var(--gray-50, #f9fafb); padding: 8px; border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
-                <h3 style="font-size: 12px; font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <h3 style="font-size: 12px; font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                     <span style="background-color: var(--red-600, #dc2626); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">TTV</span>
                     Tanda Vital
                 </h3>
+                <div style="margin-bottom: 8px; padding: 4px 8px; background-color: var(--blue-50, #eff6ff); border-left: 3px solid var(--blue-400, #60a5fa); border-radius: 3px;">
+                    <p style="font-size: 9px; color: var(--blue-700, #1d4ed8); line-height: 1.3; margin: 0;">
+                        <strong>📋 Wajib:</strong> TD (dewasa) • <strong>🔄 Kondisional:</strong> HR (jantung/sesak/demam/anak) • RR (pernapasan/anak) • T (demam/infeksi) • BB+TB (anak/DM/hipertensi/terapi lama) • <strong>📝 Opsional:</strong> SpO₂ (ISPA/PPOK)
+                    </p>
+                </div>
                 
                 <!-- Compact grid layout -->
-                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px;">
+                <div class="ttv-grid-row1" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px;">
                     <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Suhu</label>
+                        <label class="mobile-label" style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Suhu</label>
                         <input type="number" step="0.1" wire:model="suhu_tubuh" placeholder="36.5"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
+                               class="mobile-input" style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TD</label>
@@ -90,7 +153,7 @@
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr 1fr; gap: 8px;">
+                <div class="ttv-grid-row2" style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr 1fr; gap: 8px;">
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">BB</label>
                         <input type="number" step="0.1" wire:model="berat" placeholder="70"
@@ -125,10 +188,17 @@
                 </div>
             </div>
 
+            <!-- SOAPIE Requirements -->
+            <div style="margin-bottom: 12px; padding: 6px 10px; background-color: var(--green-50, #f0fdf4); border-left: 3px solid var(--green-400, #4ade80); border-radius: 3px;">
+                <p style="font-size: 9px; color: var(--green-700, #15803d); line-height: 1.3; margin: 0;">
+                    <strong>📋 Wajib:</strong> S (keluhan) + O (TTV + fisik) + A (diagnosis) + P (terapi/obat) • <strong>🔄 Kondisional:</strong> I (tindakan) • <strong>📝 Opsional:</strong> E (evaluasi)
+                </p>
+            </div>
+            
             <!-- SOAPIE Grid - 3 Columns -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div class="soap-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                 <!-- Column 1: Subjective & Objective -->
-                <div style="space-y: 16px;">
+                <div class="soap-column" style="space-y: 16px;">
                     <!-- Subjective -->
                     <div style="background: var(--success-50, #f0fdf4); padding: 16px; border: 1px solid var(--success-200, #bbf7d0); border-radius: 8px; border-left: 4px solid var(--success-500, #22c55e);">
                         <h3 style="font-size: 16px; font-weight: 600; color: var(--success-700, #15803d); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
@@ -155,9 +225,9 @@
                 </div>
 
                 <!-- Column 2: Assessment & Plan -->
-                <div style="space-y: 16px;">
+                <div class="soap-column" style="space-y: 16px;">
                     <!-- Assessment -->
-                    <div style="background: var(--warning-50, #fefce8); padding: 16px; border: 1px solid var(--warning-200, #fde68a); border-radius: 8px; border-left: 4px solid var(--warning-500, #f59e0b);">
+                    <div class="soap-section" style="background: var(--warning-50, #fefce8); padding: 16px; border: 1px solid var(--warning-200, #fde68a); border-radius: 8px; border-left: 4px solid var(--warning-500, #f59e0b);">
                         <h3 style="font-size: 16px; font-weight: 600; color: var(--warning-700, #a16207); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                             <span style="background-color: var(--warning-600, #ca8a04); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">A</span>
                             ASSESSMENT (Diagnosis)
@@ -182,7 +252,7 @@
                 </div>
 
                 <!-- Column 3: Intervention & Evaluation -->
-                <div style="space-y: 16px;">
+                <div class="soap-column" style="space-y: 16px;">
                     <!-- Intervention -->
                     <div style="background: var(--danger-50, #fef2f2); padding: 16px; border: 1px solid var(--danger-200, #fecaca); border-radius: 8px; border-left: 4px solid var(--danger-500, #ef4444);">
                         <h3 style="font-size: 16px; font-weight: 600; color: var(--danger-700, #b91c1c); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
@@ -235,22 +305,31 @@
             @foreach($riwayatPemeriksaan as $pemeriksaan)
             <div style="border: 1px solid {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-400, #60a5fa)' : 'var(--gray-200, #e5e7eb)' }}; border-radius: 8px; padding: 16px; background-color: {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-50, #eff6ff)' : 'var(--white, #ffffff)' }}; transition: box-shadow 0.2s;">
                 <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <span style="font-weight: 600; color: var(--primary-600, #2563eb);">
-                            {{ \Carbon\Carbon::parse($pemeriksaan['tgl_perawatan'])->format('d/m/Y') }}
-                        </span>
-                        <span style="font-size: 14px; color: var(--gray-500, #6b7280);">{{ $pemeriksaan['jam_rawat'] }}</span>
-                        @if($pemeriksaan['petugas'])
-                            <span style="font-size: 12px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151); padding: 4px 8px; border-radius: 4px;">{{ $pemeriksaan['petugas']['nama'] ?? $pemeriksaan['nip'] }}</span>
-                        @endif
+                <div class="history-header" style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
+                    <!-- Date and Time Row -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-weight: 600; color: var(--primary-600, #2563eb); font-size: 14px;">
+                                {{ \Carbon\Carbon::parse($pemeriksaan['tgl_perawatan'])->format('d/m/Y') }}
+                            </span>
+                            <span style="font-size: 12px; color: var(--gray-500, #6b7280);">{{ $pemeriksaan['jam_rawat'] }}</span>
+                        </div>
+                        <x-filament::button type="button" color="primary" size="xs" 
+                                            wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
+                                            wire:loading.attr="disabled"
+                                            style="flex-shrink: 0;">
+                            <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
+                            <span wire:loading wire:target="editPemeriksaan">Loading...</span>
+                        </x-filament::button>
                     </div>
-                    <x-filament::button type="button" color="primary" size="xs" 
-                                        wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
-                                        wire:loading.attr="disabled">
-                        <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
-                        <span wire:loading wire:target="editPemeriksaan">Loading...</span>
-                    </x-filament::button>
+                    <!-- Staff Name Row -->
+                    @if($pemeriksaan['petugas'])
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 11px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151); padding: 3px 6px; border-radius: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            👨‍⚕️ {{ $pemeriksaan['petugas']['nama'] ?? $pemeriksaan['nip'] }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Vital Signs (TTV) Rows -->
@@ -262,7 +341,7 @@
                     </h4>
                     
                     <!-- Compact Vitals in Single Row -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px;">
+                    <div class="ttv-badges" style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px;">
                         @if($pemeriksaan['suhu_tubuh'])
                         <span style="padding: 4px 8px; background-color: var(--red-50, #fef2f2); color: var(--red-700, #b91c1c); border: 1px solid var(--red-200, #fecaca); border-radius: 4px; font-weight: 600;">
                             SUHU: {{ $pemeriksaan['suhu_tubuh'] }}°C
@@ -318,7 +397,7 @@
                 @endif
 
                 <!-- SOAP Content Grid -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
+                <div class="history-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
                     @if($pemeriksaan['keluhan'])
                     <div style="background-color: var(--success-50, #f0fdf4); padding: 12px; border-radius: 6px; border-left: 4px solid var(--success-400, #4ade80);">
                         <h4 style="font-weight: 600; color: var(--success-800, #166534); margin-bottom: 4px;">S - Subjective</h4>
