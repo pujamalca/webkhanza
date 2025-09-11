@@ -24,19 +24,19 @@ class PemeriksaanRalanForm extends Component
     #[Validate('nullable')]
     public $tensi;
     
-    #[Validate('nullable|numeric')]
+    #[Validate('required|numeric|min:30|max:160')]
     public $nadi;
     
-    #[Validate('nullable|numeric')]
+    #[Validate('required|numeric|min:5|max:70')]
     public $respirasi;
     
     #[Validate('nullable|numeric|min:0|max:100')]
     public $spo2;
     
-    #[Validate('nullable|numeric')]
+    #[Validate('required|numeric|min:30|max:250')]
     public $tinggi;
     
-    #[Validate('nullable|numeric')]
+    #[Validate('required|numeric|min:2|max:300')]
     public $berat;
     
     #[Validate('nullable')]
@@ -46,16 +46,16 @@ class PemeriksaanRalanForm extends Component
     public $kesadaran;
     
     // SOAP fields
-    #[Validate('nullable')]
+    #[Validate('required|min:4')]
     public $keluhan; // Subjective
     
-    #[Validate('nullable')]
+    #[Validate('required|min:10')]
     public $pemeriksaan; // Objective
     
     #[Validate('nullable')]
     public $penilaian; // Assessment
     
-    #[Validate('nullable')]
+    #[Validate('required|min:4')]
     public $rtl; // Plan
     
     #[Validate('nullable')]
@@ -163,11 +163,16 @@ class PemeriksaanRalanForm extends Component
             ->send();
     }
 
+    public function refreshDateTime(): void
+    {
+        $this->tgl_perawatan = now()->format('Y-m-d');
+        $this->jam_rawat = now()->format('H:i');
+    }
+    
     public function resetForm(): void
     {
         $this->editingId = null;
-        $this->tgl_perawatan = now()->format('Y-m-d');
-        $this->jam_rawat = now()->format('H:i');
+        $this->refreshDateTime();
         $this->suhu_tubuh = '';
         $this->tensi = '';
         $this->nadi = '';

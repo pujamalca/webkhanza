@@ -2,8 +2,15 @@
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
     .date-time-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr 1fr !important;
         gap: 6px !important;
+    }
+    .date-time-grid > div:nth-child(3) {
+        grid-column: 1 / -1 !important;
+    }
+    .date-time-grid > div:nth-child(4) {
+        grid-column: 1 / -1 !important;
+        justify-self: center !important;
     }
     .ttv-grid-row1 {
         grid-template-columns: repeat(3, 1fr) !important;
@@ -71,7 +78,7 @@
         
         <form wire:submit="simpanPemeriksaan" style="space-y: 24px;">
             <!-- Date, Time and Petugas -->
-            <div class="date-time-grid" style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
+            <div class="date-time-grid" style="display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
                 <div>
                     <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Tanggal</label>
                     <input type="date" wire:model="tgl_perawatan" required 
@@ -83,6 +90,13 @@
                     <input type="time" wire:model="jam_rawat" required 
                            style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     @error('jam_rawat') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="button" wire:click="refreshDateTime" 
+                            style="padding: 3px 8px; font-size: 10px; background-color: var(--green-600, #16a34a); color: white; border: none; border-radius: 3px; cursor: pointer; height: fit-content;"
+                            title="Refresh ke waktu sekarang">
+                        🕐 NOW
+                    </button>
                 </div>
                 <div>
                     <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">
@@ -128,17 +142,17 @@
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TD</label>
-                        <input type="text" wire:model="tensi" placeholder="120/80"
+                        <input type="text" wire:model="tensi" placeholder="Sistole: 40-250, Diastole: 30-180 mmHg"
                                style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Nadi</label>
-                        <input type="number" wire:model="nadi" placeholder="80"
+                        <input type="number" wire:model="nadi" placeholder="Isi antara 30 – 160 x/menit"
                                style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">RR</label>
-                        <input type="number" wire:model="respirasi" placeholder="20"
+                        <input type="number" wire:model="respirasi" placeholder="Isi antara 5 – 70 x/menit"
                                style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
@@ -148,7 +162,7 @@
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TB</label>
-                        <input type="number" wire:model="tinggi" placeholder="170"
+                        <input type="number" wire:model="tinggi" placeholder="Isi antara 30 – 250 cm"
                                style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                 </div>
@@ -156,7 +170,7 @@
                 <div class="ttv-grid-row2" style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr 1fr; gap: 8px;">
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">BB</label>
-                        <input type="number" step="0.1" wire:model="berat" placeholder="70"
+                        <input type="number" step="0.1" wire:model="berat" placeholder="Isi antara 2 – 300 kg"
                                style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
                     </div>
                     <div>
@@ -206,7 +220,7 @@
                             SUBJECTIVE (Keluhan Pasien)
                         </h3>
                         <textarea wire:model="keluhan" rows="8" 
-                                  placeholder="Tuliskan keluhan utama pasien, riwayat penyakit sekarang, dan anamnesis..."
+                                  placeholder="Tuliskan keluhan pasien (min. 4 karakter, kunjungan sakit, tahun ≥ 2024)"
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--success-300, #86efac); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('keluhan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
@@ -218,7 +232,7 @@
                             OBJECTIVE (Pemeriksaan Fisik)
                         </h3>
                         <textarea wire:model="pemeriksaan" rows="8"
-                                  placeholder="Hasil pemeriksaan fisik, temuan klinis, hasil laboratorium/radiologi..."
+                                  placeholder="Tuliskan anamnesa lengkap (min. 10 karakter, kunjungan sakit, tahun ≥ 2024)"
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--primary-300, #93c5fd); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('pemeriksaan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
@@ -245,7 +259,7 @@
                             PLAN (Rencana Tindakan)
                         </h3>
                         <textarea wire:model="rtl" rows="8"
-                                  placeholder="Rencana tindak lanjut, terapi, edukasi, kontrol ulang..."
+                                  placeholder="Isi terapi obat / non-obat (min. 4 karakter, tahun ≥ 2024, status pulang = dirujuk)"
                                   style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--info-300, #67e8f9); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
                         @error('rtl') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
@@ -281,9 +295,6 @@
             
             <!-- Action Buttons -->
             <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
-                <x-filament::button type="button" color="danger" size="sm" wire:click="testMethod">
-                    Test Method
-                </x-filament::button>
                 <x-filament::button type="button" color="gray" size="sm" wire:click="resetForm">
                     Reset Form
                 </x-filament::button>
