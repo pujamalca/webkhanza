@@ -79,8 +79,7 @@ class PemeriksaanRalanForm extends Component
     // Edit mode
     public $editingId = null;
     
-    // Pagination
-    public $currentPage = 1;
+    // Display limit
     public $perPage = 2;
     
     // Pegawai list
@@ -155,8 +154,7 @@ class PemeriksaanRalanForm extends Component
         }
 
         $this->resetForm();
-        // Reset to first page after save to show latest data
-        $this->currentPage = 1;
+        // Reload latest data
         $this->loadRiwayat();
 
         Notification::make()
@@ -261,21 +259,12 @@ class PemeriksaanRalanForm extends Component
     {
         $totalQuery = PemeriksaanRalan::where('no_rawat', $this->noRawat);
         $this->totalRecords = $totalQuery->count();
-        $this->totalPages = ceil($this->totalRecords / $this->perPage);
-        
-        // Ensure current page is valid
-        if ($this->currentPage > $this->totalPages && $this->totalPages > 0) {
-            $this->currentPage = $this->totalPages;
-        }
-        
-        $offset = ($this->currentPage - 1) * $this->perPage;
         
         $data = PemeriksaanRalan::where('no_rawat', $this->noRawat)
             ->with(['petugas:nik,nama'])
             ->orderBy('tgl_perawatan', 'desc')
             ->orderBy('jam_rawat', 'desc')
             ->limit($this->perPage)
-            ->offset($offset)
             ->get();
             
         $this->riwayatPemeriksaan = $data->map(function($item) {
@@ -289,31 +278,6 @@ class PemeriksaanRalanForm extends Component
     }
     
     public $totalRecords = 0;
-    public $totalPages = 0;
-    
-    public function nextPage(): void
-    {
-        if ($this->currentPage < $this->totalPages) {
-            $this->currentPage++;
-            $this->loadRiwayat();
-        }
-    }
-    
-    public function previousPage(): void
-    {
-        if ($this->currentPage > 1) {
-            $this->currentPage--;
-            $this->loadRiwayat();
-        }
-    }
-    
-    public function goToPage($page): void
-    {
-        if ($page >= 1 && $page <= $this->totalPages) {
-            $this->currentPage = $page;
-            $this->loadRiwayat();
-        }
-    }
     
     public function render()
     {

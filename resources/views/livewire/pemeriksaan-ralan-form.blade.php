@@ -281,6 +281,9 @@
             
             <!-- Action Buttons -->
             <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
+                <x-filament::button type="button" color="danger" size="sm" wire:click="testMethod">
+                    Test Method
+                </x-filament::button>
                 <x-filament::button type="button" color="gray" size="sm" wire:click="resetForm">
                     Reset Form
                 </x-filament::button>
@@ -297,7 +300,7 @@
         <x-slot name="heading">
             Riwayat Pemeriksaan SOAP 
             <small style="color: var(--gray-500, #6b7280); font-weight: normal;">
-                ({{ $totalRecords }} total, halaman {{ $currentPage }} dari {{ $totalPages }})
+                ({{ $totalRecords }} total data, menampilkan 2 terbaru)
             </small>
         </x-slot>
         
@@ -450,41 +453,12 @@
             @endforeach
         </div>
         
-        <!-- Pagination Controls -->
-        @if($totalPages > 1)
-        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
-            <!-- Previous Button -->
-            <x-filament::button type="button" color="gray" size="sm" 
-                                wire:click="previousPage" 
-                                wire:loading.attr="disabled"
-                                :disabled="$currentPage <= 1">
-                <span wire:loading.remove wire:target="previousPage">← Previous</span>
-                <span wire:loading wire:target="previousPage">Loading...</span>
-            </x-filament::button>
-            
-            <!-- Page Numbers -->
-            @for($i = 1; $i <= $totalPages; $i++)
-                @if($i == $currentPage)
-                    <span style="padding: 6px 12px; background-color: var(--primary-600, #2563eb); color: white; border-radius: 6px; font-size: 14px; font-weight: 500;">
-                        {{ $i }}
-                    </span>
-                @else
-                    <x-filament::button type="button" color="gray" size="sm" 
-                                        wire:click="goToPage({{ $i }})"
-                                        style="min-width: 40px;">
-                        {{ $i }}
-                    </x-filament::button>
-                @endif
-            @endfor
-            
-            <!-- Next Button -->
-            <x-filament::button type="button" color="gray" size="sm" 
-                                wire:click="nextPage" 
-                                wire:loading.attr="disabled"
-                                :disabled="$currentPage >= $totalPages">
-                <span wire:loading.remove wire:target="nextPage">Next →</span>
-                <span wire:loading wire:target="nextPage">Loading...</span>
-            </x-filament::button>
+        <!-- Info Footer -->
+        @if($totalRecords > 2)
+        <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
+            <span style="color: var(--gray-500, #6b7280); font-size: 12px; font-style: italic;">
+                * Menampilkan 2 riwayat terbaru dari total {{ $totalRecords }} data pemeriksaan
+            </span>
         </div>
         @endif
     </x-filament::section>
