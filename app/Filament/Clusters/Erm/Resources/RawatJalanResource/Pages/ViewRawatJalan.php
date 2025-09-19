@@ -20,22 +20,6 @@ class ViewRawatJalan extends ViewRecord
     {
         return $infolist
             ->schema([
-                Section::make('Informasi Pasien')
-                    ->schema([
-                        Group::make([
-                            TextEntry::make('no_rawat')
-                                ->label('No. Rawat'),
-                            TextEntry::make('no_rkm_medis')
-                                ->label('No. RM'),
-                            TextEntry::make('pasien.nm_pasien')
-                                ->label('Nama Pasien'),
-                            TextEntry::make('dokter.nm_dokter')
-                                ->label('Dokter'),
-                        ])->columns(4),
-                        
-                    ])
-                    ->columnSpanFull(),
-                
                 Tabs::make('Detail Rawat Jalan')
                     ->tabs([
                         Tab::make('Pemeriksaan Ralan')

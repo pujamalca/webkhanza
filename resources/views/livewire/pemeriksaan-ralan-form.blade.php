@@ -30,8 +30,6 @@
 
     <div class="min-h-screen py-4 sm:py-8" x-bind:class="darkMode ? 'bg-gray-900' : 'bg-gray-50'">
         <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-            <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">📝 Form Input SOAPIE - WebKhanza</h1>
-
             <div class="rounded-lg shadow p-3 sm:p-6"
                  x-bind:class="darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'">
                 <form wire:submit="simpanPemeriksaan" class="space-y-6">
@@ -41,7 +39,23 @@
                     <div class="space-y-4 rounded-lg p-3 sm:p-4"
                          x-bind:class="darkMode ? 'bg-gray-700 border border-gray-600' : 'bg-gray-50 border border-gray-200'">
                         <h3 class="text-base sm:text-lg font-medium" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">📅 Informasi Dasar</h3>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">No. Rawat</label>
+                                <input type="text" value="{{ $noRawat }}" readonly
+                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-600 text-gray-300' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600'" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">No. RM</label>
+                                <input type="text" value="{{ $patientData['no_rkm_medis'] ?? '' }}" readonly
+                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-600 text-gray-300' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600'" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Nama Pasien</label>
+                                <input type="text" value="{{ $patientData['nama'] ?? '' }}" readonly
+                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-600 text-gray-300' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600'" />
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Tanggal <span class="text-red-500">*</span></label>
                                 <input type="date" wire:model="tgl_perawatan" required
@@ -84,9 +98,10 @@
                                 📋 Isi dari Data Sebelumnya
                             </x-filament::button>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                        {{-- Baris 1: Vital Signs Utama --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Suhu Tubuh (°C)</label>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Suhu (°C)</label>
                                 <input type="number" step="0.1" wire:model="suhu_tubuh" placeholder="36.5"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
@@ -96,12 +111,12 @@
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Nadi (x/menit) <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Nadi <span class="text-red-500">*</span></label>
                                 <input type="number" wire:model="nadi" required min="30" max="160" placeholder="80"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Respirasi (x/menit) <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Respirasi <span class="text-red-500">*</span></label>
                                 <input type="number" wire:model="respirasi" required min="5" max="70" placeholder="20"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
@@ -110,6 +125,15 @@
                                 <input type="number" wire:model="spo2" min="0" max="100" placeholder="98"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">GCS</label>
+                                <input type="text" wire:model="gcs" placeholder="E4V5M6"
+                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
+                            </div>
+                        </div>
+
+                        {{-- Baris 2: Antropometri & Assessment --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Tinggi (cm) <span class="text-red-500">*</span></label>
                                 <input type="number" wire:model="tinggi" required min="30" max="250" placeholder="170"
@@ -121,11 +145,11 @@
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">GCS</label>
-                                <input type="text" wire:model="gcs" placeholder="E4V5M6"
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Lingkar Perut (cm)</label>
+                                <input type="number" wire:model="lingkar_perut" placeholder="80"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Kesadaran</label>
                                 <select wire:model="kesadaran"
                                         x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'">
@@ -146,11 +170,6 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Alergi</label>
                                 <input type="text" wire:model="alergi" placeholder="Tidak ada"
-                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Lingkar Perut (cm)</label>
-                                <input type="number" wire:model="lingkar_perut" placeholder="80"
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
                         </div>
@@ -309,15 +328,34 @@
                                         <span class="font-medium px-2 py-1 rounded text-xs" x-bind:class="darkMode ? 'bg-blue-900 text-blue-200 border border-blue-700' : 'bg-blue-100 text-blue-800 border border-blue-200'">
                                             📋 {{ $item['no_rawat'] }}
                                         </span>
+                                        @if(isset($item['petugas']['nama']))
+                                            <span class="font-medium px-2 py-1 rounded text-xs" x-bind:class="darkMode ? 'bg-green-900 text-green-200 border border-green-700' : 'bg-green-100 text-green-800 border border-green-200'">
+                                                👤 {{ $item['petugas']['nama'] }}
+                                            </span>
+                                        @endif
                                     </div>
 
-                                    @if($isAdmin || $item['nip'] === auth()->user()->pegawai->nik ?? auth()->user()->username)
+                                    <div class="flex gap-2">
+                                        {{-- Pilih Button - Available for all users --}}
                                         <button type="button"
-                                                wire:click="editPemeriksaan('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}')"
-                                                class="px-2 sm:px-3 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 text-xs sm:text-sm">
-                                            ✏️ Edit
+                                                wire:click="selectExamination('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}', '{{ $item['no_rawat'] }}')"
+                                                class="px-2 sm:px-3 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-200 text-xs sm:text-sm">
+                                            📋 Pilih
                                         </button>
-                                    @endif
+
+                                        {{-- Edit Button - Restricted to admin or record owner --}}
+                                        @php
+                                            $currentUserNip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+                                            $canEdit = $isAdmin || $item['nip'] === $currentUserNip;
+                                        @endphp
+                                        @if($canEdit)
+                                            <button type="button"
+                                                    wire:click="editPemeriksaan('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}', '{{ $item['no_rawat'] }}')"
+                                                    class="px-2 sm:px-3 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 text-xs sm:text-sm">
+                                                ✏️ Edit
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 {{-- TTV Section --}}

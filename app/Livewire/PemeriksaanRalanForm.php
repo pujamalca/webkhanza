@@ -13,6 +13,7 @@ class PemeriksaanRalanForm extends Component
 {
     public string $noRawat;
     public string $noRkmMedis;
+    public $patientData = [];
     
     #[Validate('required|date')]
     public $tgl_perawatan;
@@ -80,6 +81,9 @@ class PemeriksaanRalanForm extends Component
     
     // Edit mode
     public $editingId = null;
+    public $originalNoRawat = null;
+    public $originalTglPerawatan = null;
+    public $originalJamRawat = null;
     
     // Display limit
     public $perPage = 2;
@@ -127,17 +131,34 @@ class PemeriksaanRalanForm extends Component
         ]);
         $this->noRawat = $noRawat;
 
-        // Get no_rkm_medis from reg_periksa for this no_rawat
+        // Get no_rkm_medis and patient data from reg_periksa and pasien
         $regPeriksa = \DB::table('reg_periksa')
-            ->where('no_rawat', $noRawat)
-            ->select('no_rkm_medis')
+            ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->where('reg_periksa.no_rawat', $noRawat)
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.umur',
+                'pasien.tgl_lahir',
+                'pasien.alamat'
+            )
             ->first();
 
         if ($regPeriksa) {
             $this->noRkmMedis = $regPeriksa->no_rkm_medis;
+            $this->patientData = [
+                'no_rkm_medis' => $regPeriksa->no_rkm_medis,
+                'nama' => $regPeriksa->nm_pasien,
+                'jk' => $regPeriksa->jk === 'L' ? 'Laki-laki' : 'Perempuan',
+                'umur' => $regPeriksa->umur,
+                'tgl_lahir' => $regPeriksa->tgl_lahir,
+                'alamat' => $regPeriksa->alamat
+            ];
         } else {
             // Fallback if no reg_periksa found
             $this->noRkmMedis = '';
+            $this->patientData = [];
         }
         
         // Check if user is admin
@@ -192,14 +213,25 @@ class PemeriksaanRalanForm extends Component
         ];
 
         if ($this->editingId) {
-            // Update existing record
+            // Update existing record using original coordinates
             try {
-                PemeriksaanRalan::where('no_rawat', $this->noRawat)
-                    ->where('tgl_perawatan', $this->tgl_perawatan)
-                    ->where('jam_rawat', $this->jam_rawat)
+                $updated = PemeriksaanRalan::where('no_rawat', $this->originalNoRawat)
+                    ->where('tgl_perawatan', $this->originalTglPerawatan)
+                    ->where('jam_rawat', $this->originalJamRawat)
                     ->update($data);
-                $message = 'Pemeriksaan SOAP berhasil diupdate';
+
+                if ($updated) {
+                    $message = 'Pemeriksaan SOAP berhasil diupdate';
+                    if ($this->originalNoRawat !== $this->noRawat) {
+                        $message .= ' dan dipindahkan ke kunjungan saat ini';
+                    }
+                } else {
+                    // If no rows updated, create new record
+                    PemeriksaanRalan::create($data);
+                    $message = 'Pemeriksaan SOAP berhasil disimpan sebagai record baru';
+                }
             } catch (\Exception $e) {
+                \Log::error('Update failed, creating new record', ['error' => $e->getMessage()]);
                 // If update fails, try to create new
                 PemeriksaanRalan::create($data);
                 $message = 'Pemeriksaan SOAP berhasil disimpan';
@@ -235,6 +267,9 @@ class PemeriksaanRalanForm extends Component
     public function resetForm(): void
     {
         $this->editingId = null;
+        $this->originalNoRawat = null;
+        $this->originalTglPerawatan = null;
+        $this->originalJamRawat = null;
         $this->refreshDateTime();
         $this->suhu_tubuh = '';
         $this->tensi = '';
@@ -266,25 +301,54 @@ class PemeriksaanRalanForm extends Component
         }
     }
     
-    public function editPemeriksaan($tglPerawatan, $jamRawat)
+    public function editPemeriksaan($tglPerawatan, $jamRawat, $sourceNoRawat = null)
     {
         try {
+            // Use the provided source no_rawat or fall back to current no_rawat
+            $sourceNoRawat = $sourceNoRawat ?: $this->noRawat;
+
             \Log::info('EditPemeriksaan called', [
-                'noRawat' => $this->noRawat,
+                'currentNoRawat' => $this->noRawat,
+                'sourceNoRawat' => $sourceNoRawat,
                 'tglPerawatan' => $tglPerawatan,
                 'jamRawat' => $jamRawat
             ]);
-            
-            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+
+            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $sourceNoRawat)
                 ->where('tgl_perawatan', $tglPerawatan)
                 ->where('jam_rawat', $jamRawat)
                 ->first();
-                
-            \Log::info('Pemeriksaan found', ['found' => $pemeriksaan ? 'yes' : 'no']);
-                
+
+            if (!$pemeriksaan) {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->warning()
+                    ->send();
+                return;
+            }
+
+            // Authorization check: only creator or admin can edit
+            $currentUserNip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+            if (!$this->isAdmin && $pemeriksaan->nip !== $currentUserNip) {
+                Notification::make()
+                    ->title('Tidak diizinkan')
+                    ->body('Anda hanya dapat mengedit pemeriksaan yang Anda buat sendiri')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            \Log::info('Pemeriksaan found and authorized', ['found' => 'yes', 'canEdit' => 'yes']);
+
             if ($pemeriksaan) {
                 $rawAttrs = $pemeriksaan->getAttributes();
-                $this->editingId = $rawAttrs['tgl_perawatan'] . '-' . $rawAttrs['jam_rawat'];
+
+                // Store original examination details for updating
+                $this->originalNoRawat = $rawAttrs['no_rawat'];
+                $this->originalTglPerawatan = $rawAttrs['tgl_perawatan'];
+                $this->originalJamRawat = $rawAttrs['jam_rawat'];
+
+                $this->editingId = $rawAttrs['tgl_perawatan'] . '-' . $rawAttrs['jam_rawat'] . '-' . $rawAttrs['no_rawat'];
                 $this->tgl_perawatan = $rawAttrs['tgl_perawatan'];
                 $this->jam_rawat = substr($rawAttrs['jam_rawat'], 0, 5); // Format HH:MM
                 $this->suhu_tubuh = $pemeriksaan->suhu_tubuh ?? '';
@@ -326,7 +390,76 @@ class PemeriksaanRalanForm extends Component
                 ->send();
         }
     }
-    
+
+    public function selectExamination($tglPerawatan, $jamRawat, $noRawat)
+    {
+        try {
+            \Log::info('SelectExamination called', [
+                'targetNoRawat' => $noRawat,
+                'tglPerawatan' => $tglPerawatan,
+                'jamRawat' => $jamRawat
+            ]);
+
+            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $noRawat)
+                ->where('tgl_perawatan', $tglPerawatan)
+                ->where('jam_rawat', $jamRawat)
+                ->first();
+
+            if ($pemeriksaan) {
+                // Fill form with selected examination data (without entering edit mode)
+                $this->editingId = null; // Clear edit mode
+                $this->tgl_perawatan = now()->format('Y-m-d'); // Keep current date
+                $this->jam_rawat = now()->format('H:i'); // Keep current time
+
+                // Fill TTV data
+                $this->suhu_tubuh = $pemeriksaan->suhu_tubuh ?? '';
+                $this->tensi = $pemeriksaan->tensi ?? '';
+                $this->nadi = $pemeriksaan->nadi ?? '';
+                $this->respirasi = $pemeriksaan->respirasi ?? '';
+                $this->spo2 = $pemeriksaan->spo2 ?? '';
+                $this->tinggi = $pemeriksaan->tinggi ?? '';
+                $this->berat = $pemeriksaan->berat ?? '';
+                $this->gcs = $pemeriksaan->gcs ?? '';
+                $this->kesadaran = $pemeriksaan->kesadaran ?? 'Compos Mentis';
+                $this->alergi = $pemeriksaan->alergi ?? '';
+                $this->lingkar_perut = $pemeriksaan->lingkar_perut ?? '';
+
+                // Fill SOAPIE data
+                $this->keluhan = $pemeriksaan->keluhan ?? '';
+                $this->pemeriksaan = $pemeriksaan->pemeriksaan ?? '';
+                $this->penilaian = $pemeriksaan->penilaian ?? '';
+                $this->rtl = $pemeriksaan->rtl ?? '';
+                $this->instruksi = $pemeriksaan->instruksi ?? '';
+                $this->evaluasi = $pemeriksaan->evaluasi ?? '';
+
+                // Keep current NIP
+                if (!$this->isAdmin) {
+                    $this->nip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+                }
+
+                $examDate = \Carbon\Carbon::parse($pemeriksaan->tgl_perawatan)->format('d/m/Y');
+                $examTime = substr($pemeriksaan->jam_rawat, 0, 5);
+
+                Notification::make()
+                    ->title('Data pemeriksaan berhasil dipilih')
+                    ->body("Data TTV dan SOAPIE dari {$noRawat} tanggal {$examDate} jam {$examTime} telah diisi ke form")
+                    ->success()
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Select examination error', ['error' => $e->getMessage()]);
+            Notification::make()
+                ->title('Error loading data: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
     public function loadRiwayat(): void
     {
         if (empty($this->noRkmMedis)) {
