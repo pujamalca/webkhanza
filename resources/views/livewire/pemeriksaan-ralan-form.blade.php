@@ -73,7 +73,17 @@
                     {{-- TTV Section --}}
                     <div class="space-y-4 rounded-lg p-3 sm:p-4"
                          x-bind:class="darkMode ? 'bg-gray-700 border border-gray-600' : 'bg-gray-50 border border-gray-200'">
-                        <h3 class="text-base sm:text-lg font-medium" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">🩺 Tanda-Tanda Vital (TTV)</h3>
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                            <h3 class="text-base sm:text-lg font-medium" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">🩺 Tanda-Tanda Vital (TTV)</h3>
+                            <x-filament::button
+                                type="button"
+                                color="info"
+                                size="sm"
+                                wire:click="fillTTVFromPrevious"
+                                icon="heroicon-m-arrow-path">
+                                📋 Isi dari Data Sebelumnya
+                            </x-filament::button>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Suhu Tubuh (°C)</label>

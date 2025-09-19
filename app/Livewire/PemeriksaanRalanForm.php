@@ -491,6 +491,54 @@ class PemeriksaanRalanForm extends Component
         }
     }
 
+    public function fillTTVFromPrevious()
+    {
+        // Get the latest examination data for this patient (excluding current form if editing)
+        $query = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+            ->orderBy('tgl_perawatan', 'desc')
+            ->orderBy('jam_rawat', 'desc');
+
+        // If editing, exclude current record
+        if ($this->editingId) {
+            $query = $query->where(function($q) {
+                $q->where('tgl_perawatan', '!=', $this->tgl_perawatan)
+                  ->orWhere('jam_rawat', '!=', $this->jam_rawat);
+            });
+        }
+
+        $latestExam = $query->first();
+
+        if ($latestExam) {
+            // Fill TTV fields from previous examination
+            $this->suhu_tubuh = $latestExam->suhu_tubuh ?: $this->suhu_tubuh;
+            $this->tensi = $latestExam->tensi ?: $this->tensi;
+            $this->nadi = $latestExam->nadi ?: $this->nadi;
+            $this->respirasi = $latestExam->respirasi ?: $this->respirasi;
+            $this->spo2 = $latestExam->spo2 ?: $this->spo2;
+            $this->tinggi = $latestExam->tinggi ?: $this->tinggi;
+            $this->berat = $latestExam->berat ?: $this->berat;
+            $this->gcs = $latestExam->gcs ?: $this->gcs;
+            $this->kesadaran = $latestExam->kesadaran ?: $this->kesadaran;
+            $this->alergi = $latestExam->alergi ?: $this->alergi;
+            $this->lingkar_perut = $latestExam->lingkar_perut ?: $this->lingkar_perut;
+
+            $examDate = \Carbon\Carbon::parse($latestExam->tgl_perawatan)->format('d/m/Y');
+            $examTime = substr($latestExam->jam_rawat, 0, 5);
+
+            Notification::make()
+                ->title('TTV berhasil diisi dari pemeriksaan sebelumnya')
+                ->body("Data diambil dari pemeriksaan tanggal {$examDate} jam {$examTime}")
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Tidak ada data TTV sebelumnya')
+                ->body('Belum ada pemeriksaan sebelumnya untuk pasien ini')
+                ->warning()
+                ->send();
+        }
+    }
+
     public function testMethod()
     {
         \Log::info('testMethod called successfully!');
