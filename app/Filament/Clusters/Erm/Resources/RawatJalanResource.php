@@ -799,6 +799,7 @@ class RawatJalanResource extends Resource
                     ]),
 
             ])
+            ->deferFilters(false)
             ->recordActions([
                 ActionGroup::make([
                     \Filament\Actions\ViewAction::make(),
