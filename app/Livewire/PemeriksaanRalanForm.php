@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\PemeriksaanRalan;
 use App\Models\Pegawai;
+use App\Models\SoapieTemplate;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
@@ -86,6 +87,27 @@ class PemeriksaanRalanForm extends Component
     public $pegawaiList = [];
     public $isAdmin = false;
 
+    // Template functionality
+    public $soapieTemplates = [];
+    public $showTemplateModal = false;
+    public $selectedTemplate = null;
+    public $saveToTemplate = false;
+    public $showCreateTemplate = false;
+
+    // New template fields
+    public $newTemplateName = '';
+    public $newTemplateCategory = '';
+    public $newTemplateDescription = '';
+    public $newTemplateIsPublic = false;
+
+    // Template SOAPIE fields
+    public $newTemplateSubjective = '';
+    public $newTemplateObjective = '';
+    public $newTemplateAssessment = '';
+    public $newTemplatePlan = '';
+    public $newTemplateIntervention = '';
+    public $newTemplateEvaluation = '';
+
     public function mount(string $noRawat): void
     {
         \Log::info('PemeriksaanRalanForm mounted', [
@@ -108,6 +130,7 @@ class PemeriksaanRalanForm extends Component
         
         $this->resetForm();
         $this->loadRiwayat();
+        $this->loadTemplates();
     }
     
     public function simpanPemeriksaan()
@@ -163,6 +186,11 @@ class PemeriksaanRalanForm extends Component
             $message = 'Pemeriksaan SOAP berhasil disimpan';
         }
 
+        // Save to template if checkbox is checked
+        if ($this->saveToTemplate && !empty($this->keluhan) && !empty($this->pemeriksaan) && !empty($this->rtl)) {
+            $this->saveCurrentAsTemplate();
+        }
+
         $this->resetForm();
         // Reload latest data
         $this->loadRiwayat();
@@ -201,7 +229,11 @@ class PemeriksaanRalanForm extends Component
         $this->rtl = '';
         $this->instruksi = '';
         $this->evaluasi = '';
-        
+
+        // Reset template flags
+        $this->saveToTemplate = false;
+        $this->showCreateTemplate = false;
+
         // Set NIP based on role
         if ($this->isAdmin) {
             $this->nip = ''; // Admin can choose
@@ -295,6 +327,170 @@ class PemeriksaanRalanForm extends Component
     
     public $totalRecords = 0;
     
+    public function loadTemplates(): void
+    {
+        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+
+        $this->soapieTemplates = SoapieTemplate::forUser($currentNip)
+            ->orderBy('is_public', 'asc')
+            ->orderBy('nama_template', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    public function openTemplateModal()
+    {
+        $this->showTemplateModal = true;
+        $this->loadTemplates();
+    }
+
+    public function closeTemplateModal()
+    {
+        $this->showTemplateModal = false;
+        $this->selectedTemplate = null;
+    }
+
+    public function applyTemplate($templateId)
+    {
+        $template = SoapieTemplate::find($templateId);
+
+        if ($template) {
+            $this->keluhan = $template->subjective ?: $this->keluhan;
+            $this->pemeriksaan = $template->objective ?: $this->pemeriksaan;
+            $this->penilaian = $template->assessment ?: $this->penilaian;
+            $this->rtl = $template->plan ?: $this->rtl;
+            $this->instruksi = $template->intervention ?: $this->instruksi;
+            $this->evaluasi = $template->evaluation ?: $this->evaluasi;
+
+            $this->closeTemplateModal();
+
+            Notification::make()
+                ->title('Template "' . $template->nama_template . '" berhasil diterapkan')
+                ->success()
+                ->send();
+        }
+    }
+
+    public function showCreateTemplateForm()
+    {
+        $this->showCreateTemplate = true;
+        $this->newTemplateName = '';
+        $this->newTemplateCategory = '';
+        $this->newTemplateDescription = '';
+        $this->newTemplateIsPublic = $this->isAdmin; // Only admin can create public templates by default
+
+        // Pre-fill with current SOAPIE if exists
+        $this->newTemplateSubjective = $this->keluhan;
+        $this->newTemplateObjective = $this->pemeriksaan;
+        $this->newTemplateAssessment = $this->penilaian;
+        $this->newTemplatePlan = $this->rtl;
+        $this->newTemplateIntervention = $this->instruksi;
+        $this->newTemplateEvaluation = $this->evaluasi;
+    }
+
+    public function hideCreateTemplateForm()
+    {
+        $this->showCreateTemplate = false;
+    }
+
+    public function saveNewTemplate()
+    {
+        $this->validate([
+            'newTemplateName' => 'required|min:3|max:255',
+            'newTemplateCategory' => 'nullable|max:100',
+            'newTemplateDescription' => 'nullable|max:500'
+        ]);
+
+        // Validasi minimal SOAPIE harus terisi
+        if (empty($this->newTemplateSubjective) && empty($this->newTemplateObjective) && empty($this->newTemplatePlan)) {
+            Notification::make()
+                ->title('Error: Template kosong')
+                ->body('Minimal isi Subjective (S), Objective (O), atau Plan (P) sebelum menyimpan template')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+
+        SoapieTemplate::create([
+            'nama_template' => $this->newTemplateName,
+            'subjective' => $this->newTemplateSubjective ?: null,
+            'objective' => $this->newTemplateObjective ?: null,
+            'assessment' => $this->newTemplateAssessment ?: null,
+            'plan' => $this->newTemplatePlan ?: null,
+            'intervention' => $this->newTemplateIntervention ?: null,
+            'evaluation' => $this->newTemplateEvaluation ?: null,
+            'nip' => $currentNip,
+            'is_public' => $this->newTemplateIsPublic && $this->isAdmin, // Only admin can create public templates
+            'kategori' => $this->newTemplateCategory ?: null,
+            'keterangan' => $this->newTemplateDescription ?: null
+        ]);
+
+        $this->hideCreateTemplateForm();
+        $this->loadTemplates();
+
+        Notification::make()
+            ->title('Template "' . $this->newTemplateName . '" berhasil disimpan')
+            ->body('Template berhasil dibuat dengan data SOAPIE yang sedang diisi')
+            ->success()
+            ->send();
+    }
+
+    public function saveCurrentAsTemplate()
+    {
+        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+
+        $templateName = 'Auto Template - ' . date('Y-m-d H:i:s');
+
+        SoapieTemplate::create([
+            'nama_template' => $templateName,
+            'subjective' => $this->keluhan,
+            'objective' => $this->pemeriksaan,
+            'assessment' => $this->penilaian,
+            'plan' => $this->rtl,
+            'intervention' => $this->instruksi,
+            'evaluation' => $this->evaluasi,
+            'nip' => $currentNip,
+            'is_public' => false,
+            'kategori' => 'Auto Generated',
+            'keterangan' => 'Template otomatis dari pemeriksaan'
+        ]);
+
+        Notification::make()
+            ->title('SOAPIE berhasil disimpan sebagai template')
+            ->success()
+            ->send();
+    }
+
+    public function deleteTemplate($templateId)
+    {
+        $template = SoapieTemplate::find($templateId);
+
+        if ($template) {
+            $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+
+            // Check if user can delete (owner or admin)
+            if ($template->nip === $currentNip || $this->isAdmin) {
+                $templateName = $template->nama_template;
+                $template->delete();
+
+                $this->loadTemplates();
+
+                Notification::make()
+                    ->title('Template "' . $templateName . '" berhasil dihapus')
+                    ->success()
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('Error: Tidak bisa menghapus template')
+                    ->body('Anda hanya bisa menghapus template yang Anda buat sendiri')
+                    ->danger()
+                    ->send();
+            }
+        }
+    }
+
     public function testMethod()
     {
         \Log::info('testMethod called successfully!');
