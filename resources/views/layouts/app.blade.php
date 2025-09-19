@@ -46,8 +46,10 @@
     
     <!-- Theme Styles -->
     <x-theme-styles />
-    
-    
+
+    <!-- Livewire Styles -->
+    <x-livewire-styles :theme="request()->cookie('theme', 'light')" />
+
     @stack('styles')
 </head>
 <body class="scroll-smooth">

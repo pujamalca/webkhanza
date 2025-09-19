@@ -1,477 +1,229 @@
-<style>
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    .date-time-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 6px !important;
-    }
-    .date-time-grid > div:nth-child(3) {
-        grid-column: 1 / -1 !important;
-    }
-    .date-time-grid > div:nth-child(4) {
-        grid-column: 1 / -1 !important;
-        justify-self: center !important;
-    }
-    .ttv-grid-row1 {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-    }
-    .ttv-grid-row2 {
-        grid-template-columns: 1fr !important;
-        gap: 6px !important;
-    }
-    .soap-grid {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-    }
-    .soap-column {
-        display: block !important;
-    }
-    .soap-section {
-        margin-bottom: 12px !important;
-    }
-    .history-grid {
-        grid-template-columns: 1fr !important;
-    }
-    .history-header {
-        display: block !important;
-    }
-    .ttv-badges {
-        justify-content: center !important;
-        text-align: center !important;
-    }
-    /* Smaller fonts on mobile */
-    .mobile-text {
-        font-size: 11px !important;
-    }
-    .mobile-label {
-        font-size: 9px !important;
-    }
-    .mobile-input {
-        font-size: 11px !important;
-        padding: 2px 4px !important;
-    }
-}
+{{-- SOAPIE Form using Universal Livewire System --}}
+<x-livewire-layout title="📝 Form Input SOAPIE - WebKhanza">
 
-@media (max-width: 480px) {
-    .ttv-grid-row1 {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-    .space-y-24 > * + * {
-        margin-top: 16px !important;
-    }
-}
-</style>
-
-<div class="space-y-24" style="space-y: 24px;">
-    <!-- SOAP Form Section -->
     <x-filament::section>
         <x-slot name="heading">
-            <span style="font-size: 18px; font-weight: 600; color: var(--gray-900, #111827);">
-                SOAP Perawatan 
-                @if($editingId)
-                    <small style="color: var(--warning-600, #ca8a04); font-weight: 500;">(Mode Edit)</small>
-                @endif
+            <span class="text-primary-600 dark:text-primary-400">
+                Form Pemeriksaan SOAPIE
             </span>
-            <small style="color: var(--gray-500, #6b7280); margin-left: 8px;">(Subjective, Objective, Assessment, Plan, Intervention, Evaluation)</small>
         </x-slot>
-        
-        <form wire:submit="simpanPemeriksaan" style="space-y: 24px;">
-            <!-- Date, Time and Petugas -->
-            <div class="date-time-grid" style="display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; padding: 8px; background-color: var(--primary-50, #f0f9ff); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Tanggal</label>
-                    <input type="date" wire:model="tgl_perawatan" required 
-                           style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    @error('tgl_perawatan') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
-                </div>
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">Jam</label>
-                    <input type="time" wire:model="jam_rawat" required 
-                           style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    @error('jam_rawat') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
-                </div>
-                <div style="display: flex; align-items: end;">
-                    <button type="button" wire:click="refreshDateTime" 
-                            style="padding: 3px 8px; font-size: 10px; background-color: var(--green-600, #16a34a); color: white; border: none; border-radius: 3px; cursor: pointer; height: fit-content;"
-                            title="Refresh ke waktu sekarang">
-                        🕐 NOW
-                    </button>
-                </div>
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-700, #374151); margin-bottom: 2px;">
-                        Petugas
-                        @if(!$isAdmin)
-                            <small style="color: var(--gray-500, #6b7280);">(Auto)</small>
-                        @endif
-                    </label>
-                    @if($isAdmin)
-                        <select wire:model="nip" required 
-                                style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                            <option value="">Pilih Petugas</option>
-                            @foreach($pegawaiList as $nik => $nama)
-                                <option value="{{ $nik }}">{{ $nama }} ({{ $nik }})</option>
-                            @endforeach
-                        </select>
+
+        <x-livewire-form wire:submit="simpanPemeriksaan">
+
+            {{-- Test Section --}}
+            <div class="bg-blue-100 border border-blue-300 p-4 rounded-lg">
+                <h3 class="text-blue-800 font-bold">🧪 Test Tailwind CSS</h3>
+                <p class="text-blue-600">Jika background ini biru, berarti Tailwind sudah ter-load dengan Vite!</p>
+            </div>
+
+            {{-- Date, Time, Petugas Section --}}
+            <x-livewire-section title="📅 Informasi Dasar" class="mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <x-livewire-field
+                        type="date"
+                        label="Tanggal"
+                        wire:model="tgl_perawatan"
+                        required />
+
+                    <x-livewire-field
+                        type="time"
+                        label="Jam"
+                        wire:model="jam_rawat"
+                        required />
+
+                    @if($isAdmin && !empty($pegawaiList))
+                        <x-livewire-field
+                            type="select"
+                            label="Petugas"
+                            wire:model="nip"
+                            placeholder="Pilih Petugas..."
+                            :options="$pegawaiList"
+                            required />
                     @else
-                        <input type="text" wire:model="nip" readonly 
-                               style="width: 100%; padding: 3px 6px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; font-size: 12px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151);">
+                        <x-livewire-field
+                            type="text"
+                            label="Petugas"
+                            wire:model="nip"
+                            readonly
+                            required />
                     @endif
-                    @error('nip') <span style="color: var(--danger-600, #dc2626); font-size: 10px;">{{ $message }}</span> @enderror
                 </div>
-            </div>
+            </x-livewire-section>
 
-            <!-- Vital Signs -->
-            <div style="background-color: var(--gray-50, #f9fafb); padding: 8px; border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
-                <h3 style="font-size: 12px; font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                    <span style="background-color: var(--red-600, #dc2626); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">TTV</span>
-                    Tanda Vital
-                </h3>
-                <div style="margin-bottom: 8px; padding: 4px 8px; background-color: var(--blue-50, #eff6ff); border-left: 3px solid var(--blue-400, #60a5fa); border-radius: 3px;">
-                    <p style="font-size: 9px; color: var(--blue-700, #1d4ed8); line-height: 1.3; margin: 0;">
-                        <strong>📋 Wajib:</strong> TD (dewasa) • <strong>🔄 Kondisional:</strong> HR (jantung/sesak/demam/anak) • RR (pernapasan/anak) • T (demam/infeksi) • BB+TB (anak/DM/hipertensi/terapi lama) • <strong>📝 Opsional:</strong> SpO₂ (ISPA/PPOK)
-                    </p>
+            {{-- SOAPIE Assessment Section --}}
+            <x-livewire-section title="📋 SOAPIE Assessment" subtitle="Subjective, Objective, Assessment, Plan, Intervention, Evaluation">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    {{-- Subjective --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="keluhan"
+                        placeholder="Keluhan pasien..."
+                        required>
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold mr-2">S</span>
+                            Subjective
+                        </x-slot>
+                    </x-livewire-field>
+
+                    {{-- Objective --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="pemeriksaan"
+                        placeholder="Hasil pemeriksaan..."
+                        required>
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold mr-2">O</span>
+                            Objective
+                        </x-slot>
+                    </x-livewire-field>
+
+                    {{-- Assessment --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="penilaian"
+                        placeholder="Diagnosis...">
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-orange-500 text-white rounded-full text-xs font-bold mr-2">A</span>
+                            Assessment
+                        </x-slot>
+                    </x-livewire-field>
+
+                    {{-- Plan --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="rtl"
+                        placeholder="Rencana pengobatan..."
+                        required>
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold mr-2">P</span>
+                            Plan
+                        </x-slot>
+                    </x-livewire-field>
+
+                    {{-- Intervention --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="instruksi"
+                        placeholder="Instruksi/tindakan...">
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-indigo-500 text-white rounded-full text-xs font-bold mr-2">I</span>
+                            Intervention
+                        </x-slot>
+                    </x-livewire-field>
+
+                    {{-- Evaluation --}}
+                    <x-livewire-field
+                        type="textarea"
+                        wire:model="evaluasi"
+                        placeholder="Evaluasi hasil...">
+                        <x-slot name="label">
+                            <span class="inline-flex items-center justify-center w-6 h-6 bg-teal-500 text-white rounded-full text-xs font-bold mr-2">E</span>
+                            Evaluation
+                        </x-slot>
+                    </x-livewire-field>
+
                 </div>
-                
-                <!-- Compact grid layout -->
-                <div class="ttv-grid-row1" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px;">
-                    <div>
-                        <label class="mobile-label" style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Suhu</label>
-                        <input type="number" step="0.1" wire:model="suhu_tubuh" placeholder="36.5"
-                               class="mobile-input" style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TD</label>
-                        <input type="text" wire:model="tensi" placeholder="Sistole: 40-250, Diastole: 30-180 mmHg"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Nadi</label>
-                        <input type="number" wire:model="nadi" placeholder="Isi antara 30 – 160 x/menit"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">RR</label>
-                        <input type="number" wire:model="respirasi" placeholder="Isi antara 5 – 70 x/menit"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">SPO2</label>
-                        <input type="number" min="0" max="100" wire:model="spo2" placeholder="98"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">TB</label>
-                        <input type="number" wire:model="tinggi" placeholder="Isi antara 30 – 250 cm"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                </div>
-                
-                <div class="ttv-grid-row2" style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr 1fr; gap: 8px;">
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">BB</label>
-                        <input type="number" step="0.1" wire:model="berat" placeholder="Isi antara 2 – 300 kg"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">GCS</label>
-                        <input type="text" wire:model="gcs" placeholder="E4V5M6"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">LP</label>
-                        <input type="number" step="0.1" wire:model="lingkar_perut" placeholder="85"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Kesadaran</label>
-                        <select wire:model="kesadaran" style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                            <option value="">Pilih</option>
-                            <option value="Compos Mentis">Compos Mentis</option>
-                            <option value="Apatis">Apatis</option>
-                            <option value="Somnolen">Somnolen</option>
-                            <option value="Sopor">Sopor</option>
-                            <option value="Koma">Koma</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 10px; font-weight: 500; color: var(--gray-600, #4b5563); margin-bottom: 2px;">Alergi</label>
-                        <input type="text" maxlength="50" wire:model="alergi" placeholder="Tidak ada"
-                               style="width: 100%; padding: 3px 6px; font-size: 12px; border: 1px solid var(--gray-300, #d1d5db); border-radius: 3px; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);">
-                    </div>
-                </div>
-            </div>
+            </x-livewire-section>
 
-            <!-- SOAPIE Requirements -->
-            <div style="margin-bottom: 12px; padding: 6px 10px; background-color: var(--green-50, #f0fdf4); border-left: 3px solid var(--green-400, #4ade80); border-radius: 3px;">
-                <p style="font-size: 9px; color: var(--green-700, #15803d); line-height: 1.3; margin: 0;">
-                    <strong>📋 Wajib:</strong> S (keluhan) + O (TTV + fisik) + A (diagnosis) + P (terapi/obat) • <strong>🔄 Kondisional:</strong> I (tindakan) • <strong>📝 Opsional:</strong> E (evaluasi)
-                </p>
-            </div>
-            
-            <!-- SOAPIE Grid - 3 Columns -->
-            <div class="soap-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                <!-- Column 1: Subjective & Objective -->
-                <div class="soap-column" style="space-y: 16px;">
-                    <!-- Subjective -->
-                    <div style="background: var(--success-50, #f0fdf4); padding: 16px; border: 1px solid var(--success-200, #bbf7d0); border-radius: 8px; border-left: 4px solid var(--success-500, #22c55e);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--success-700, #15803d); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--success-600, #16a34a); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">S</span>
-                            SUBJECTIVE (Keluhan Pasien)
-                        </h3>
-                        <textarea wire:model="keluhan" rows="8" 
-                                  placeholder="Tuliskan keluhan pasien (min. 4 karakter, kunjungan sakit, tahun ≥ 2024)"
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--success-300, #86efac); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('keluhan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Objective -->
-                    <div style="background: var(--primary-50, #eff6ff); padding: 16px; border: 1px solid var(--primary-200, #bfdbfe); border-radius: 8px; border-left: 4px solid var(--primary-500, #3b82f6);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--primary-700, #1d4ed8); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--primary-600, #2563eb); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">O</span>
-                            OBJECTIVE (Pemeriksaan Fisik)
-                        </h3>
-                        <textarea wire:model="pemeriksaan" rows="8"
-                                  placeholder="Tuliskan anamnesa lengkap (min. 10 karakter, kunjungan sakit, tahun ≥ 2024)"
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--primary-300, #93c5fd); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('pemeriksaan') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <!-- Column 2: Assessment & Plan -->
-                <div class="soap-column" style="space-y: 16px;">
-                    <!-- Assessment -->
-                    <div class="soap-section" style="background: var(--warning-50, #fefce8); padding: 16px; border: 1px solid var(--warning-200, #fde68a); border-radius: 8px; border-left: 4px solid var(--warning-500, #f59e0b);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--warning-700, #a16207); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--warning-600, #ca8a04); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">A</span>
-                            ASSESSMENT (Diagnosis)
-                        </h3>
-                        <textarea wire:model="penilaian" rows="8"
-                                  placeholder="Diagnosis kerja, diagnosis banding, interpretasi hasil pemeriksaan..."
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--warning-300, #fcd34d); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('penilaian') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Plan -->
-                    <div style="background: var(--info-50, #f0fdfa); padding: 16px; border: 1px solid var(--info-200, #a5f3fc); border-radius: 8px; border-left: 4px solid var(--info-500, #06b6d4);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--info-700, #0e7490); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--info-600, #0891b2); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">P</span>
-                            PLAN (Rencana Tindakan)
-                        </h3>
-                        <textarea wire:model="rtl" rows="8"
-                                  placeholder="Isi terapi obat / non-obat (min. 4 karakter, tahun ≥ 2024, status pulang = dirujuk)"
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--info-300, #67e8f9); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('rtl') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <!-- Column 3: Intervention & Evaluation -->
-                <div class="soap-column" style="space-y: 16px;">
-                    <!-- Intervention -->
-                    <div style="background: var(--danger-50, #fef2f2); padding: 16px; border: 1px solid var(--danger-200, #fecaca); border-radius: 8px; border-left: 4px solid var(--danger-500, #ef4444);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--danger-700, #b91c1c); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--danger-600, #dc2626); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">I</span>
-                            INTERVENTION (Tindakan yang Dilakukan)
-                        </h3>
-                        <textarea wire:model="instruksi" rows="8"
-                                  placeholder="Tindakan medis yang sudah dilakukan, prosedur, pemberian obat..."
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--danger-300, #fca5a5); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('instruksi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <!-- Evaluation -->
-                    <div style="background: var(--slate-50, #f8fafc); padding: 16px; border: 1px solid var(--slate-200, #e2e8f0); border-radius: 8px; border-left: 4px solid var(--slate-500, #64748b);">
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--slate-700, #334155); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                            <span style="background-color: var(--slate-600, #475569); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px;">E</span>
-                            EVALUATION (Evaluasi & Hasil)
-                        </h3>
-                        <textarea wire:model="evaluasi" rows="8"
-                                  placeholder="Evaluasi kondisi pasien, respons terhadap terapi, outcome..."
-                                  style="width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--slate-300, #cbd5e1); border-radius: 8px; resize: none; background-color: var(--white, #ffffff); color: var(--gray-900, #111827);"></textarea>
-                        @error('evaluasi') <span style="color: var(--danger-600, #dc2626); font-size: 12px;">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
+            {{-- Action Buttons --}}
+            <div class="livewire-button-group">
                 <x-filament::button type="button" color="gray" size="sm" wire:click="resetForm">
-                    Reset Form
+                    🔄 Reset Form
                 </x-filament::button>
-                <x-filament::button type="submit" size="sm">
-                    {{ $editingId ? 'Update SOAP' : 'Simpan SOAP' }}
-                </x-filament::button>
+
+                @if($editingId)
+                    <x-filament::button type="submit" size="sm" color="warning">
+                        ✏️ Update SOAP
+                    </x-filament::button>
+                @else
+                    <x-filament::button type="submit" size="sm">
+                        💾 Simpan SOAP
+                    </x-filament::button>
+                @endif
             </div>
-        </form>
+
+        </x-livewire-form>
     </x-filament::section>
 
-    <!-- History Section -->
-    @if(count($riwayatPemeriksaan) > 0)
-    <x-filament::section>
-        <x-slot name="heading">
-            Riwayat Pemeriksaan SOAP 
-            <small style="color: var(--gray-500, #6b7280); font-weight: normal;">
-                ({{ $totalRecords }} total data, menampilkan 2 terbaru)
-            </small>
-        </x-slot>
-        
-        <div style="space-y: 16px;">
-            @foreach($riwayatPemeriksaan as $pemeriksaan)
-            <div style="border: 1px solid {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-400, #60a5fa)' : 'var(--gray-200, #e5e7eb)' }}; border-radius: 8px; padding: 16px; background-color: {{ $editingId === $pemeriksaan['tgl_perawatan_raw'] . '-' . $pemeriksaan['jam_rawat_raw'] ? 'var(--primary-50, #eff6ff)' : 'var(--white, #ffffff)' }}; transition: box-shadow 0.2s;">
-                <!-- Header -->
-                <div class="history-header" style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100, #f3f4f6);">
-                    <!-- Date and Time Row -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-weight: 600; color: var(--primary-600, #2563eb); font-size: 14px;">
-                                {{ \Carbon\Carbon::parse($pemeriksaan['tgl_perawatan'])->format('d/m/Y') }}
-                            </span>
-                            <span style="font-size: 12px; color: var(--gray-500, #6b7280);">{{ $pemeriksaan['jam_rawat'] }}</span>
+    {{-- Debug Section --}}
+    <div class="mt-8 p-4 bg-yellow-100 border border-yellow-300 rounded-lg dark:bg-yellow-900 dark:border-yellow-600">
+        <h4 class="font-bold text-yellow-800 dark:text-yellow-200 mb-2">🔍 Debug Information</h4>
+        <ul class="text-sm space-y-1 text-yellow-700 dark:text-yellow-300">
+            <li>✅ Jika background ini kuning, Universal Livewire System bekerja</li>
+            <li>✅ Jika form responsive (kolom berubah di mobile), grid bekerja</li>
+            <li>✅ Jika input fields berubah background saat dark mode, theme switching bekerja</li>
+            <li class="font-semibold text-green-600 dark:text-green-300">
+                🌙 Dark Mode Status: <span x-text="darkMode ? 'AKTIF' : 'TIDAK AKTIF'"></span>
+            </li>
+            <li class="text-xs opacity-75">
+                📱 Vite Dev Server: <span class="font-mono">http://localhost:5175</span>
+            </li>
+            <li class="text-xs opacity-75">
+                ⚡ Universal System: <span class="font-mono">@once Vite loading</span>
+            </li>
+        </ul>
+    </div>
+
+    {{-- History Section --}}
+    @if(count($riwayatPemeriksaan ?? []) > 0)
+        <x-filament::section class="mt-6">
+            <x-slot name="heading">
+                📋 Riwayat Pemeriksaan ({{ count($riwayatPemeriksaan) }} records)
+            </x-slot>
+
+            <div class="space-y-3">
+                @foreach($riwayatPemeriksaan as $item)
+                    <div class="livewire-card">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex gap-4 items-center text-sm">
+                                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                                    📅 {{ \Carbon\Carbon::parse($item['tgl_perawatan'])->format('d/m/Y') }}
+                                </span>
+                                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                                    🕐 {{ substr($item['jam_rawat'], 0, 5) }}
+                                </span>
+                            </div>
+
+                            @if($isAdmin || $item['nip'] === auth()->user()->pegawai->nik ?? auth()->user()->username)
+                                <button type="button"
+                                        wire:click="editPemeriksaan('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}')"
+                                        class="px-3 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 text-sm">
+                                    ✏️ Edit
+                                </button>
+                            @endif
                         </div>
-                        <x-filament::button type="button" color="primary" size="xs" 
-                                            wire:click="editPemeriksaan('{{ $pemeriksaan['tgl_perawatan_raw'] }}', '{{ $pemeriksaan['jam_rawat_raw'] }}')"
-                                            wire:loading.attr="disabled"
-                                            style="flex-shrink: 0;">
-                            <span wire:loading.remove wire:target="editPemeriksaan">Edit</span>
-                            <span wire:loading wire:target="editPemeriksaan">Loading...</span>
-                        </x-filament::button>
-                    </div>
-                    <!-- Staff Name Row -->
-                    @if($pemeriksaan['petugas'])
-                    <div style="display: flex; align-items: center;">
-                        <span style="font-size: 11px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-700, #374151); padding: 3px 6px; border-radius: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            👨‍⚕️ {{ $pemeriksaan['petugas']['nama'] ?? $pemeriksaan['nip'] }}
-                        </span>
-                    </div>
-                    @endif
-                </div>
 
-                <!-- Vital Signs (TTV) Rows -->
-                @if($pemeriksaan['suhu_tubuh'] || $pemeriksaan['tensi'] || $pemeriksaan['nadi'] || $pemeriksaan['respirasi'] || $pemeriksaan['spo2'] || $pemeriksaan['tinggi'] || $pemeriksaan['berat'] || $pemeriksaan['gcs'] || $pemeriksaan['kesadaran'] || $pemeriksaan['lingkar_perut'])
-                <div style="margin-bottom: 12px; padding: 8px; background-color: var(--gray-50, #f9fafb); border: 1px solid var(--gray-200, #e5e7eb); border-radius: 6px;">
-                    <h4 style="font-weight: 600; color: var(--gray-700, #374151); margin-bottom: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
-                        <span style="background-color: var(--red-600, #dc2626); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">TTV</span>
-                        Tanda Vital
-                    </h4>
-                    
-                    <!-- Compact Vitals in Single Row -->
-                    <div class="ttv-badges" style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px;">
-                        @if($pemeriksaan['suhu_tubuh'])
-                        <span style="padding: 4px 8px; background-color: var(--red-50, #fef2f2); color: var(--red-700, #b91c1c); border: 1px solid var(--red-200, #fecaca); border-radius: 4px; font-weight: 600;">
-                            SUHU: {{ $pemeriksaan['suhu_tubuh'] }}°C
-                        </span>
-                        @endif
-                        @if($pemeriksaan['tensi'])
-                        <span style="padding: 4px 8px; background-color: var(--blue-50, #eff6ff); color: var(--blue-700, #1d4ed8); border: 1px solid var(--blue-200, #bfdbfe); border-radius: 4px; font-weight: 600;">
-                            TD: {{ $pemeriksaan['tensi'] }}
-                        </span>
-                        @endif
-                        @if($pemeriksaan['nadi'])
-                        <span style="padding: 4px 8px; background-color: var(--green-50, #f0fdf4); color: var(--green-700, #15803d); border: 1px solid var(--green-200, #bbf7d0); border-radius: 4px; font-weight: 600;">
-                            N: {{ $pemeriksaan['nadi'] }}/min
-                        </span>
-                        @endif
-                        @if($pemeriksaan['respirasi'])
-                        <span style="padding: 4px 8px; background-color: var(--purple-50, #faf5ff); color: var(--purple-700, #7c3aed); border: 1px solid var(--purple-200, #e9d5ff); border-radius: 4px; font-weight: 600;">
-                            RR: {{ $pemeriksaan['respirasi'] }}/min
-                        </span>
-                        @endif
-                        @if($pemeriksaan['spo2'])
-                        <span style="padding: 4px 8px; background-color: var(--cyan-50, #ecfeff); color: var(--cyan-700, #0e7490); border: 1px solid var(--cyan-200, #a5f3fc); border-radius: 4px; font-weight: 600;">
-                            SPO2: {{ $pemeriksaan['spo2'] }}%
-                        </span>
-                        @endif
-                        @if($pemeriksaan['tinggi'])
-                        <span style="padding: 4px 8px; background-color: var(--orange-50, #fff7ed); color: var(--orange-700, #c2410c); border: 1px solid var(--orange-200, #fed7aa); border-radius: 4px; font-weight: 600;">
-                            TB: {{ $pemeriksaan['tinggi'] }}cm
-                        </span>
-                        @endif
-                        @if($pemeriksaan['berat'])
-                        <span style="padding: 4px 8px; background-color: var(--yellow-50, #fefce8); color: var(--yellow-700, #a16207); border: 1px solid var(--yellow-200, #fde047); border-radius: 4px; font-weight: 600;">
-                            BB: {{ $pemeriksaan['berat'] }}kg
-                        </span>
-                        @endif
-                        @if($pemeriksaan['gcs'])
-                        <span style="padding: 4px 8px; background-color: var(--indigo-50, #eef2ff); color: var(--indigo-700, #4338ca); border: 1px solid var(--indigo-200, #c7d2fe); border-radius: 4px; font-weight: 600;">
-                            GCS: {{ $pemeriksaan['gcs'] }}
-                        </span>
-                        @endif
-                        @if($pemeriksaan['lingkar_perut'])
-                        <span style="padding: 4px 8px; background-color: var(--pink-50, #fdf2f8); color: var(--pink-700, #be185d); border: 1px solid var(--pink-200, #fbcfe8); border-radius: 4px; font-weight: 600;">
-                            LP: {{ $pemeriksaan['lingkar_perut'] }}cm
-                        </span>
-                        @endif
-                        @if($pemeriksaan['kesadaran'])
-                        <span style="padding: 4px 8px; background-color: var(--gray-100, #f3f4f6); color: var(--gray-800, #1f2937); border: 1px solid var(--gray-300, #d1d5db); border-radius: 4px; font-weight: 600;">
-                            Kesadaran: {{ $pemeriksaan['kesadaran'] }}
-                        </span>
-                        @endif
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                            <div>
+                                <strong class="text-green-600">S:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['keluhan'] }}</p>
+                            </div>
+                            <div>
+                                <strong class="text-blue-600">O:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['pemeriksaan'] }}</p>
+                            </div>
+                            <div>
+                                <strong class="text-orange-600">A:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['penilaian'] ?: '-' }}</p>
+                            </div>
+                            <div>
+                                <strong class="text-purple-600">P:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['rtl'] }}</p>
+                            </div>
+                            <div>
+                                <strong class="text-indigo-600">I:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['instruksi'] ?: '-' }}</p>
+                            </div>
+                            <div>
+                                <strong class="text-teal-600">E:</strong>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $item['evaluasi'] ?: '-' }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                @endif
-
-                <!-- SOAP Content Grid -->
-                <div class="history-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
-                    @if($pemeriksaan['keluhan'])
-                    <div style="background-color: var(--success-50, #f0fdf4); padding: 12px; border-radius: 6px; border-left: 4px solid var(--success-400, #4ade80);">
-                        <h4 style="font-weight: 600; color: var(--success-800, #166534); margin-bottom: 4px;">S - Subjective</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['keluhan'], 100) }}</p>
-                    </div>
-                    @endif
-
-                    @if($pemeriksaan['pemeriksaan'])
-                    <div style="background-color: var(--primary-50, #eff6ff); padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary-400, #60a5fa);">
-                        <h4 style="font-weight: 600; color: var(--primary-800, #1e40af); margin-bottom: 4px;">O - Objective</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['pemeriksaan'], 100) }}</p>
-                    </div>
-                    @endif
-
-                    @if($pemeriksaan['penilaian'])
-                    <div style="background-color: var(--warning-50, #fefce8); padding: 12px; border-radius: 6px; border-left: 4px solid var(--warning-400, #facc15);">
-                        <h4 style="font-weight: 600; color: var(--warning-800, #92400e); margin-bottom: 4px;">A - Assessment</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['penilaian'], 100) }}</p>
-                    </div>
-                    @endif
-
-                    @if($pemeriksaan['rtl'])
-                    <div style="background-color: var(--info-50, #f0fdfa); padding: 12px; border-radius: 6px; border-left: 4px solid var(--info-400, #22d3ee);">
-                        <h4 style="font-weight: 600; color: var(--info-800, #155e75); margin-bottom: 4px;">P - Plan</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['rtl'], 100) }}</p>
-                    </div>
-                    @endif
-
-                    @if($pemeriksaan['instruksi'])
-                    <div style="background-color: var(--danger-50, #fef2f2); padding: 12px; border-radius: 6px; border-left: 4px solid var(--danger-400, #f87171);">
-                        <h4 style="font-weight: 600; color: var(--danger-800, #991b1b); margin-bottom: 4px;">I - Intervention</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['instruksi'], 100) }}</p>
-                    </div>
-                    @endif
-
-                    @if($pemeriksaan['evaluasi'])
-                    <div style="background-color: var(--slate-50, #f8fafc); padding: 12px; border-radius: 6px; border-left: 4px solid var(--slate-400, #94a3b8);">
-                        <h4 style="font-weight: 600; color: var(--slate-800, #1e293b); margin-bottom: 4px;">E - Evaluation</h4>
-                        <p style="color: var(--gray-700, #374151); font-size: 12px;">{{ Str::limit($pemeriksaan['evaluasi'], 100) }}</p>
-                    </div>
-                    @endif
-                </div>
-
-                @if($pemeriksaan['alergi'])
-                <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--gray-100, #f3f4f6);">
-                    <span style="font-size: 12px; color: var(--danger-600, #dc2626); background-color: var(--danger-100, #fee2e2); padding: 4px 8px; border-radius: 4px;">⚠️ Alergi: {{ $pemeriksaan['alergi'] }}</span>
-                </div>
-                @endif
+                @endforeach
             </div>
-            @endforeach
-        </div>
-        
-        <!-- Info Footer -->
-        @if($totalRecords > 2)
-        <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-200, #e5e7eb);">
-            <span style="color: var(--gray-500, #6b7280); font-size: 12px; font-style: italic;">
-                * Menampilkan 2 riwayat terbaru dari total {{ $totalRecords }} data pemeriksaan
-            </span>
-        </div>
-        @endif
-    </x-filament::section>
+        </x-filament::section>
     @endif
-</div>
+
+</x-livewire-layout>

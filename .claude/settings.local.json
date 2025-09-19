@@ -53,7 +53,10 @@
       "Bash(npm run:*)",
       "Bash(sed:*)",
       "Bash(taskkill:*)",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": [],

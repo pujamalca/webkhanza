@@ -68,3 +68,8 @@ Route::get('/storage/{path}', function ($path) {
     ]);
 })->where('path', '.*')->name('storage.files');
 
+// Test route for Livewire component debugging
+Route::get('/test-soap', function () {
+    return view('test-soap');
+})->name('test-soap');
+

@@ -24,19 +24,19 @@ class PemeriksaanRalanForm extends Component
     #[Validate('nullable')]
     public $tensi;
     
-    #[Validate('nullable|numeric|min:30|max:160')]
+    #[Validate('required|numeric|min:30|max:160')]
     public $nadi;
     
-    #[Validate('nullable|numeric|min:5|max:70')]
+    #[Validate('required|numeric|min:5|max:70')]
     public $respirasi;
     
     #[Validate('nullable|numeric|min:0|max:100')]
     public $spo2;
     
-    #[Validate('nullable|numeric|min:30|max:250')]
+    #[Validate('required|numeric|min:30|max:250')]
     public $tinggi;
     
-    #[Validate('nullable|numeric|min:2|max:300')]
+    #[Validate('required|numeric|min:2|max:300')]
     public $berat;
     
     #[Validate('nullable')]
@@ -108,9 +108,6 @@ class PemeriksaanRalanForm extends Component
         
         $this->resetForm();
         $this->loadRiwayat();
-        
-        // Set default kesadaran value
-        $this->kesadaran = 'Compos Mentis';
     }
     
     public function simpanPemeriksaan()
@@ -127,20 +124,20 @@ class PemeriksaanRalanForm extends Component
             'no_rawat' => $this->noRawat,
             'tgl_perawatan' => $this->tgl_perawatan,
             'jam_rawat' => $this->jam_rawat,
-            'suhu_tubuh' => $this->suhu_tubuh ?: null,
-            'tensi' => $this->tensi ?: null,
-            'nadi' => $this->nadi ?: null,
-            'respirasi' => $this->respirasi ?: null,
-            'spo2' => $this->spo2 ?: null,
-            'tinggi' => $this->tinggi ?: null,
-            'berat' => $this->berat ?: null,
-            'gcs' => $this->gcs ?: null,
-            'kesadaran' => $this->kesadaran ?: 'Compos Mentis',
+            'suhu_tubuh' => $this->suhu_tubuh,
+            'tensi' => $this->tensi,
+            'nadi' => $this->nadi,
+            'respirasi' => $this->respirasi,
+            'spo2' => $this->spo2,
+            'tinggi' => $this->tinggi,
+            'berat' => $this->berat,
+            'gcs' => $this->gcs,
+            'kesadaran' => $this->kesadaran,
             'keluhan' => $this->keluhan,
             'pemeriksaan' => $this->pemeriksaan,
             'penilaian' => $this->penilaian,
             'alergi' => $this->alergi,
-            'lingkar_perut' => $this->lingkar_perut ?: null,
+            'lingkar_perut' => $this->lingkar_perut,
             'rtl' => $this->rtl,
             'instruksi' => $this->instruksi,
             'evaluasi' => $this->evaluasi,
@@ -195,7 +192,7 @@ class PemeriksaanRalanForm extends Component
         $this->tinggi = '';
         $this->berat = '';
         $this->gcs = '';
-        $this->kesadaran = 'Compos Mentis';
+        $this->kesadaran = '';
         $this->keluhan = '';
         $this->pemeriksaan = '';
         $this->penilaian = '';
