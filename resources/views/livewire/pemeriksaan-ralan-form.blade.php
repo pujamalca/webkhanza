@@ -127,8 +127,21 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Kesadaran</label>
-                                <input type="text" wire:model="kesadaran" placeholder="Compos Mentis"
-                                       x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
+                                <select wire:model="kesadaran"
+                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'">
+                                    <option value="">Pilih Kesadaran...</option>
+                                    <option value="Compos Mentis">Compos Mentis</option>
+                                    <option value="Somnolence">Somnolence</option>
+                                    <option value="Sopor">Sopor</option>
+                                    <option value="Coma">Coma</option>
+                                    <option value="Alert">Alert</option>
+                                    <option value="Confusion">Confusion</option>
+                                    <option value="Voice">Voice</option>
+                                    <option value="Pain">Pain</option>
+                                    <option value="Unresponsive">Unresponsive</option>
+                                    <option value="Apatis">Apatis</option>
+                                    <option value="Delirium">Delirium</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Alergi</label>
