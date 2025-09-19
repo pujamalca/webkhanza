@@ -12,6 +12,7 @@ use Livewire\Attributes\Validate;
 class PemeriksaanRalanForm extends Component
 {
     public string $noRawat;
+    public string $noRkmMedis;
     
     #[Validate('required|date')]
     public $tgl_perawatan;
@@ -82,7 +83,12 @@ class PemeriksaanRalanForm extends Component
     
     // Display limit
     public $perPage = 2;
-    
+
+    // History pagination
+    public $historyPage = 1;
+    public $historyPerPage = 2;
+    public $totalHistory = 0;
+
     // Pegawai list
     public $pegawaiList = [];
     public $isAdmin = false;
@@ -120,6 +126,19 @@ class PemeriksaanRalanForm extends Component
             'class' => get_class($this)
         ]);
         $this->noRawat = $noRawat;
+
+        // Get no_rkm_medis from reg_periksa for this no_rawat
+        $regPeriksa = \DB::table('reg_periksa')
+            ->where('no_rawat', $noRawat)
+            ->select('no_rkm_medis')
+            ->first();
+
+        if ($regPeriksa) {
+            $this->noRkmMedis = $regPeriksa->no_rkm_medis;
+        } else {
+            // Fallback if no reg_periksa found
+            $this->noRkmMedis = '';
+        }
         
         // Check if user is admin
         $this->isAdmin = auth()->user()->hasRole('super_admin') || auth()->user()->hasPermissionTo('manage_all_examinations');
@@ -225,7 +244,7 @@ class PemeriksaanRalanForm extends Component
         $this->tinggi = '';
         $this->berat = '';
         $this->gcs = '';
-        $this->kesadaran = '';
+        $this->kesadaran = 'Compos Mentis';
         $this->keluhan = '';
         $this->pemeriksaan = '';
         $this->penilaian = '';
@@ -310,16 +329,36 @@ class PemeriksaanRalanForm extends Component
     
     public function loadRiwayat(): void
     {
-        $totalQuery = PemeriksaanRalan::where('no_rawat', $this->noRawat);
-        $this->totalRecords = $totalQuery->count();
-        
-        $data = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+        if (empty($this->noRkmMedis)) {
+            $this->riwayatPemeriksaan = [];
+            $this->totalHistory = 0;
+            return;
+        }
+
+        // Get all no_rawat for this patient (no_rkm_medis)
+        $noRawatList = \DB::table('reg_periksa')
+            ->where('no_rkm_medis', $this->noRkmMedis)
+            ->pluck('no_rawat')
+            ->toArray();
+
+        if (empty($noRawatList)) {
+            $this->riwayatPemeriksaan = [];
+            $this->totalHistory = 0;
+            return;
+        }
+
+        // Count total examinations for this patient
+        $this->totalHistory = PemeriksaanRalan::whereIn('no_rawat', $noRawatList)->count();
+
+        // Get paginated examination data for all visits of this patient
+        $data = PemeriksaanRalan::whereIn('no_rawat', $noRawatList)
             ->with(['petugas:nik,nama'])
             ->orderBy('tgl_perawatan', 'desc')
             ->orderBy('jam_rawat', 'desc')
-            ->limit($this->perPage)
+            ->skip(($this->historyPage - 1) * $this->historyPerPage)
+            ->take($this->historyPerPage)
             ->get();
-            
+
         $this->riwayatPemeriksaan = $data->map(function($item) {
             $array = $item->toArray();
             // Keep raw values for edit function - use raw database values
@@ -387,6 +426,33 @@ class PemeriksaanRalanForm extends Component
         if ($page >= 1 && $page <= $maxPage) {
             $this->templatePage = $page;
             $this->loadTemplates();
+        }
+    }
+
+    // History pagination methods
+    public function nextHistoryPage()
+    {
+        $maxPage = ceil($this->totalHistory / $this->historyPerPage);
+        if ($this->historyPage < $maxPage) {
+            $this->historyPage++;
+            $this->loadRiwayat();
+        }
+    }
+
+    public function previousHistoryPage()
+    {
+        if ($this->historyPage > 1) {
+            $this->historyPage--;
+            $this->loadRiwayat();
+        }
+    }
+
+    public function goToHistoryPage($page)
+    {
+        $maxPage = ceil($this->totalHistory / $this->historyPerPage);
+        if ($page >= 1 && $page <= $maxPage) {
+            $this->historyPage = $page;
+            $this->loadRiwayat();
         }
     }
 
@@ -533,8 +599,31 @@ class PemeriksaanRalanForm extends Component
 
     public function fillTTVFromPrevious()
     {
-        // Get the latest examination data for this patient (excluding current form if editing)
-        $query = PemeriksaanRalan::where('no_rawat', $this->noRawat)
+        if (empty($this->noRkmMedis)) {
+            Notification::make()
+                ->title('Error: No patient data found')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        // Get all no_rawat for this patient
+        $noRawatList = \DB::table('reg_periksa')
+            ->where('no_rkm_medis', $this->noRkmMedis)
+            ->pluck('no_rawat')
+            ->toArray();
+
+        if (empty($noRawatList)) {
+            Notification::make()
+                ->title('Tidak ada data TTV sebelumnya')
+                ->body('Belum ada pemeriksaan sebelumnya untuk pasien ini')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        // Get the latest examination data for this patient from all visits (excluding current form if editing)
+        $query = PemeriksaanRalan::whereIn('no_rawat', $noRawatList)
             ->orderBy('tgl_perawatan', 'desc')
             ->orderBy('jam_rawat', 'desc');
 

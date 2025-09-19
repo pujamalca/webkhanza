@@ -271,7 +271,15 @@
             @if(count($riwayatPemeriksaan ?? []) > 0)
                 <div class="mt-4 sm:mt-6 rounded-lg shadow p-3 sm:p-6"
                      x-bind:class="darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'">
-                    <h3 class="text-base sm:text-lg font-medium mb-3 sm:mb-4" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">📋 Riwayat Pemeriksaan ({{ count($riwayatPemeriksaan) }} records)</h3>
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 gap-2">
+                        <h3 class="text-base sm:text-lg font-medium" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">📋 Riwayat Pemeriksaan Pasien</h3>
+                        <div class="text-sm" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-600'">
+                            Menampilkan {{ count($riwayatPemeriksaan) }} dari {{ $totalHistory }} record
+                            @if($totalHistory > $historyPerPage)
+                                - Halaman {{ $historyPage }} dari {{ ceil($totalHistory / $historyPerPage) }}
+                            @endif
+                        </div>
+                    </div>
 
                     <div class="space-y-3 sm:space-y-4">
                         @foreach($riwayatPemeriksaan as $item)
@@ -284,6 +292,9 @@
                                         </span>
                                         <span class="font-semibold" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">
                                             🕐 {{ substr($item['jam_rawat'], 0, 5) }}
+                                        </span>
+                                        <span class="font-medium px-2 py-1 rounded text-xs" x-bind:class="darkMode ? 'bg-blue-900 text-blue-200 border border-blue-700' : 'bg-blue-100 text-blue-800 border border-blue-200'">
+                                            📋 {{ $item['no_rawat'] }}
                                         </span>
                                     </div>
 
@@ -396,6 +407,51 @@
                             </div>
                         @endforeach
                     </div>
+
+                    {{-- History Pagination Controls --}}
+                    @if($totalHistory > $historyPerPage)
+                        <div class="flex justify-center items-center gap-2 mt-6">
+                            {{-- Previous Button --}}
+                            <button
+                                wire:click="previousHistoryPage"
+                                {{ $historyPage <= 1 ? 'disabled' : '' }}
+                                class="px-3 py-2 rounded-md border text-sm font-medium transition-colors {{ $historyPage <= 1 ? 'cursor-not-allowed' : '' }}"
+                                x-bind:class="darkMode ?
+                                    '{{ $historyPage <= 1 ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                    '{{ $historyPage <= 1 ? 'bg-gray-100 border-gray-300 text-gray-400' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                ← Sebelumnya
+                            </button>
+
+                            {{-- Page Numbers --}}
+                            @php
+                                $maxHistoryPage = ceil($totalHistory / $historyPerPage);
+                                $startHistoryPage = max(1, $historyPage - 2);
+                                $endHistoryPage = min($maxHistoryPage, $historyPage + 2);
+                            @endphp
+
+                            @for($i = $startHistoryPage; $i <= $endHistoryPage; $i++)
+                                <button
+                                    wire:click="goToHistoryPage({{ $i }})"
+                                    class="px-3 py-2 rounded-md border text-sm font-medium transition-colors"
+                                    x-bind:class="darkMode ?
+                                        '{{ $i == $historyPage ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                        '{{ $i == $historyPage ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                    {{ $i }}
+                                </button>
+                            @endfor
+
+                            {{-- Next Button --}}
+                            <button
+                                wire:click="nextHistoryPage"
+                                {{ $historyPage >= $maxHistoryPage ? 'disabled' : '' }}
+                                class="px-3 py-2 rounded-md border text-sm font-medium transition-colors {{ $historyPage >= $maxHistoryPage ? 'cursor-not-allowed' : '' }}"
+                                x-bind:class="darkMode ?
+                                    '{{ $historyPage >= ceil($totalHistory / $historyPerPage) ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                    '{{ $historyPage >= ceil($totalHistory / $historyPerPage) ? 'bg-gray-100 border-gray-300 text-gray-400' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    @endif
                 </div>
             @endif
 
