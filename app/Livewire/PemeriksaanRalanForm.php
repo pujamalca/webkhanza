@@ -94,6 +94,11 @@ class PemeriksaanRalanForm extends Component
     public $saveToTemplate = false;
     public $showCreateTemplate = false;
 
+    // Template pagination
+    public $templatePage = 1;
+    public $templatePerPage = 5;
+    public $totalTemplates = 0;
+
     // New template fields
     public $newTemplateName = '';
     public $newTemplateCategory = '';
@@ -331,9 +336,17 @@ class PemeriksaanRalanForm extends Component
     {
         $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
 
-        $this->soapieTemplates = SoapieTemplate::forUser($currentNip)
+        $query = SoapieTemplate::forUser($currentNip)
             ->orderBy('is_public', 'asc')
-            ->orderBy('nama_template', 'asc')
+            ->orderBy('nama_template', 'asc');
+
+        // Get total count
+        $this->totalTemplates = $query->count();
+
+        // Get paginated data
+        $this->soapieTemplates = $query
+            ->skip(($this->templatePage - 1) * $this->templatePerPage)
+            ->take($this->templatePerPage)
             ->get()
             ->toArray();
     }
@@ -348,6 +361,33 @@ class PemeriksaanRalanForm extends Component
     {
         $this->showTemplateModal = false;
         $this->selectedTemplate = null;
+        $this->templatePage = 1; // Reset pagination when closing modal
+    }
+
+    public function nextTemplatePage()
+    {
+        $maxPage = ceil($this->totalTemplates / $this->templatePerPage);
+        if ($this->templatePage < $maxPage) {
+            $this->templatePage++;
+            $this->loadTemplates();
+        }
+    }
+
+    public function previousTemplatePage()
+    {
+        if ($this->templatePage > 1) {
+            $this->templatePage--;
+            $this->loadTemplates();
+        }
+    }
+
+    public function goToTemplatePage($page)
+    {
+        $maxPage = ceil($this->totalTemplates / $this->templatePerPage);
+        if ($page >= 1 && $page <= $maxPage) {
+            $this->templatePage = $page;
+            $this->loadTemplates();
+        }
     }
 
     public function applyTemplate($templateId)

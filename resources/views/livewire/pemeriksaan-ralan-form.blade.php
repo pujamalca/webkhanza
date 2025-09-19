@@ -555,6 +555,16 @@
                     @endif
 
                     @if(count($soapieTemplates) > 0)
+                        {{-- Pagination Info --}}
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-sm" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-600'">
+                                Menampilkan {{ count($soapieTemplates) }} dari {{ $totalTemplates }} template
+                            </p>
+                            <div class="text-sm" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-600'">
+                                Halaman {{ $templatePage }} dari {{ ceil($totalTemplates / $templatePerPage) }}
+                            </div>
+                        </div>
+
                         <div class="grid gap-4">
                             @foreach($soapieTemplates as $template)
                                 <div class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
@@ -639,6 +649,51 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- Pagination Controls --}}
+                        @if($totalTemplates > $templatePerPage)
+                            <div class="flex justify-center items-center gap-2 mt-6">
+                                {{-- Previous Button --}}
+                                <button
+                                    wire:click="previousTemplatePage"
+                                    {{ $templatePage <= 1 ? 'disabled' : '' }}
+                                    class="px-3 py-2 rounded-md border text-sm font-medium transition-colors {{ $templatePage <= 1 ? 'cursor-not-allowed' : '' }}"
+                                    x-bind:class="darkMode ?
+                                        '{{ $templatePage <= 1 ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                        '{{ $templatePage <= 1 ? 'bg-gray-100 border-gray-300 text-gray-400' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                    ← Sebelumnya
+                                </button>
+
+                                {{-- Page Numbers --}}
+                                @php
+                                    $maxPage = ceil($totalTemplates / $templatePerPage);
+                                    $startPage = max(1, $templatePage - 2);
+                                    $endPage = min($maxPage, $templatePage + 2);
+                                @endphp
+
+                                @for($i = $startPage; $i <= $endPage; $i++)
+                                    <button
+                                        wire:click="goToTemplatePage({{ $i }})"
+                                        class="px-3 py-2 rounded-md border text-sm font-medium transition-colors"
+                                        x-bind:class="darkMode ?
+                                            '{{ $i == $templatePage ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                            '{{ $i == $templatePage ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
+
+                                {{-- Next Button --}}
+                                <button
+                                    wire:click="nextTemplatePage"
+                                    {{ $templatePage >= $maxPage ? 'disabled' : '' }}
+                                    class="px-3 py-2 rounded-md border text-sm font-medium transition-colors {{ $templatePage >= $maxPage ? 'cursor-not-allowed' : '' }}"
+                                    x-bind:class="darkMode ?
+                                        '{{ $templatePage >= ceil($totalTemplates / $templatePerPage) ? 'bg-gray-700 border-gray-600 text-gray-500' : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' }}' :
+                                        '{{ $templatePage >= ceil($totalTemplates / $templatePerPage) ? 'bg-gray-100 border-gray-300 text-gray-400' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }}'">
+                                    Selanjutnya →
+                                </button>
+                            </div>
+                        @endif
                     @else
                         <div class="text-center py-8">
                             <div class="text-gray-400 mb-4">
