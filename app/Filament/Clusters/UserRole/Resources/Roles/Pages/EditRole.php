@@ -107,6 +107,8 @@ class EditRole extends EditRecord
             $websiteIds = Permission::where('name', 'like', 'website_management_%')
                 ->orWhere('name', 'like', '%website_identity')
                 ->orWhere('name', 'like', 'blog_%')
+                ->orWhere('name', 'like', '%blog')
+                ->orWhere('name', 'like', '%blog_%')
                 ->orWhere('name', '=', 'activity_logs_view')
                 ->pluck('id')->toArray();
             $data['website_permissions'] = array_values(array_intersect($permissionIds, $websiteIds));

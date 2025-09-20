@@ -316,17 +316,19 @@ class RoleForm
                                 return Permission::where('name', 'like', 'website_management_%')
                                     ->orWhere('name', 'like', '%website_identity')
                                     ->orWhere('name', 'like', 'blog_%')
+                                    ->orWhere('name', 'like', '%blog')
+                                    ->orWhere('name', 'like', '%blog_%')
                                     ->orWhere('name', '=', 'activity_logs_view')
                                     ->pluck('name', 'id')
                                     ->map(function ($name) {
                                         return match($name) {
                                             'website_management_access' => '🌐 Website Management - Akses ke website management',
-                                            
+
                                             'view_any_website_identity' => '👁️ Identitas Website - Lihat daftar identitas',
                                             'view_website_identity' => '👁️ Identitas Website - Lihat detail identitas',
                                             'create_website_identity' => '➕ Identitas Website - Buat identitas baru',
                                             'update_website_identity' => '✏️ Identitas Website - Update identitas',
-                                            
+
                                             'blog_management_access' => '📝 Blog Management - Akses ke blog management',
                                             'view_any_blog' => '👁️ Blog - Lihat daftar blog',
                                             'view_blog' => '👁️ Blog - Lihat detail blog',
@@ -334,21 +336,21 @@ class RoleForm
                                             'update_blog' => '✏️ Blog - Update blog',
                                             'delete_blog' => '🗑️ Blog - Hapus blog',
                                             'publish_blog' => '🚀 Blog - Publish blog',
-                                            
+
                                             'view_any_blog_category' => '👁️ Kategori Blog - Lihat daftar kategori',
                                             'view_blog_category' => '👁️ Kategori Blog - Lihat detail kategori',
                                             'create_blog_category' => '➕ Kategori Blog - Buat kategori baru',
                                             'update_blog_category' => '✏️ Kategori Blog - Update kategori',
                                             'delete_blog_category' => '🗑️ Kategori Blog - Hapus kategori',
-                                            
+
                                             'view_any_blog_tag' => '👁️ Tag Blog - Lihat daftar tag',
                                             'view_blog_tag' => '👁️ Tag Blog - Lihat detail tag',
                                             'create_blog_tag' => '➕ Tag Blog - Buat tag baru',
                                             'update_blog_tag' => '✏️ Tag Blog - Update tag',
                                             'delete_blog_tag' => '🗑️ Tag Blog - Hapus tag',
-                                            
+
                                             'activity_logs_view' => '📋 Activity Logs - Lihat log aktivitas sistem',
-                                            
+
                                             default => $name
                                         };
                                     })->toArray();
