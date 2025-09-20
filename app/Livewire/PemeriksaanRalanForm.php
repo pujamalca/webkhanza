@@ -222,9 +222,7 @@ class PemeriksaanRalanForm extends Component
 
                 if ($updated) {
                     $message = 'Pemeriksaan SOAP berhasil diupdate';
-                    if ($this->originalNoRawat !== $this->noRawat) {
-                        $message .= ' dan dipindahkan ke kunjungan saat ini';
-                    }
+                    // Note: data will keep the current no_rawat from the examination being edited
                 } else {
                     // If no rows updated, create new record
                     PemeriksaanRalan::create($data);
@@ -347,6 +345,35 @@ class PemeriksaanRalanForm extends Component
                 $this->originalNoRawat = $rawAttrs['no_rawat'];
                 $this->originalTglPerawatan = $rawAttrs['tgl_perawatan'];
                 $this->originalJamRawat = $rawAttrs['jam_rawat'];
+
+                // Update current no_rawat and patient data for editing
+                $this->noRawat = $rawAttrs['no_rawat'];
+
+                // Load patient data for the examination being edited
+                $regPeriksa = \DB::table('reg_periksa')
+                    ->leftJoin('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+                    ->where('reg_periksa.no_rawat', $rawAttrs['no_rawat'])
+                    ->select(
+                        'reg_periksa.no_rkm_medis',
+                        'pasien.nm_pasien',
+                        'pasien.jk',
+                        'pasien.umur',
+                        'pasien.tgl_lahir',
+                        'pasien.alamat'
+                    )
+                    ->first();
+
+                if ($regPeriksa) {
+                    $this->noRkmMedis = $regPeriksa->no_rkm_medis;
+                    $this->patientData = [
+                        'no_rkm_medis' => $regPeriksa->no_rkm_medis,
+                        'nama' => $regPeriksa->nm_pasien,
+                        'jk' => $regPeriksa->jk === 'L' ? 'Laki-laki' : 'Perempuan',
+                        'umur' => $regPeriksa->umur,
+                        'tgl_lahir' => $regPeriksa->tgl_lahir,
+                        'alamat' => $regPeriksa->alamat
+                    ];
+                }
 
                 $this->editingId = $rawAttrs['tgl_perawatan'] . '-' . $rawAttrs['jam_rawat'] . '-' . $rawAttrs['no_rawat'];
                 $this->tgl_perawatan = $rawAttrs['tgl_perawatan'];
