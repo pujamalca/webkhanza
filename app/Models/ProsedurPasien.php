@@ -2,43 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
-class DiagnosaPasien extends Model
+class ProsedurPasien extends Model
 {
-    use HasFactory, LogsActivity;
-
-    protected $table = 'diagnosa_pasien';
-    protected $primaryKey = ['no_rawat', 'kd_penyakit'];
+    protected $table = 'prosedur_pasien';
+    protected $primaryKey = ['no_rawat', 'kode'];
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';
 
     protected $fillable = [
         'no_rawat',
-        'kd_penyakit',
+        'kode',
         'status',
-        'prioritas',
-        'status_penyakit',
+        'prioritas'
     ];
 
     protected $casts = [
         'prioritas' => 'integer',
-        'status' => 'string',
-        'status_penyakit' => 'string',
+        'status' => 'string'
     ];
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly($this->fillable)
-            ->setDescriptionForEvent(fn(string $eventName) => "Diagnosa pasien {$eventName}")
-            ->useLogName('diagnosa_pasien');
-    }
 
     // Relationships
     public function regPeriksa(): BelongsTo
@@ -46,9 +31,9 @@ class DiagnosaPasien extends Model
         return $this->belongsTo(RegPeriksa::class, 'no_rawat', 'no_rawat');
     }
 
-    public function penyakit(): BelongsTo
+    public function icd9(): BelongsTo
     {
-        return $this->belongsTo(Penyakit::class, 'kd_penyakit', 'kd_penyakit');
+        return $this->belongsTo(Icd9::class, 'kode', 'kode');
     }
 
     // Scopes
@@ -77,16 +62,6 @@ class DiagnosaPasien extends Model
         return $query->where('status', 'Ranap');
     }
 
-    public function scopePenyakitBaru($query)
-    {
-        return $query->where('status_penyakit', 'Baru');
-    }
-
-    public function scopePenyakitLama($query)
-    {
-        return $query->where('status_penyakit', 'Lama');
-    }
-
     // Helper methods
     public function isRalan(): bool
     {
@@ -96,16 +71,6 @@ class DiagnosaPasien extends Model
     public function isRanap(): bool
     {
         return $this->status === 'Ranap';
-    }
-
-    public function isPenyakitBaru(): bool
-    {
-        return $this->status_penyakit === 'Baru';
-    }
-
-    public function isPenyakitLama(): bool
-    {
-        return $this->status_penyakit === 'Lama';
     }
 
     public function getPrioritasTextAttribute(): string
@@ -121,11 +86,6 @@ class DiagnosaPasien extends Model
     public function getFormattedStatusAttribute(): string
     {
         return $this->status === 'Ralan' ? '🏥 Rawat Jalan' : '🛏️ Rawat Inap';
-    }
-
-    public function getFormattedStatusPenyakitAttribute(): string
-    {
-        return $this->status_penyakit === 'Baru' ? '🆕 Penyakit Baru' : '🔄 Penyakit Lama';
     }
 
     // Override getKey method for composite primary key

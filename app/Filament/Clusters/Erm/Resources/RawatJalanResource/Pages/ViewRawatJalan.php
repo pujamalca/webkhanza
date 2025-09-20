@@ -41,9 +41,9 @@ class ViewRawatJalan extends ViewRecord
                         Tab::make('Diagnosa')
                             ->icon('heroicon-o-clipboard-document-list')
                             ->schema([
-                                TextEntry::make('stts')
-                                    ->label('Status Diagnosa')
-                                    ->placeholder('Belum ada diagnosa tercatat'),
+                                Livewire::make(\App\Livewire\DiagnosaForm::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('diagnosa-' . $this->record->no_rawat),
                             ]),
                         
                         Tab::make('Catatan Pasien')
