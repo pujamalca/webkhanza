@@ -424,8 +424,9 @@ class InputTindakanForm extends Component
                 COUNT(*) as total_usage,
                 SUM({$userCondition}) as user_usage
             FROM {$table}
-            WHERE tgl_perawatan >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY kd_jenis_prw
+            ORDER BY total_usage DESC
+            LIMIT 500
         ) usage_stats";
     }
 }
