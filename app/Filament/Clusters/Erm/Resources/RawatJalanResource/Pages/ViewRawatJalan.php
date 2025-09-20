@@ -33,9 +33,9 @@ class ViewRawatJalan extends ViewRecord
                         Tab::make('Input Tindakan')
                             ->icon('heroicon-o-wrench-screwdriver')
                             ->schema([
-                                TextEntry::make('stts')
-                                    ->label('Status Tindakan')
-                                    ->placeholder('Belum ada tindakan tercatat'),
+                                Livewire::make(\App\Livewire\InputTindakanForm::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('input-tindakan-' . $this->record->no_rawat),
                             ]),
                         
                         Tab::make('Diagnosa')
