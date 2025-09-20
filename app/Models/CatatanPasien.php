@@ -12,20 +12,14 @@ class CatatanPasien extends Model
     use HasFactory, LogsActivity;
 
     protected $table = 'catatan_pasien';
+    protected $primaryKey = 'no_rkm_medis';
     public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
-        'no_rawat',
-        'tgl_perawatan',
-        'jam_perawatan',
-        'jenis_catatan',
+        'no_rkm_medis',
         'catatan',
-        'nip',
-    ];
-
-    protected $casts = [
-        'tgl_perawatan' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -36,13 +30,8 @@ class CatatanPasien extends Model
             ->useLogName('catatan_pasien');
     }
 
-    public function regPeriksa()
+    public function pasien()
     {
-        return $this->belongsTo(RegPeriksa::class, 'no_rawat', 'no_rawat');
-    }
-
-    public function petugas()
-    {
-        return $this->belongsTo(Petugas::class, 'nip', 'nip');
+        return $this->belongsTo(Pasien::class, 'no_rkm_medis', 'no_rkm_medis');
     }
 }

@@ -49,9 +49,9 @@ class ViewRawatJalan extends ViewRecord
                         Tab::make('Catatan Pasien')
                             ->icon('heroicon-o-document-text')
                             ->schema([
-                                TextEntry::make('stts')
-                                    ->label('Status Catatan')
-                                    ->placeholder('Belum ada catatan tercatat'),
+                                Livewire::make(\App\Livewire\CatatanPasienForm::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('catatan-pasien-' . $this->record->no_rawat),
                             ]),
                         
                         Tab::make('Resep Obat')
