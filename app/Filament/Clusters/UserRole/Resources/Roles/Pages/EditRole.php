@@ -72,7 +72,12 @@ class EditRole extends EditRecord
                 ->orWhere('name', '=', 'manage_all_examinations')
                 ->pluck('id')->toArray();
             $data['erm_permissions'] = array_values(array_intersect($permissionIds, $ermIds));
-                
+
+            $soapieIds = Permission::where('name', 'like', '%soapie_templates%')
+                ->orWhere('name', 'like', '%ttv%')
+                ->pluck('id')->toArray();
+            $data['soapie_permissions'] = array_values(array_intersect($permissionIds, $soapieIds));
+
             $sdmIds = Permission::where('name', 'like', 'sdm_access')
                 ->orWhere('name', 'like', 'pegawai_%')
                 ->orWhere('name', 'like', 'dokter_%')
@@ -108,6 +113,7 @@ class EditRole extends EditRecord
                 'dashboard_permissions' => $data['dashboard_permissions'],
                 'admin_permissions' => $data['admin_permissions'],
                 'erm_permissions' => $data['erm_permissions'],
+                'soapie_permissions' => $data['soapie_permissions'],
                 'sdm_permissions' => $data['sdm_permissions'],
                 'pegawai_permissions' => $data['pegawai_permissions'],
                 'master_permissions' => $data['master_permissions'],
@@ -136,6 +142,9 @@ class EditRole extends EditRecord
         if (!empty($data['erm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['erm_permissions']);
         }
+        if (!empty($data['soapie_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['soapie_permissions']);
+        }
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
@@ -161,6 +170,7 @@ class EditRole extends EditRecord
         unset($data['dashboard_permissions']);
         unset($data['admin_permissions']);
         unset($data['erm_permissions']);
+        unset($data['soapie_permissions']);
         unset($data['sdm_permissions']);
         unset($data['pegawai_permissions']);
         unset($data['master_permissions']);

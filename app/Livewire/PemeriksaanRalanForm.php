@@ -8,6 +8,7 @@ use App\Models\SoapieTemplate;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Auth;
 
 class PemeriksaanRalanForm extends Component
 {
@@ -161,8 +162,9 @@ class PemeriksaanRalanForm extends Component
             $this->patientData = [];
         }
         
-        // Check if user is admin
-        $this->isAdmin = auth()->user()->hasRole('super_admin') || auth()->user()->hasPermissionTo('manage_all_examinations');
+        // Check user permissions
+        $this->isAdmin = auth()->user()->hasRole(['super_admin', 'admin']) ||
+                        auth()->user()->hasPermissionTo('manage_all_examinations');
         
         // Load pegawai list for admin
         if ($this->isAdmin) {
@@ -180,12 +182,34 @@ class PemeriksaanRalanForm extends Component
     
     public function simpanPemeriksaan()
     {
+        // Check permission to create/edit examinations
+        if ($this->editingId) {
+            if (!auth()->user()->hasPermissionTo('rawat_jalan_edit') &&
+                !auth()->user()->hasPermissionTo('manage_all_examinations')) {
+                Notification::make()
+                    ->title('Akses Ditolak')
+                    ->body('Anda tidak memiliki izin untuk mengedit pemeriksaan SOAPIE')
+                    ->danger()
+                    ->send();
+                return;
+            }
+        } else {
+            if (!auth()->user()->hasPermissionTo('rawat_jalan_create')) {
+                Notification::make()
+                    ->title('Akses Ditolak')
+                    ->body('Anda tidak memiliki izin untuk membuat pemeriksaan SOAPIE')
+                    ->danger()
+                    ->send();
+                return;
+            }
+        }
+
         \Log::info('simpanPemeriksaan method called', [
             'noRawat' => $this->noRawat,
             'tgl_perawatan' => $this->tgl_perawatan,
             'jam_rawat' => $this->jam_rawat
         ]);
-        
+
         $this->validate();
 
         $data = [
@@ -325,12 +349,15 @@ class PemeriksaanRalanForm extends Component
                 return;
             }
 
-            // Authorization check: only creator or admin can edit
+            // Authorization check: only creator or users with permission can edit
             $currentUserNip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
-            if (!$this->isAdmin && $pemeriksaan->nip !== $currentUserNip) {
+            $canEditAll = auth()->user()->hasPermissionTo('manage_all_examinations');
+            $canEditOwn = auth()->user()->hasPermissionTo('rawat_jalan_edit');
+
+            if (!$canEditAll && (!$canEditOwn || $pemeriksaan->nip !== $currentUserNip)) {
                 Notification::make()
-                    ->title('Tidak diizinkan')
-                    ->body('Anda hanya dapat mengedit pemeriksaan yang Anda buat sendiri')
+                    ->title('Akses Ditolak')
+                    ->body('Anda tidak memiliki izin untuk mengedit pemeriksaan ini')
                     ->danger()
                     ->send();
                 return;
@@ -533,6 +560,16 @@ class PemeriksaanRalanForm extends Component
     
     public function loadTemplates(): void
     {
+        // Check permission to view templates
+        if (!auth()->user()->hasPermissionTo('view_soapie_templates')) {
+            Notification::make()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki izin untuk melihat template SOAPIE')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
 
         $query = SoapieTemplate::forUser($currentNip)
@@ -661,6 +698,16 @@ class PemeriksaanRalanForm extends Component
 
     public function saveNewTemplate()
     {
+        // Check permission to create templates
+        if (!auth()->user()->hasPermissionTo('create_soapie_templates')) {
+            Notification::make()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki izin untuk membuat template SOAPIE')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $this->validate([
             'newTemplateName' => 'required|min:3|max:255',
             'newTemplateCategory' => 'nullable|max:100',
@@ -679,6 +726,10 @@ class PemeriksaanRalanForm extends Component
 
         $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
 
+        // Check permission for public templates
+        $canCreatePublic = auth()->user()->hasPermissionTo('create_public_soapie_templates');
+        $isPublic = $this->newTemplateIsPublic && $canCreatePublic;
+
         SoapieTemplate::create([
             'nama_template' => $this->newTemplateName,
             'subjective' => $this->newTemplateSubjective ?: null,
@@ -688,7 +739,7 @@ class PemeriksaanRalanForm extends Component
             'intervention' => $this->newTemplateIntervention ?: null,
             'evaluation' => $this->newTemplateEvaluation ?: null,
             'nip' => $currentNip,
-            'is_public' => $this->newTemplateIsPublic && $this->isAdmin, // Only admin can create public templates
+            'is_public' => $isPublic,
             'kategori' => $this->newTemplateCategory ?: null,
             'keterangan' => $this->newTemplateDescription ?: null
         ]);
@@ -705,6 +756,16 @@ class PemeriksaanRalanForm extends Component
 
     public function saveCurrentAsTemplate()
     {
+        // Check permission to create templates
+        if (!auth()->user()->hasPermissionTo('create_soapie_templates')) {
+            Notification::make()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki izin untuk membuat template SOAPIE')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
 
         $templateName = 'Auto Template - ' . date('Y-m-d H:i:s');
@@ -731,13 +792,24 @@ class PemeriksaanRalanForm extends Component
 
     public function deleteTemplate($templateId)
     {
+        // Check permission to delete templates
+        if (!auth()->user()->hasPermissionTo('delete_soapie_templates')) {
+            Notification::make()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki izin untuk menghapus template SOAPIE')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $template = SoapieTemplate::find($templateId);
 
         if ($template) {
             $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+            $canEditAll = auth()->user()->hasPermissionTo('edit_all_soapie_templates');
 
-            // Check if user can delete (owner or admin)
-            if ($template->nip === $currentNip || $this->isAdmin) {
+            // Check if user can delete (owner or has permission for all templates)
+            if ($template->nip === $currentNip || $canEditAll) {
                 $templateName = $template->nama_template;
                 $template->delete();
 
@@ -749,7 +821,7 @@ class PemeriksaanRalanForm extends Component
                     ->send();
             } else {
                 Notification::make()
-                    ->title('Error: Tidak bisa menghapus template')
+                    ->title('Akses Ditolak')
                     ->body('Anda hanya bisa menghapus template yang Anda buat sendiri')
                     ->danger()
                     ->send();
@@ -759,6 +831,16 @@ class PemeriksaanRalanForm extends Component
 
     public function fillTTVFromPrevious()
     {
+        // Check permission to fill TTV from previous examinations
+        if (!auth()->user()->hasPermissionTo('fill_ttv_from_previous')) {
+            Notification::make()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki izin untuk mengisi TTV dari pemeriksaan sebelumnya')
+                ->danger()
+                ->send();
+            return;
+        }
+
         if (empty($this->noRkmMedis)) {
             Notification::make()
                 ->title('Error: No patient data found')
@@ -834,6 +916,47 @@ class PemeriksaanRalanForm extends Component
         session()->flash('message', 'Test method berhasil dipanggil!');
     }
     
+    // Permission helper methods for Blade template
+    public function canViewTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('view_soapie_templates');
+    }
+
+    public function canCreateTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('create_soapie_templates');
+    }
+
+    public function canCreatePublicTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('create_public_soapie_templates');
+    }
+
+    public function canDeleteTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('delete_soapie_templates');
+    }
+
+    public function canEditAllTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('edit_all_soapie_templates');
+    }
+
+    public function canEditOwnTemplates(): bool
+    {
+        return auth()->user()->hasPermissionTo('edit_own_soapie_templates');
+    }
+
+    public function canFillTtvFromPrevious(): bool
+    {
+        return auth()->user()->hasPermissionTo('fill_ttv_from_previous');
+    }
+
+    public function canManageAllExaminations(): bool
+    {
+        return auth()->user()->hasPermissionTo('manage_all_examinations');
+    }
+
     public function render()
     {
         return view('livewire.pemeriksaan-ralan-form');

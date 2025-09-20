@@ -189,6 +189,32 @@ class RoleForm
                     ])
                     ->collapsible(),
 
+                Section::make('SOAPIE Template & TTV')
+                    ->description('Template SOAPIE dan pengisian TTV dari pemeriksaan sebelumnya')
+                    ->schema([
+                        CheckboxList::make('soapie_permissions')
+                            ->options(function () {
+                                return Permission::where('name', 'like', '%soapie_templates%')
+                                    ->orWhere('name', 'like', '%ttv%')
+                                    ->pluck('name', 'id')
+                                    ->map(function ($name) {
+                                        return match($name) {
+                                            'view_soapie_templates' => '👁️ SOAPIE Template - Melihat template SOAPIE',
+                                            'create_soapie_templates' => '➕ SOAPIE Template - Membuat template SOAPIE',
+                                            'edit_own_soapie_templates' => '✏️ SOAPIE Template - Mengedit template SOAPIE sendiri',
+                                            'edit_all_soapie_templates' => '✏️ SOAPIE Template - Mengedit semua template SOAPIE',
+                                            'delete_soapie_templates' => '🗑️ SOAPIE Template - Menghapus template SOAPIE',
+                                            'create_public_soapie_templates' => '🌐 SOAPIE Template - Membuat template SOAPIE public',
+                                            'fill_ttv_from_previous' => '📋 TTV - Mengisi TTV dari pemeriksaan sebelumnya',
+                                            default => $name
+                                        };
+                                    })->toArray();
+                            })
+                            ->columns(2)
+                            ->bulkToggleable(),
+                    ])
+                    ->collapsible(),
+
                 Section::make('Pegawai')
                     ->description('Manajemen absensi dan cuti pegawai')
                     ->schema([

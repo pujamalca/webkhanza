@@ -30,6 +30,9 @@ class CreateRole extends CreateRecord
         if (!empty($data['erm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['erm_permissions']);
         }
+        if (!empty($data['soapie_permissions'])) {
+            $allPermissions = array_merge($allPermissions, $data['soapie_permissions']);
+        }
         if (!empty($data['sdm_permissions'])) {
             $allPermissions = array_merge($allPermissions, $data['sdm_permissions']);
         }
@@ -55,6 +58,7 @@ class CreateRole extends CreateRecord
         unset($data['dashboard_permissions']);
         unset($data['admin_permissions']);
         unset($data['erm_permissions']);
+        unset($data['soapie_permissions']);
         unset($data['sdm_permissions']);
         unset($data['pegawai_permissions']);
         unset($data['master_permissions']);
