@@ -152,34 +152,38 @@ class RoleForm
                                     ->orWhere('name', 'like', 'rawat_jalan_%')
                                     ->orWhere('name', 'like', 'pasien_%')
                                     ->orWhere('name', '=', 'manage_all_examinations')
+                                    ->orWhere('name', '=', 'manage_all_medical_notes')
+                                    ->orWhere('name', '=', 'manage_all_input_tindakan')
                                     ->pluck('name', 'id')
                                     ->map(function ($name) {
                                         return match($name) {
                                             'erm_access' => '🏥 ERM - Akses ke cluster ERM',
-                                            
+
                                             'registrasi_view' => '👁️ Registrasi - Lihat daftar registrasi',
                                             'registrasi_create' => '➕ Registrasi - Buat registrasi baru',
                                             'registrasi_edit' => '✏️ Registrasi - Edit data registrasi',
                                             'registrasi_delete' => '🗑️ Registrasi - Hapus registrasi',
                                             'registrasi_view_details' => '📄 Registrasi - Lihat detail registrasi',
-                                            
+
                                             'registration_quick_access' => '⚡ Registrasi Cepat - Akses fitur registrasi cepat',
                                             'registration_template_manage' => '📋 Template Registrasi - Kelola template registrasi',
-                                            
+
                                             'rawat_jalan_view' => '👁️ Rawat Jalan - Lihat daftar rawat jalan',
                                             'rawat_jalan_create' => '➕ Rawat Jalan - Buat registrasi rawat jalan baru',
                                             'rawat_jalan_edit' => '✏️ Rawat Jalan - Edit data rawat jalan',
                                             'rawat_jalan_delete' => '🗑️ Rawat Jalan - Hapus rawat jalan',
                                             'rawat_jalan_view_details' => '📄 Rawat Jalan - Lihat detail rawat jalan',
-                                            
+
                                             'pasien_view' => '👁️ Pasien - Lihat daftar pasien',
                                             'pasien_create' => '➕ Pasien - Buat data pasien baru',
                                             'pasien_edit' => '✏️ Pasien - Edit data pasien',
                                             'pasien_delete' => '🗑️ Pasien - Hapus pasien',
                                             'pasien_view_details' => '📄 Pasien - Lihat detail pasien',
-                                            
+
                                             'manage_all_examinations' => '🩺 Manage All Examinations - Kelola pemeriksaan atas nama petugas lain',
-                                            
+                                            'manage_all_medical_notes' => '📝 Manage All Medical Notes - Kelola catatan medis atas nama petugas lain',
+                                            'manage_all_input_tindakan' => '🩹 Manage All Input Tindakan - Kelola input tindakan atas nama petugas lain',
+
                                             default => $name
                                         };
                                     })->toArray();

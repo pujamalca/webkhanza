@@ -9,6 +9,7 @@ use App\Models\RawatJlDrPr;
 use App\Models\RegPeriksa;
 use App\Models\Dokter;
 use App\Models\Petugas;
+use App\Models\Pegawai;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -43,6 +44,7 @@ class InputTindakanForm extends Component
     // Available options
     public $dokterList = [];
     public $petugasList = [];
+    public $isAdmin = false;
 
     public function mount(string $noRawat): void
     {
@@ -52,6 +54,12 @@ class InputTindakanForm extends Component
 
         // Load reg periksa data
         $this->regPeriksa = RegPeriksa::where('no_rawat', $noRawat)->first();
+
+        // Check user permissions
+        $this->isAdmin = auth()->user()->hasRole(['super_admin', 'admin']) ||
+                        auth()->user()->hasPermissionTo('manage_all_examinations') ||
+                        auth()->user()->hasPermissionTo('manage_all_medical_notes') ||
+                        auth()->user()->hasPermissionTo('manage_all_input_tindakan');
 
         // Load existing tindakan
         $this->loadExistingTindakan();
@@ -70,12 +78,17 @@ class InputTindakanForm extends Component
             $this->kdDokter = $this->regPeriksa->kd_dokter;
         }
 
-        // Set default petugas to current user if they are petugas
-        $currentUser = Auth::user();
-        if ($currentUser && $currentUser->pegawai) {
-            $petugas = Petugas::where('nip', $currentUser->pegawai->nik)->first();
-            if ($petugas) {
-                $this->nipPetugas = $petugas->nip;
+        // Set NIP based on role (following pemeriksaan ralan pattern)
+        if ($this->isAdmin) {
+            $this->nipPetugas = ''; // Admin can choose
+        } else {
+            // Non-admin uses their own NIP
+            $currentUser = Auth::user();
+            if ($currentUser && $currentUser->pegawai) {
+                $this->nipPetugas = $currentUser->pegawai->nik;
+            } else {
+                // Fallback for users without pegawai relation
+                $this->nipPetugas = $currentUser->username ?? '-';
             }
         }
     }
@@ -92,15 +105,16 @@ class InputTindakanForm extends Component
             })
             ->toArray();
 
-        // Load active petugas
-        $this->petugasList = Petugas::select('nip', 'nama')
-            ->where('status', '1')
-            ->orderBy('nama')
-            ->get()
-            ->mapWithKeys(function ($petugas) {
-                return [$petugas->nip => $petugas->nama];
-            })
-            ->toArray();
+        // Load petugas list for admin using pegawai
+        if ($this->isAdmin) {
+            $this->petugasList = Pegawai::select('nik', 'nama')
+                ->orderBy('nama')
+                ->get()
+                ->mapWithKeys(function ($pegawai) {
+                    return [$pegawai->nik => $pegawai->nama];
+                })
+                ->toArray();
+        }
     }
 
     protected function loadExistingTindakan(): void

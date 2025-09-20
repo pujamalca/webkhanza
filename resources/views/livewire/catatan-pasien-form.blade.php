@@ -163,16 +163,25 @@
                             <label class="block text-sm font-medium mb-2" x-bind:class="darkMode ? 'text-gray-200' : 'text-gray-700'">
                                 Petugas
                             </label>
-                            <select wire:model="nip"
-                                    class="w-full px-3 py-2 border rounded-md text-sm transition-colors"
-                                    x-bind:class="darkMode
-                                      ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-blue-500 focus:ring-blue-500'
-                                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500'">
-                                <option value="">Pilih Petugas</option>
-                                @foreach($petugasList as $nipPetugas => $namaPetugas)
-                                    <option value="{{ $nipPetugas }}">{{ $namaPetugas }}</option>
-                                @endforeach
-                            </select>
+                            @if($isAdmin)
+                                <select wire:model="nip"
+                                        class="w-full px-3 py-2 border rounded-md text-sm transition-colors"
+                                        x-bind:class="darkMode
+                                          ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-blue-500 focus:ring-blue-500'
+                                          : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500'">
+                                    <option value="">Pilih Petugas</option>
+                                    @foreach($petugasList as $nipPetugas => $namaPetugas)
+                                        <option value="{{ $nipPetugas }}">{{ $namaPetugas }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <input type="text" value="{{ auth()->user()->pegawai->nama ?? auth()->user()->name ?? 'User' }}" readonly
+                                       class="w-full px-3 py-2 border rounded-md text-sm transition-colors"
+                                       x-bind:class="darkMode
+                                         ? 'bg-gray-600 border-gray-600 text-gray-300 cursor-not-allowed'
+                                         : 'bg-gray-100 border-gray-300 text-gray-600 cursor-not-allowed'">
+                                <input type="hidden" wire:model="nip">
+                            @endif
                         </div>
                     </div>
 

@@ -86,13 +86,19 @@
                                 <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">
                                     Petugas <span class="text-red-500">*</span>
                                 </label>
-                                <select wire:model="nipPetugas" required
-                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900'">
-                                    <option value="">Pilih Petugas...</option>
-                                    @foreach($petugasList as $nip => $nama)
-                                        <option value="{{ $nip }}">{{ $nama }}</option>
-                                    @endforeach
-                                </select>
+                                @if($isAdmin)
+                                    <select wire:model="nipPetugas" required
+                                            x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900'">
+                                        <option value="">Pilih Petugas...</option>
+                                        @foreach($petugasList as $nip => $nama)
+                                            <option value="{{ $nip }}">{{ $nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="text" value="{{ auth()->user()->pegawai->nama ?? auth()->user()->name ?? 'User' }}" readonly
+                                           x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-600 text-gray-300 cursor-not-allowed' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed'">
+                                    <input type="hidden" wire:model="nipPetugas">
+                                @endif
                             </div>
                             @endif
 
