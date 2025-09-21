@@ -2,45 +2,87 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ResepDokter extends Model
 {
-    use HasFactory, LogsActivity;
-
     protected $table = 'resep_dokter';
-    public $incrementing = false;
     public $timestamps = false;
+
+    // Composite primary key
+    protected $primaryKey = ['no_resep', 'kode_brng'];
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'no_resep',
         'kode_brng',
         'jml',
-        'aturan_pakai',
+        'aturan_pakai'
     ];
 
     protected $casts = [
-        'jml' => 'decimal:2',
+        'jml' => 'double',
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly($this->fillable)
-            ->setDescriptionForEvent(fn(string $eventName) => "Detail resep {$eventName}")
-            ->useLogName('resep_dokter');
-    }
-
-    public function resepObat()
+    // Relationships
+    public function resepObat(): BelongsTo
     {
         return $this->belongsTo(ResepObat::class, 'no_resep', 'no_resep');
     }
 
-    public function obat()
+    public function databarang(): BelongsTo
     {
-        return $this->belongsTo(Obat::class, 'kode_brng', 'kode_brng');
+        return $this->belongsTo(Databarang::class, 'kode_brng', 'kode_brng');
+    }
+
+    // Scopes
+    public function scopeByNoResep($query, $noResep)
+    {
+        return $query->where('no_resep', $noResep);
+    }
+
+    // Override getKey method for composite primary key
+    public function getKey()
+    {
+        $key = [];
+        foreach ($this->primaryKey as $keyName) {
+            $key[$keyName] = $this->getAttribute($keyName);
+        }
+        return $key;
+    }
+
+    // Override find method for composite primary key
+    public static function find($id)
+    {
+        if (is_array($id)) {
+            $query = static::query();
+            foreach ($id as $key => $value) {
+                $query->where($key, $value);
+            }
+            return $query->first();
+        }
+
+        return null;
+    }
+
+    // Helper methods
+    public function getFormattedJmlAttribute(): string
+    {
+        return number_format($this->jml, 0);
+    }
+
+    public function getTotalHargaAttribute(): float
+    {
+        if ($this->databarang) {
+            return $this->jml * $this->databarang->ralan; // Using ralan price
+        }
+        return 0;
+    }
+
+    public function getFormattedTotalHargaAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_harga, 0, ',', '.');
     }
 }

@@ -57,9 +57,9 @@ class ViewRawatJalan extends ViewRecord
                         Tab::make('Resep Obat')
                             ->icon('heroicon-o-beaker')
                             ->schema([
-                                TextEntry::make('stts')
-                                    ->label('Status Resep')
-                                    ->placeholder('Belum ada resep tercatat'),
+                                Livewire::make(\App\Livewire\ResepObatForm::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('resep-obat-' . $this->record->no_rawat),
                             ]),
                         
                         Tab::make('Pemeriksaan Labor')

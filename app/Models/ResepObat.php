@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ResepObat extends Model
 {
-    use HasFactory, LogsActivity;
-
     protected $table = 'resep_obat';
     protected $primaryKey = 'no_resep';
-    protected $keyType = 'string';
     public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
@@ -27,35 +24,88 @@ class ResepObat extends Model
         'jam_peresepan',
         'status',
         'tgl_penyerahan',
-        'jam_penyerahan',
+        'jam_penyerahan'
     ];
 
     protected $casts = [
-        'tgl_perawatan' => 'date',
         'tgl_peresepan' => 'date',
-        'tgl_penyerahan' => 'date',
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly($this->fillable)
-            ->setDescriptionForEvent(fn(string $eventName) => "Resep obat {$eventName}")
-            ->useLogName('resep_obat');
-    }
+    protected $attributes = [
+        'tgl_perawatan' => '0000-00-00',
+        'jam' => '00:00:00',
+        'tgl_penyerahan' => '0000-00-00',
+        'jam_penyerahan' => '00:00:00',
+    ];
 
-    public function regPeriksa()
+    // Relationships
+    public function regPeriksa(): BelongsTo
     {
         return $this->belongsTo(RegPeriksa::class, 'no_rawat', 'no_rawat');
     }
 
-    public function dokter()
+    public function dokter(): BelongsTo
     {
         return $this->belongsTo(Dokter::class, 'kd_dokter', 'kd_dokter');
     }
 
-    public function detailResep()
+    public function resepDokter(): HasMany
     {
         return $this->hasMany(ResepDokter::class, 'no_resep', 'no_resep');
+    }
+
+    // Scopes
+    public function scopeByNoRawat($query, $noRawat)
+    {
+        return $query->where('no_rawat', $noRawat);
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    // Helper methods
+    public function getFormattedTglPerawatanAttribute(): string
+    {
+        return $this->tgl_perawatan && $this->tgl_perawatan !== '0000-00-00' ?
+            \Carbon\Carbon::parse($this->tgl_perawatan)->format('d/m/Y') : '-';
+    }
+
+    public function getFormattedTglPeresepanAttribute(): string
+    {
+        return $this->tgl_peresepan ? $this->tgl_peresepan->format('d/m/Y') : '-';
+    }
+
+    public function getFormattedTglPenyerahanAttribute(): string
+    {
+        return $this->tgl_penyerahan && $this->tgl_penyerahan !== '0000-00-00' ?
+            \Carbon\Carbon::parse($this->tgl_penyerahan)->format('d/m/Y') : '-';
+    }
+
+    // Generate new resep number (format: YYYYMMDD0001)
+    public static function generateNoResep(): string
+    {
+        $today = date('Ymd'); // 20250920
+        $prefix = $today;
+
+        $lastResep = self::where('no_resep', 'like', $prefix . '%')
+            ->orderBy('no_resep', 'desc')
+            ->first();
+
+        if ($lastResep) {
+            $lastNumber = (int) substr($lastResep->no_resep, -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    // Validate resep number format
+    public static function validateNoResep($noResep): bool
+    {
+        return preg_match('/^\d{8}\d{4}$/', $noResep) === 1;
     }
 }
