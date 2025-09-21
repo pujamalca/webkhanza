@@ -11,6 +11,8 @@ use App\Models\JenisBarang;
 use App\Models\IndustriFarmasi;
 use App\Models\KategoriBarang;
 use App\Models\GudangBarang;
+use App\Models\ResepTemplate;
+use App\Models\ResepTemplateDetail;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -49,6 +51,22 @@ class ResepObatForm extends Component
     public $searchResults = [];
     public $showSearchResults = false;
 
+    // Aturan pakai suggestions
+    public $aturanPakaiSuggestions = [];
+    public $showAturanPakaiSuggestions = false;
+
+    // Template resep
+    public $resepTemplates = [];
+    public $showTemplateModal = false;
+    public $selectedTemplate = null;
+
+    // Form template baru
+    public $showCreateTemplateModal = false;
+    public $namaTemplate = '';
+    public $keteranganTemplate = '';
+    public $isPublicTemplate = false;
+    public $kategoriTemplate = '';
+
     public function mount(string $noRawat): void
     {
         $this->noRawat = $noRawat;
@@ -65,6 +83,9 @@ class ResepObatForm extends Component
 
         // Set default dokter
         $this->setDefaultDokter();
+
+        // Load template resep
+        $this->loadResepTemplates();
 
         // Generate default no resep
         $this->noResep = ResepObat::generateNoResep();
@@ -513,6 +534,238 @@ class ResepObatForm extends Component
     public function updatedSearchObat(): void
     {
         $this->searchObat();
+    }
+
+    public function searchAturanPakai($search): array
+    {
+        if (strlen($search) >= 2) {
+            return ResepDokter::select('aturan_pakai')
+                ->where('aturan_pakai', 'like', '%' . $search . '%')
+                ->groupBy('aturan_pakai')
+                ->orderByRaw('COUNT(*) DESC')
+                ->limit(10)
+                ->pluck('aturan_pakai')
+                ->toArray();
+        }
+        return [];
+    }
+
+    protected function loadResepTemplates(): void
+    {
+        $currentUser = Auth::user();
+        $nip = $currentUser ? $currentUser->username : 'admin';
+
+        $this->resepTemplates = ResepTemplate::forUser($nip)
+            ->with(['resepTemplateDetail.databarang.satuanKecil'])
+            ->orderBy('is_public', 'asc')
+            ->orderBy('nama_template', 'asc')
+            ->limit(5)
+            ->get()
+            ->toArray();
+    }
+
+    public function openTemplateModal(): void
+    {
+        $this->showTemplateModal = true;
+        $this->loadResepTemplates();
+    }
+
+    public function closeTemplateModal(): void
+    {
+        $this->showTemplateModal = false;
+        $this->selectedTemplate = null;
+    }
+
+    public function useTemplate($templateId): void
+    {
+        $template = ResepTemplate::with(['resepTemplateDetail.databarang.satuanKecil', 'resepTemplateDetail.databarang.jenisBarang', 'resepTemplateDetail.databarang.industriFarmasi'])
+            ->find($templateId);
+
+        if ($template) {
+            // Reset form
+            $this->resetFormToDefault();
+            $this->noResep = ResepObat::generateNoResep();
+
+            // Load obat from template
+            foreach($template->resepTemplateDetail as $detail) {
+                $obat = $detail->databarang;
+                if ($obat) {
+                    $this->obatTable[] = [
+                        'kode_brng' => $obat->kode_brng,
+                        'nama_brng' => $obat->nama_brng,
+                        'satuan' => $obat->satuanKecil->satuan ?? '-',
+                        'komposisi' => $obat->komposisi,
+                        'harga' => $obat->ralan,
+                        'formatted_harga' => $obat->formatted_harga_ralan,
+                        'jenis' => $obat->jenisBarang->nama ?? '-',
+                        'industri' => $obat->industriFarmasi->nama_industri ?? '-',
+                        'stok' => $obat->total_stok,
+                        'formatted_stok' => $obat->formatted_total_stok,
+                        'jumlah' => $detail->jumlah,
+                        'aturan_pakai' => $detail->aturan_pakai,
+                        'subtotal' => $obat->ralan * $detail->jumlah
+                    ];
+                }
+            }
+
+            $this->closeTemplateModal();
+
+            Notification::make()
+                ->title('Template Diterapkan')
+                ->body('Template "' . $template->nama_template . '" berhasil diterapkan')
+                ->success()
+                ->send();
+        }
+    }
+
+    public function deleteTemplate($templateId): void
+    {
+        try {
+            $template = ResepTemplate::find($templateId);
+
+            if ($template) {
+                $currentUser = Auth::user();
+                $nip = $currentUser ? $currentUser->username : 'admin';
+
+                // Check permission - only creator or admin can delete
+                if ($template->nip !== $nip && $nip !== 'admin') {
+                    Notification::make()
+                        ->title('Tidak Diizinkan')
+                        ->body('Anda tidak memiliki izin untuk menghapus template ini')
+                        ->warning()
+                        ->send();
+                    return;
+                }
+
+                $templateName = $template->nama_template;
+                $template->delete(); // Will cascade delete details
+
+                $this->loadResepTemplates();
+
+                Notification::make()
+                    ->title('Template Dihapus')
+                    ->body('Template "' . $templateName . '" berhasil dihapus')
+                    ->success()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error')
+                ->body('Gagal menghapus template: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function openCreateTemplateModal(): void
+    {
+        if (empty($this->obatTable)) {
+            Notification::make()
+                ->title('Tidak Ada Obat')
+                ->body('Silakan tambahkan minimal satu obat sebelum membuat template')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        $this->resetTemplateForm();
+        $this->showCreateTemplateModal = true;
+    }
+
+    public function closeCreateTemplateModal(): void
+    {
+        $this->showCreateTemplateModal = false;
+        $this->resetTemplateForm();
+    }
+
+    private function resetTemplateForm(): void
+    {
+        $this->namaTemplate = '';
+        $this->keteranganTemplate = '';
+        $this->isPublicTemplate = false;
+        $this->kategoriTemplate = '';
+    }
+
+    public function saveTemplate(): void
+    {
+        // Validation
+        if (empty($this->namaTemplate)) {
+            Notification::make()
+                ->title('Nama Template Diperlukan')
+                ->body('Silakan masukkan nama template')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        if (empty($this->obatTable)) {
+            Notification::make()
+                ->title('Tidak Ada Obat')
+                ->body('Silakan tambahkan minimal satu obat sebelum membuat template')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        try {
+            $currentUser = Auth::user();
+            $nip = $currentUser ? $currentUser->username : 'admin';
+
+            // Store data for transaction
+            $templateData = [
+                'nama_template' => $this->namaTemplate,
+                'keterangan' => $this->keteranganTemplate,
+                'nip' => $nip,
+                'is_public' => $this->isPublicTemplate,
+                'kategori' => $this->kategoriTemplate ?: 'umum'
+            ];
+            $obatData = $this->obatTable;
+
+            // Simplified approach - get next ID manually and use Eloquent
+            $maxId = \DB::table('resep_templates')->max('id') ?: 0;
+            $nextId = $maxId + 1;
+
+            // Create template manually with proper ID
+            $template = new ResepTemplate();
+            $template->id = $nextId;
+            $template->nama_template = $templateData['nama_template'];
+            $template->keterangan = $templateData['keterangan'];
+            $template->nip = $templateData['nip'];
+            $template->is_public = $templateData['is_public'];
+            $template->kategori = $templateData['kategori'];
+            $template->save();
+
+            // Verify template was created
+            if (!$template->id) {
+                throw new \Exception('Template gagal dibuat');
+            }
+
+            // Save template details
+            foreach($obatData as $obat) {
+                $detail = new ResepTemplateDetail();
+                $detail->template_id = $template->id;
+                $detail->kode_brng = $obat['kode_brng'];
+                $detail->jumlah = $obat['jumlah'];
+                $detail->aturan_pakai = $obat['aturan_pakai'];
+                $detail->save();
+            }
+
+            $this->closeCreateTemplateModal();
+            $this->loadResepTemplates();
+
+            Notification::make()
+                ->title('Template Berhasil Dibuat')
+                ->body('Template "' . $template->nama_template . '" berhasil disimpan dengan ' . count($obatData) . ' obat')
+                ->success()
+                ->send();
+
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error')
+                ->body('Gagal menyimpan template: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public function render()
