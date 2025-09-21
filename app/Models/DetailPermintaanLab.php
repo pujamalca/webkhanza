@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DetailPermintaanLab extends Model
 {
-    protected $table = 'detail_permintaan_lab';
+    protected $table = 'permintaan_detail_permintaan_lab';
     public $timestamps = false;
     protected $primaryKey = null;
     public $incrementing = false;
@@ -24,10 +24,6 @@ class DetailPermintaanLab extends Model
         return $this->belongsTo(PermintaanLab::class, 'noorder', 'noorder');
     }
 
-    public function templateLaboratorium(): BelongsTo
-    {
-        return $this->belongsTo(TemplateLaboratorium::class, ['kd_jenis_prw', 'id_template'], ['kd_jenis_prw', 'id_template']);
-    }
 
     public function jenisPerawatan(): BelongsTo
     {

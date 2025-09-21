@@ -162,22 +162,22 @@
                         class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                         x-bind:class="darkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-gray-900'"
                     >
-                        <option value="5">5 per halaman</option>
                         <option value="10">10 per halaman</option>
                         <option value="25">25 per halaman</option>
                         <option value="50">50 per halaman</option>
+                        <option value="100">100 per halaman</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Bulk Actions -->
+            <!-- Global Actions -->
             <div class="flex gap-2 mb-4">
                 <button
                     wire:click="selectAllFiltered"
                     class="px-3 py-1 text-xs rounded-md transition-colors"
                     x-bind:class="darkMode ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-green-500 hover:bg-green-600 text-white'"
                 >
-                    ✓ Pilih Semua
+                    ✓ Pilih Semua Template
                 </button>
                 <button
                     wire:click="clearAllSelection"
@@ -196,12 +196,30 @@
                 <div class="space-y-4 mb-4">
                     @foreach($groupedTemplates as $kdJenisPrw => $templateGroup)
                         <div class="p-3 border rounded-lg" x-bind:class="darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-white'">
-                            <h5 class="font-medium mb-2" x-bind:class="darkMode ? 'text-gray-200' : 'text-gray-800'">
-                                {{ $templateGroup->first()->jenisPerawatanLab->nm_perawatan ?? 'Laboratorium' }}
-                                <span class="text-xs ml-2" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-500'">
-                                    ({{ $templateGroup->count() }} pemeriksaan)
-                                </span>
-                            </h5>
+                            <div class="flex justify-between items-center mb-3">
+                                <h5 class="font-medium" x-bind:class="darkMode ? 'text-gray-200' : 'text-gray-800'">
+                                    {{ $templateGroup->first()->jenisPerawatanLab->nm_perawatan ?? 'Laboratorium' }}
+                                    <span class="text-xs ml-2" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-500'">
+                                        ({{ $templateGroup->count() }} pemeriksaan)
+                                    </span>
+                                </h5>
+                                <div class="flex gap-2">
+                                    <button
+                                        wire:click="selectAllInCategory('{{ $kdJenisPrw }}')"
+                                        class="px-2 py-1 text-xs rounded transition-colors"
+                                        x-bind:class="darkMode ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'"
+                                    >
+                                        ✓ Pilih Semua
+                                    </button>
+                                    <button
+                                        wire:click="deselectAllInCategory('{{ $kdJenisPrw }}')"
+                                        class="px-2 py-1 text-xs rounded transition-colors"
+                                        x-bind:class="darkMode ? 'bg-gray-600 hover:bg-gray-500 text-white' : 'bg-gray-500 hover:bg-gray-600 text-white'"
+                                    >
+                                        ✗ Batal
+                                    </button>
+                                </div>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                 @foreach($templateGroup as $template)
                                     <label class="flex items-center p-2 rounded hover:shadow-sm transition-shadow cursor-pointer"
@@ -244,6 +262,7 @@
             @endif
 
             <!-- Pagination Controls -->
+            @if($templates->hasPages())
             <div class="mt-4 flex justify-between items-center">
                 <div class="flex gap-2">
                     <button
@@ -265,8 +284,25 @@
                 </div>
                 <div class="text-sm" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-600'">
                     Halaman {{ $templates->currentPage() }} dari {{ $templates->lastPage() }}
+                    ({{ $templates->firstItem() }}-{{ $templates->lastItem() }} dari {{ $templates->total() }} total)
                 </div>
             </div>
+            @endif
+
+            <!-- Info when no pagination needed -->
+            @if(!$templates->hasPages())
+            <div class="mt-4 text-center">
+                <p class="text-sm" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-600'">
+                    @if($searchTemplate)
+                        Menampilkan semua {{ $templates->total() }} hasil pencarian "{{ $searchTemplate }}"
+                    @elseif($selectedKategori)
+                        Menampilkan semua {{ $templates->total() }} template dalam kategori
+                    @else
+                        Menampilkan semua {{ $templates->total() }} template laboratorium
+                    @endif
+                </p>
+            </div>
+            @endif
         </div>
 
         <!-- Selected Items Preview -->

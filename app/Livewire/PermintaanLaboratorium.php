@@ -39,7 +39,7 @@ class PermintaanLaboratorium extends Component
     public string $searchTemplate = '';
     public string $selectedKategori = '';
     public bool $selectAllTemplates = false;
-    public int $perPage = 10;
+    public int $perPage = 25;
 
     // Edit mode
     public bool $isEditing = false;
@@ -112,11 +112,64 @@ class PermintaanLaboratorium extends Component
 
     public function selectAllFiltered(): void
     {
-        $templates = $this->getFilteredTemplates();
+        $templates = $this->getCurrentDisplayedTemplates();
         foreach ($templates as $template) {
             $this->togglePemeriksaan($template->kd_jenis_prw, $template->id_template, true);
         }
-        session()->flash('success', 'Semua template berhasil dipilih');
+        session()->flash('success', "Semua template berhasil dipilih ({$templates->count()} item)");
+    }
+
+    public function selectAllInCategory(string $kdJenisPrw): void
+    {
+        // Get the currently displayed templates (from the paginated/filtered results)
+        $currentTemplates = $this->getCurrentDisplayedTemplates();
+        $templates = $currentTemplates->where('kd_jenis_prw', $kdJenisPrw);
+
+        foreach ($templates as $template) {
+            $this->togglePemeriksaan($template->kd_jenis_prw, $template->id_template, true);
+        }
+
+        $categoryName = $templates->first()?->jenisPerawatanLab?->nm_perawatan ?? 'kategori';
+        session()->flash('success', "Semua pemeriksaan dalam {$categoryName} berhasil dipilih ({$templates->count()} item)");
+    }
+
+    private function getCurrentDisplayedTemplates()
+    {
+        // Get the same data as render() method to ensure consistency
+        $templatesQuery = TemplateLaboratorium::with('jenisPerawatanLab')
+            ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->where('jns_perawatan_lab.status', '1')
+            ->where('jns_perawatan_lab.kategori', 'PK');
+
+        if ($this->searchTemplate) {
+            $templatesQuery->where('jns_perawatan_lab.nm_perawatan', 'like', '%' . $this->searchTemplate . '%');
+        }
+
+        if ($this->selectedKategori) {
+            $templatesQuery->where('template_laboratorium.kd_jenis_prw', $this->selectedKategori);
+        }
+
+        // Use the same pagination logic as render()
+        return $templatesQuery
+            ->orderBy('jns_perawatan_lab.nm_perawatan')
+            ->orderBy('template_laboratorium.Pemeriksaan')
+            ->select('template_laboratorium.*')
+            ->paginate($this->perPage, ['*'], 'templates');
+    }
+
+    public function deselectAllInCategory(string $kdJenisPrw): void
+    {
+        // Remove all selected items from this category
+        $this->selectedPemeriksaan = collect($this->selectedPemeriksaan)
+            ->reject(function($item) use ($kdJenisPrw) {
+                return $item['kd_jenis_prw'] == $kdJenisPrw;
+            })
+            ->values()
+            ->toArray();
+
+        $templates = $this->getFilteredTemplates()->where('kd_jenis_prw', $kdJenisPrw);
+        $categoryName = $templates->first()?->jenisPerawatanLab?->nm_perawatan ?? 'kategori';
+        session()->flash('success', "Semua pilihan dalam {$categoryName} berhasil dibatalkan");
     }
 
     public function clearAllSelection(): void
@@ -129,41 +182,40 @@ class PermintaanLaboratorium extends Component
     private function getFilteredTemplates()
     {
         $query = TemplateLaboratorium::with('jenisPerawatanLab')
-            ->whereHas('jenisPerawatanLab', function($q) {
-                $q->where('status', '1')
-                  ->where('kategori', 'PK');
-            });
+            ->join('jns_perawatan_lab', 'template_laboratorium.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
+            ->where('jns_perawatan_lab.status', '1')
+            ->where('jns_perawatan_lab.kategori', 'PK');
 
         if ($this->searchTemplate) {
-            $query->where(function($q) {
-                $q->where('Pemeriksaan', 'like', '%' . $this->searchTemplate . '%')
-                  ->orWhereHas('jenisPerawatanLab', function($subQ) {
-                      $subQ->where('nm_perawatan', 'like', '%' . $this->searchTemplate . '%');
-                  });
-            });
+            $query->where('jns_perawatan_lab.nm_perawatan', 'like', '%' . $this->searchTemplate . '%');
         }
 
         if ($this->selectedKategori) {
-            $query->where('kd_jenis_prw', $this->selectedKategori);
+            $query->where('template_laboratorium.kd_jenis_prw', $this->selectedKategori);
         }
 
-        return $query->orderBy('Pemeriksaan')->get();
+        return $query
+            ->orderBy('jns_perawatan_lab.nm_perawatan')
+            ->orderBy('template_laboratorium.Pemeriksaan')
+            ->select('template_laboratorium.*')
+            ->get();
     }
 
     public function loadExistingDetails(): void
     {
-        $details = DetailPermintaanLab::where('noorder', $this->permintaanLabRecord->noorder)
-            ->with('templateLaboratorium')
-            ->get();
+        $details = DB::select("SELECT dpl.*, tl.Pemeriksaan, tl.satuan, tl.nilai_rujukan_ld, tl.nilai_rujukan_la
+            FROM permintaan_detail_permintaan_lab dpl
+            LEFT JOIN template_laboratorium tl ON dpl.kd_jenis_prw = tl.kd_jenis_prw AND dpl.id_template = tl.id_template
+            WHERE dpl.noorder = ?", [$this->permintaanLabRecord->noorder]);
 
         $this->selectedPemeriksaan = [];
         foreach ($details as $detail) {
             $this->selectedPemeriksaan[] = [
                 'kd_jenis_prw' => $detail->kd_jenis_prw,
                 'id_template' => $detail->id_template,
-                'pemeriksaan' => $detail->templateLaboratorium->Pemeriksaan ?? '',
-                'satuan' => $detail->templateLaboratorium->satuan ?? '',
-                'nilai_rujukan' => $detail->templateLaboratorium->nilai_rujukan_ld . '-' . $detail->templateLaboratorium->nilai_rujukan_la ?? '',
+                'pemeriksaan' => $detail->Pemeriksaan ?? '',
+                'satuan' => $detail->satuan ?? '',
+                'nilai_rujukan' => ($detail->nilai_rujukan_ld ?? '') . '-' . ($detail->nilai_rujukan_la ?? ''),
                 'stts_bayar' => $detail->stts_bayar ?? 'Belum',
                 'checked' => true
             ];
@@ -177,12 +229,12 @@ class PermintaanLaboratorium extends Component
             return $item['kd_jenis_prw'] == $kdJenisPrw && $item['id_template'] == $idTemplate;
         });
 
-        if ($existing) {
-            // Remove if exists
+        if ($existing && !$forceAdd) {
+            // Remove if exists (only if not forcing add)
             $this->selectedPemeriksaan = collect($this->selectedPemeriksaan)->reject(function($item) use ($kdJenisPrw, $idTemplate) {
                 return $item['kd_jenis_prw'] == $kdJenisPrw && $item['id_template'] == $idTemplate;
             })->values()->toArray();
-        } else {
+        } elseif (!$existing) {
             // Add if not exists
             $template = TemplateLaboratorium::where('kd_jenis_prw', $kdJenisPrw)
                 ->where('id_template', $idTemplate)
@@ -223,33 +275,38 @@ class PermintaanLaboratorium extends Component
                 $this->permintaanLabRecord->noorder :
                 PermintaanLab::generateNoOrder();
 
-            // Create or update permintaan_lab
-            $permintaanData = [
-                'noorder' => $noOrder,
-                'no_rawat' => $this->noRawat,
-                'tgl_permintaan' => $this->tanggalPermintaan,
-                'jam_permintaan' => $this->jamPermintaan,
-                'dokter_perujuk' => $this->dokterPerujuk,
-                'status' => $this->status,
-                'diagnosa_klinis' => $this->diagnosisKlinis,
-                'informasi_tambahan' => $this->informasiTambahan,
-            ];
-
+            // Create or update permintaan_lab using raw query like resep obat
             if ($this->isEditing) {
-                PermintaanLab::where('noorder', $noOrder)->update($permintaanData);
+                DB::statement("UPDATE permintaan_lab SET
+                    no_rawat = ?, tgl_permintaan = ?, jam_permintaan = ?,
+                    dokter_perujuk = ?, status = ?, diagnosa_klinis = ?, informasi_tambahan = ?
+                    WHERE noorder = ?", [
+                    $this->noRawat, $this->tanggalPermintaan, $this->jamPermintaan,
+                    $this->dokterPerujuk, $this->status, $this->diagnosisKlinis,
+                    $this->informasiTambahan, $noOrder
+                ]);
                 // Delete existing details
-                DetailPermintaanLab::where('noorder', $noOrder)->delete();
+                DB::statement("DELETE FROM permintaan_detail_permintaan_lab WHERE noorder = ?", [$noOrder]);
             } else {
-                PermintaanLab::create($permintaanData);
+                DB::statement("INSERT INTO permintaan_lab
+                    (noorder, no_rawat, tgl_permintaan, jam_permintaan, tgl_sampel, jam_sampel,
+                     tgl_hasil, jam_hasil, dokter_perujuk, status, diagnosa_klinis, informasi_tambahan)
+                    VALUES (?, ?, ?, ?, ?, '00:00:00', ?, '00:00:00', ?, ?, ?, ?)", [
+                    $noOrder, $this->noRawat, $this->tanggalPermintaan, $this->jamPermintaan,
+                    $this->tanggalPermintaan, $this->tanggalPermintaan, // Use same date as request date
+                    $this->dokterPerujuk, $this->status, $this->diagnosisKlinis, $this->informasiTambahan
+                ]);
             }
 
-            // Create detail_permintaan_lab records
+            // Create detail_permintaan_lab records using raw query
             foreach ($this->selectedPemeriksaan as $pemeriksaan) {
-                DetailPermintaanLab::create([
-                    'noorder' => $noOrder,
-                    'kd_jenis_prw' => $pemeriksaan['kd_jenis_prw'],
-                    'id_template' => $pemeriksaan['id_template'],
-                    'stts_bayar' => $pemeriksaan['stts_bayar'] ?? 'Belum'
+                DB::statement("INSERT INTO permintaan_detail_permintaan_lab
+                    (noorder, kd_jenis_prw, id_template, stts_bayar)
+                    VALUES (?, ?, ?, ?)", [
+                    $noOrder,
+                    $pemeriksaan['kd_jenis_prw'],
+                    $pemeriksaan['id_template'],
+                    $pemeriksaan['stts_bayar'] ?? 'Belum'
                 ]);
             }
 
@@ -272,8 +329,8 @@ class PermintaanLaboratorium extends Component
         try {
             DB::beginTransaction();
 
-            DetailPermintaanLab::where('noorder', $this->permintaanLabRecord->noorder)->delete();
-            PermintaanLab::where('noorder', $this->permintaanLabRecord->noorder)->delete();
+            DB::statement("DELETE FROM permintaan_detail_permintaan_lab WHERE noorder = ?", [$this->permintaanLabRecord->noorder]);
+            DB::statement("DELETE FROM permintaan_lab WHERE noorder = ?", [$this->permintaanLabRecord->noorder]);
 
             DB::commit();
 
@@ -316,7 +373,7 @@ class PermintaanLaboratorium extends Component
             $templatesQuery->where('template_laboratorium.kd_jenis_prw', $this->selectedKategori);
         }
 
-        // Get paginated templates
+        // Use pagination with configurable perPage
         $templates = $templatesQuery
             ->orderBy('jns_perawatan_lab.nm_perawatan')
             ->orderBy('template_laboratorium.Pemeriksaan')
@@ -327,7 +384,7 @@ class PermintaanLaboratorium extends Component
         $groupedForDisplay = $templates->groupBy('kd_jenis_prw');
 
         // Get existing lab requests
-        $permintaanLab = PermintaanLab::with(['regPeriksa.pasien', 'dokter', 'detailPermintaan.templateLaboratorium'])
+        $permintaanLab = PermintaanLab::with(['regPeriksa.pasien', 'dokter', 'detailPermintaan'])
             ->byNoRawat($this->noRawat)
             ->orderBy('tgl_permintaan', 'desc')
             ->orderBy('jam_permintaan', 'desc')

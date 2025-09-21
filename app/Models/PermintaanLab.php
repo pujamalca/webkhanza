@@ -34,8 +34,6 @@ class PermintaanLab extends Model
 
     protected $casts = [
         'tgl_permintaan' => 'date',
-        'tgl_sampel' => 'date',
-        'tgl_hasil' => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -92,6 +90,40 @@ class PermintaanLab extends Model
         return $this->jam_permintaan ? date('H:i', strtotime($this->jam_permintaan)) : '-';
     }
 
+    public function getFormattedTglSampelAttribute(): string
+    {
+        // Show '-' if sample date equals request date and jam is 00:00:00 (meaning not yet taken)
+        if ($this->tgl_sampel == $this->tgl_permintaan && $this->jam_sampel == '00:00:00') {
+            return '-';
+        }
+        return $this->tgl_sampel ? date('d/m/Y', strtotime($this->tgl_sampel)) : '-';
+    }
+
+    public function getFormattedJamSampelAttribute(): string
+    {
+        if ($this->tgl_sampel == $this->tgl_permintaan && $this->jam_sampel == '00:00:00') {
+            return '-';
+        }
+        return $this->jam_sampel ? date('H:i', strtotime($this->jam_sampel)) : '-';
+    }
+
+    public function getFormattedTglHasilAttribute(): string
+    {
+        // Show '-' if result date equals request date and jam is 00:00:00 (meaning not yet ready)
+        if ($this->tgl_hasil == $this->tgl_permintaan && $this->jam_hasil == '00:00:00') {
+            return '-';
+        }
+        return $this->tgl_hasil ? date('d/m/Y', strtotime($this->tgl_hasil)) : '-';
+    }
+
+    public function getFormattedJamHasilAttribute(): string
+    {
+        if ($this->tgl_hasil == $this->tgl_permintaan && $this->jam_hasil == '00:00:00') {
+            return '-';
+        }
+        return $this->jam_hasil ? date('H:i', strtotime($this->jam_hasil)) : '-';
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
@@ -107,7 +139,7 @@ class PermintaanLab extends Model
     public static function generateNoOrder(): string
     {
         $tanggal = now()->format('Ymd');
-        $prefix = 'PL' . $tanggal;
+        $prefix = 'PK' . $tanggal;
 
         $lastOrder = static::where('noorder', 'like', $prefix . '%')
             ->orderBy('noorder', 'desc')
