@@ -60,4 +60,66 @@ class PermintaanLab extends Model
     {
         return $this->hasMany(DetailPermintaanLab::class, 'noorder', 'noorder');
     }
+
+    // Scopes
+    public function scopeByNoRawat($query, $noRawat)
+    {
+        return $query->where('no_rawat', $noRawat);
+    }
+
+    public function scopeByTanggal($query, $tanggalMulai, $tanggalSelesai = null)
+    {
+        $query->where('tgl_permintaan', '>=', $tanggalMulai);
+        if ($tanggalSelesai) {
+            $query->where('tgl_permintaan', '<=', $tanggalSelesai);
+        }
+        return $query;
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    // Accessors
+    public function getFormattedTglPermintaanAttribute(): string
+    {
+        return $this->tgl_permintaan ? $this->tgl_permintaan->format('d/m/Y') : '-';
+    }
+
+    public function getFormattedJamPermintaanAttribute(): string
+    {
+        return $this->jam_permintaan ? date('H:i', strtotime($this->jam_permintaan)) : '-';
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'ralan' => 'Rawat Jalan',
+            'ranap' => 'Rawat Inap',
+            'sampel' => 'Sampel Diambil',
+            'selesai' => 'Selesai',
+            default => 'Belum Diproses'
+        };
+    }
+
+    // Generate order number
+    public static function generateNoOrder(): string
+    {
+        $tanggal = now()->format('Ymd');
+        $prefix = 'PL' . $tanggal;
+
+        $lastOrder = static::where('noorder', 'like', $prefix . '%')
+            ->orderBy('noorder', 'desc')
+            ->first();
+
+        if ($lastOrder) {
+            $lastNumber = intval(substr($lastOrder->noorder, -4));
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
 }

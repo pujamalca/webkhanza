@@ -62,12 +62,12 @@ class ViewRawatJalan extends ViewRecord
                                 )->key('resep-obat-' . $this->record->no_rawat),
                             ]),
                         
-                        Tab::make('Pemeriksaan Labor')
-                            ->icon('heroicon-o-academic-cap')
+                        Tab::make('Permintaan Labor')
+                            ->icon('heroicon-o-beaker')
                             ->schema([
-                                TextEntry::make('stts')
-                                    ->label('Status Labor')
-                                    ->placeholder('Belum ada pemeriksaan labor tercatat'),
+                                Livewire::make(\App\Livewire\PermintaanLaboratorium::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('permintaan-laboratorium-' . $this->record->no_rawat),
                             ]),
                     ])
                     ->columnSpanFull(),
