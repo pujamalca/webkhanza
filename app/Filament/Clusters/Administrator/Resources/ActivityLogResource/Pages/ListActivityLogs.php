@@ -1,4 +1,4 @@
-.+<?php
+<?php
 
 namespace App\Filament\Clusters\Administrator\Resources\ActivityLogResource\Pages;
 
