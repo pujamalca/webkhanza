@@ -9,8 +9,13 @@ class DetailPeriksaLab extends Model
 {
     protected $table = 'detail_periksa_lab';
     public $timestamps = false;
-    protected $primaryKey = null;
+    protected $primaryKey = 'no_rawat';
     public $incrementing = false;
+
+    public function getKeyName()
+    {
+        return 'no_rawat';
+    }
 
     protected $fillable = [
         'no_rawat',
@@ -50,7 +55,8 @@ class DetailPeriksaLab extends Model
 
     public function templateLaboratorium(): BelongsTo
     {
-        return $this->belongsTo(TemplateLaboratorium::class, ['kd_jenis_prw', 'id_template'], ['kd_jenis_prw', 'id_template']);
+        return $this->belongsTo(TemplateLaboratorium::class, 'kd_jenis_prw', 'kd_jenis_prw')
+            ->where('template_laboratorium.id_template', $this->id_template);
     }
 
     public function jenisPerawatan(): BelongsTo

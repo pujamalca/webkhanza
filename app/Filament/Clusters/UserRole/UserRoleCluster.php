@@ -12,12 +12,17 @@ class UserRoleCluster extends Cluster
 
     public static function getNavigationLabel(): string
     {
-        return 'Administrator';
+        return 'User Role';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'User Role';
     }
 
     public static function getNavigationSort(): ?int
     {
-        return 10;
+        return 500;
     }
 
     public static function canAccess(): bool

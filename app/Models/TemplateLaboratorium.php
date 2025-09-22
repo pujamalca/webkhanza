@@ -56,7 +56,8 @@ class TemplateLaboratorium extends Model
 
     public function detailPeriksaLab(): HasMany
     {
-        return $this->hasMany(DetailPeriksaLab::class, ['kd_jenis_prw', 'id_template'], ['kd_jenis_prw', 'id_template']);
+        return $this->hasMany(DetailPeriksaLab::class, 'kd_jenis_prw', 'kd_jenis_prw')
+            ->where('detail_periksa_lab.id_template', $this->id_template);
     }
 
     // Scopes

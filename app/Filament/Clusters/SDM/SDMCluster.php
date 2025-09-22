@@ -15,9 +15,14 @@ class SDMCluster extends Cluster
         return 'SDM';
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return 'SDM';
+    }
+
     public static function getNavigationSort(): ?int
     {
-        return 20;
+        return 400;
     }
 
     public static function canAccess(): bool

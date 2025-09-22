@@ -15,6 +15,9 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationItem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
@@ -78,6 +81,21 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Electronic Medical Record')
+                    ->icon('heroicon-o-clipboard-document-list'),
+                NavigationGroup::make()
+                    ->label('Marketing'),
+                NavigationGroup::make()
+                    ->label('Pegawai'),
+                NavigationGroup::make()
+                    ->label('SDM'),
+                NavigationGroup::make()
+                    ->label('User Role'),
+                NavigationGroup::make()
+                    ->label('Website'),
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,

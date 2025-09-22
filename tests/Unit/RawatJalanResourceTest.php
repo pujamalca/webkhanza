@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Filament\Clusters\Erm\Resources\RawatJalanResource;
+use App\Filament\Resources\Erm\RawatJalanResource;
 use App\Models\RegPeriksa;
 use Tests\TestCase;
 use Filament\Schemas\Schema;

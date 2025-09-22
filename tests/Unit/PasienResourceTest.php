@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Filament\Clusters\Erm\Resources\PasienResource;
+use App\Filament\Resources\Erm\PasienResource;
 use App\Models\Pasien;
 use Tests\TestCase;
 use Filament\Schemas\Schema;

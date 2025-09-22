@@ -11,10 +11,15 @@ class PegawaiCluster extends Cluster
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     
     protected static ?string $navigationLabel = 'Pegawai';
-    
+
     protected static ?string $slug = 'pegawai';
-    
-    protected static ?int $navigationSort = 3;
+
+    protected static ?int $navigationSort = 300;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Pegawai';
+    }
     
     public static function getNavigationBadge(): ?string
     {

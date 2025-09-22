@@ -16,7 +16,7 @@ class AdministratorCluster extends Cluster
 
     public static function getNavigationSort(): ?int
     {
-        return 10;
+        return 200;
     }
 
     public static function canAccess(): bool

@@ -14,9 +14,14 @@ class MarketingCluster extends Cluster
         return 'Marketing';
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Marketing';
+    }
+
     public static function getNavigationSort(): ?int
     {
-        return 30;
+        return 700;
     }
 
     public static function canAccess(): bool

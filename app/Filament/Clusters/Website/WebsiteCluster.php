@@ -9,10 +9,15 @@ use Filament\Support\Icons\Heroicon;
 class WebsiteCluster extends Cluster
 {
     protected static ?string $navigationLabel = 'Website Management';
-    
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-globe-alt';
-    
-    protected static ?int $navigationSort = 20;
+
+    protected static ?int $navigationSort = 600;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Website';
+    }
     
     protected static ?string $slug = 'website';
     
