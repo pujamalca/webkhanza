@@ -20,6 +20,75 @@ class ViewRawatJalan extends ViewRecord
     {
         return $infolist
             ->schema([
+                // Section Informasi Dasar - Ditampilkan di atas semua tab (Lebar Penuh)
+                Section::make('📅 Informasi Dasar Pasien')
+                    ->description('Informasi dasar rawat jalan dan data pasien')
+                    ->schema([
+                        Group::make([
+                            TextEntry::make('no_rawat')
+                                ->label('No. Rawat')
+                                ->badge()
+                                ->color('primary'),
+                            TextEntry::make('no_rkm_medis')
+                                ->label('No. RM')
+                                ->badge()
+                                ->color('success'),
+                            TextEntry::make('pasien.nm_pasien')
+                                ->label('Nama Pasien')
+                                ->weight('bold'),
+                            TextEntry::make('tgl_registrasi')
+                                ->label('Tanggal Registrasi')
+                                ->date('d/m/Y'),
+                            TextEntry::make('jam_reg')
+                                ->label('Jam Registrasi')
+                                ->time('H:i'),
+                            TextEntry::make('dokter.nm_dokter')
+                                ->label('Dokter')
+                                ->default('Tidak ada data'),
+                        ])->columns(6),
+
+                        Group::make([
+                            TextEntry::make('poliklinik.nm_poli')
+                                ->label('Poliklinik')
+                                ->badge()
+                                ->color('info'),
+                            TextEntry::make('penjab.png_jawab')
+                                ->label('Cara Bayar')
+                                ->badge()
+                                ->color('warning'),
+                            TextEntry::make('status_lanjut')
+                                ->label('Status')
+                                ->badge()
+                                ->color(fn (string $state): string => match ($state) {
+                                    'Ralan' => 'success',
+                                    'Ranap' => 'danger',
+                                    default => 'gray',
+                                }),
+                            TextEntry::make('pasien.jk')
+                                ->label('Jenis Kelamin')
+                                ->badge()
+                                ->color(fn (string $state): string => match ($state) {
+                                    'L' => 'blue',
+                                    'P' => 'pink',
+                                    default => 'gray',
+                                })
+                                ->formatStateUsing(fn (string $state): string => match ($state) {
+                                    'L' => 'Laki-laki',
+                                    'P' => 'Perempuan',
+                                    default => $state,
+                                }),
+                            TextEntry::make('pasien.tgl_lahir')
+                                ->label('Tanggal Lahir')
+                                ->date('d/m/Y'),
+                            TextEntry::make('pasien.alamat')
+                                ->label('Alamat')
+                                ->limit(50),
+                        ])->columns(6),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false)
+                    ->columnSpanFull(),
+
                 Tabs::make('Detail Rawat Jalan')
                     ->tabs([
                         Tab::make('Pemeriksaan Ralan')
