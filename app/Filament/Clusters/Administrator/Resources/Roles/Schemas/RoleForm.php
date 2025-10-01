@@ -207,6 +207,12 @@ class RoleForm
                                             'rawat_jalan_labor_edit' => '✏️ Tab Labor - Edit permintaan labor',
                                             'rawat_jalan_labor_delete' => '🗑️ Tab Labor - Hapus permintaan labor',
 
+                                            // Tab Resume Pasien
+                                            'rawat_jalan_resume_access' => '📊 Tab Resume - Akses tab Resume Pasien',
+                                            'rawat_jalan_resume_create' => '➕ Tab Resume - Buat resume baru',
+                                            'rawat_jalan_resume_edit' => '✏️ Tab Resume - Edit resume',
+                                            'rawat_jalan_resume_delete' => '🗑️ Tab Resume - Hapus resume',
+
                                             'pasien_view' => '👁️ Pasien - Lihat daftar pasien',
                                             'pasien_create' => '➕ Pasien - Buat data pasien baru',
                                             'pasien_edit' => '✏️ Pasien - Edit data pasien',

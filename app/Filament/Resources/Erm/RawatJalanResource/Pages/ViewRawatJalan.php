@@ -75,6 +75,15 @@ class ViewRawatJalan extends ViewRecord
                                     fn () => ['noRawat' => $this->record->no_rawat]
                                 )->key('permintaan-laboratorium-' . $this->record->no_rawat),
                             ]),
+
+                        Tab::make('Resume Pasien')
+                            ->icon('heroicon-o-document-chart-bar')
+                            ->visible(fn () => auth()->user()->hasPermissionTo('rawat_jalan_resume_access'))
+                            ->schema([
+                                Livewire::make(\App\Livewire\ResumePasienForm::class,
+                                    fn () => ['noRawat' => $this->record->no_rawat]
+                                )->key('resume-pasien-' . $this->record->no_rawat),
+                            ]),
                     ])
                     ->columnSpanFull(),
             ]);
