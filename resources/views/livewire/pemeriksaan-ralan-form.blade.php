@@ -67,7 +67,7 @@
                                        x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Petugas <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium mb-1" x-bind:class="darkMode ? 'text-gray-300' : 'text-gray-700'">Petugas/Dokter <span class="text-red-500">*</span></label>
                                 @if($this->canManageAllExaminations() && !empty($pegawaiList))
                                     <select wire:model="nip" required
                                             x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500'">
@@ -77,8 +77,9 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    <input type="text" wire:model="nip" readonly required
+                                    <input type="text" value="{{ $namaPetugas }}" readonly required
                                            x-bind:class="darkMode ? 'w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-600 text-gray-300' : 'w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600'" />
+                                    <input type="hidden" wire:model="nip" />
                                 @endif
                             </div>
                         </div>
@@ -347,14 +348,25 @@
 
                                         {{-- Edit Button - Restricted to admin or record owner --}}
                                         @php
-                                            $currentUserNip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+                                            $currentUserNip = auth()->user()->username ?? '-';
                                             $canEdit = ($this->canManageAllExaminations() || (auth()->user()->hasPermissionTo('rawat_jalan_edit') && $item['nip'] === $currentUserNip));
+                                            $canDelete = ($this->canManageAllExaminations() || (auth()->user()->hasPermissionTo('rawat_jalan_delete') && $item['nip'] === $currentUserNip));
                                         @endphp
                                         @if($canEdit)
                                             <button type="button"
                                                     wire:click="editPemeriksaan('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}', '{{ $item['no_rawat'] }}')"
                                                     class="px-2 sm:px-3 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 text-xs sm:text-sm">
                                                 ✏️ Edit
+                                            </button>
+                                        @endif
+
+                                        {{-- Delete Button - Restricted to admin or record owner --}}
+                                        @if($canDelete)
+                                            <button type="button"
+                                                    wire:click="hapusPemeriksaan('{{ $item['tgl_perawatan_raw'] }}', '{{ $item['jam_rawat_raw'] }}', '{{ $item['no_rawat'] }}')"
+                                                    onclick="confirm('Yakin hapus pemeriksaan tanggal {{ \Carbon\Carbon::parse($item['tgl_perawatan'])->format('d/m/Y') }} jam {{ substr($item['jam_rawat'], 0, 5) }}?') || event.stopImmediatePropagation()"
+                                                    class="px-2 sm:px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded-lg hover:bg-red-200 text-xs sm:text-sm">
+                                                🗑️ Hapus
                                             </button>
                                         @endif
                                     </div>
@@ -702,7 +714,7 @@
                                                     👤 Private
                                                 @endif
                                             </div>
-                                            @if($this->canDeleteTemplates() && (($template['nip'] === (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-')) || $this->canEditAllTemplates()))
+                                            @if($this->canDeleteTemplates() && (($template['nip'] === (auth()->user()->username ?? '-')) || $this->canEditAllTemplates()))
                                                 <button
                                                     wire:click.stop="deleteTemplate({{ $template['id'] }})"
                                                     onclick="confirm('Yakin hapus template {{ $template['nama_template'] }}?') || event.stopImmediatePropagation()"

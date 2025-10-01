@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Schemas;
+namespace App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;

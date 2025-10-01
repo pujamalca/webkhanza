@@ -203,4 +203,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->hasMany(Cuti::class, 'approved_by', 'id');
     }
+
+    /**
+     * Relationship with pegawai (employee)
+     */
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class, 'username', 'nik');
+    }
 }

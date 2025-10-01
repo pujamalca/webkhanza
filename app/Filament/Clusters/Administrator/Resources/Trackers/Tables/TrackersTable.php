@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\Trackers\Tables;
+namespace App\Filament\Clusters\Administrator\Resources\Trackers\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;

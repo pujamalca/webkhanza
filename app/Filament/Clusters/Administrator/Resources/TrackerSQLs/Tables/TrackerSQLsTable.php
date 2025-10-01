@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Tables;
+namespace App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Tables;
 
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;

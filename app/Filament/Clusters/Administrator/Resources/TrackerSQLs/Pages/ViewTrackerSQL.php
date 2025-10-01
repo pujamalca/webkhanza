@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages;
+namespace App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Pages;
 
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\TrackerSQLResource;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\TrackerSQLResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 

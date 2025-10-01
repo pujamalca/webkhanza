@@ -77,6 +77,9 @@ class PemeriksaanRalanForm extends Component
     #[Validate('required')]
     public $nip;
 
+    // Display name for petugas
+    public $namaPetugas;
+
     // History data
     public $riwayatPemeriksaan = [];
     
@@ -166,12 +169,12 @@ class PemeriksaanRalanForm extends Component
         $this->isAdmin = auth()->user()->hasRole(['super_admin', 'admin']) ||
                         auth()->user()->hasPermissionTo('manage_all_examinations');
         
-        // Load pegawai list for admin
+        // Load pegawai list for admin - using users table
         if ($this->isAdmin) {
-            $this->pegawaiList = Pegawai::select('nik', 'nama')
-                ->orderBy('nama')
-                ->get()
-                ->pluck('nama', 'nik')
+            $this->pegawaiList = \DB::table('users')
+                ->whereNotNull('username')
+                ->orderBy('name')
+                ->pluck('name', 'username')
                 ->toArray();
         }
         
@@ -315,14 +318,79 @@ class PemeriksaanRalanForm extends Component
         $this->saveToTemplate = false;
         $this->showCreateTemplate = false;
 
-        // Set NIP based on role
+        // Set NIP and nama petugas based on role
         if ($this->isAdmin) {
             $this->nip = ''; // Admin can choose
+            $this->namaPetugas = '';
         } else {
-            $this->nip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+            $this->nip = auth()->user()->username ?? '-';
+            $this->namaPetugas = auth()->user()->name ?? '-';
         }
     }
-    
+
+    public function updatedNip($value)
+    {
+        // Update nama petugas when NIP changes (for admin)
+        if ($this->isAdmin && !empty($value)) {
+            $user = \DB::table('users')->where('username', $value)->first();
+            $this->namaPetugas = $user ? $user->name : $value;
+        }
+    }
+
+    public function hapusPemeriksaan($tglPerawatan, $jamRawat, $sourceNoRawat = null)
+    {
+        try {
+            // Use the provided source no_rawat or fall back to current no_rawat
+            $sourceNoRawat = $sourceNoRawat ?: $this->noRawat;
+
+
+            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $sourceNoRawat)
+                ->where('tgl_perawatan', $tglPerawatan)
+                ->where('jam_rawat', $jamRawat)
+                ->first();
+
+            if (!$pemeriksaan) {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->warning()
+                    ->send();
+                return;
+            }
+
+            // Authorization check: only creator or users with permission can delete
+            $currentUserNip = auth()->user()->username ?? '-';
+            $canDeleteAll = auth()->user()->hasPermissionTo('manage_all_examinations');
+            $canDeleteOwn = auth()->user()->hasPermissionTo('rawat_jalan_delete');
+
+            if (!$canDeleteAll && (!$canDeleteOwn || $pemeriksaan->nip !== $currentUserNip)) {
+                Notification::make()
+                    ->title('Akses Ditolak')
+                    ->body('Anda tidak memiliki izin untuk menghapus pemeriksaan ini')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+
+            $pemeriksaan->delete();
+
+            // Reload latest data
+            $this->loadRiwayat();
+
+            Notification::make()
+                ->title('Pemeriksaan berhasil dihapus')
+                ->success()
+                ->send();
+
+        } catch (\Exception $e) {
+            \Log::error('Hapus pemeriksaan error', ['error' => $e->getMessage()]);
+            Notification::make()
+                ->title('Error menghapus data: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
     public function editPemeriksaan($tglPerawatan, $jamRawat, $sourceNoRawat = null)
     {
         try {
@@ -350,7 +418,7 @@ class PemeriksaanRalanForm extends Component
             }
 
             // Authorization check: only creator or users with permission can edit
-            $currentUserNip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+            $currentUserNip = auth()->user()->pegawai->nik ?? '-';
             $canEditAll = auth()->user()->hasPermissionTo('manage_all_examinations');
             $canEditOwn = auth()->user()->hasPermissionTo('rawat_jalan_edit');
 
@@ -423,7 +491,13 @@ class PemeriksaanRalanForm extends Component
                 $this->instruksi = $pemeriksaan->instruksi ?? '';
                 $this->evaluasi = $pemeriksaan->evaluasi ?? '';
                 $this->nip = $pemeriksaan->nip ?? '';
-                
+
+                // Set nama petugas for display
+                if (!empty($this->nip)) {
+                    $user = \DB::table('users')->where('username', $this->nip)->first();
+                    $this->namaPetugas = $user ? $user->name : $this->nip;
+                }
+
                 \Log::info('Data loaded', ['keluhan' => $this->keluhan]);
                 
                 Notification::make()
@@ -486,9 +560,10 @@ class PemeriksaanRalanForm extends Component
                 $this->instruksi = $pemeriksaan->instruksi ?? '';
                 $this->evaluasi = $pemeriksaan->evaluasi ?? '';
 
-                // Keep current NIP
+                // Keep current NIP and nama petugas
                 if (!$this->isAdmin) {
-                    $this->nip = auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-';
+                    $this->nip = auth()->user()->username ?? '-';
+                    $this->namaPetugas = auth()->user()->name ?? '-';
                 }
 
                 $examDate = \Carbon\Carbon::parse($pemeriksaan->tgl_perawatan)->format('d/m/Y');
@@ -537,21 +612,29 @@ class PemeriksaanRalanForm extends Component
         // Count total examinations for this patient
         $this->totalHistory = PemeriksaanRalan::whereIn('no_rawat', $noRawatList)->count();
 
-        // Get paginated examination data for all visits of this patient
-        $data = PemeriksaanRalan::whereIn('no_rawat', $noRawatList)
-            ->with(['petugas:nik,nama'])
-            ->orderBy('tgl_perawatan', 'desc')
-            ->orderBy('jam_rawat', 'desc')
+        // Get paginated examination data for all visits of this patient with user name
+        // Fallback to pegawai table if user not found
+        $data = \DB::table('pemeriksaan_ralan')
+            ->leftJoin('users', 'pemeriksaan_ralan.nip', '=', 'users.username')
+            ->leftJoin('pegawai', 'pemeriksaan_ralan.nip', '=', 'pegawai.nik')
+            ->whereIn('pemeriksaan_ralan.no_rawat', $noRawatList)
+            ->select(
+                'pemeriksaan_ralan.*',
+                \DB::raw('COALESCE(users.name, pegawai.nama, pemeriksaan_ralan.nip) as petugas_nama')
+            )
+            ->orderBy('pemeriksaan_ralan.tgl_perawatan', 'desc')
+            ->orderBy('pemeriksaan_ralan.jam_rawat', 'desc')
             ->skip(($this->historyPage - 1) * $this->historyPerPage)
             ->take($this->historyPerPage)
             ->get();
 
         $this->riwayatPemeriksaan = $data->map(function($item) {
-            $array = $item->toArray();
+            $array = (array) $item;
             // Keep raw values for edit function - use raw database values
-            $rawAttrs = $item->getAttributes();
-            $array['tgl_perawatan_raw'] = $rawAttrs['tgl_perawatan'];
-            $array['jam_rawat_raw'] = $rawAttrs['jam_rawat'];
+            $array['tgl_perawatan_raw'] = $item->tgl_perawatan;
+            $array['jam_rawat_raw'] = $item->jam_rawat;
+            // Add petugas data in expected format for the view
+            $array['petugas'] = ['nama' => $item->petugas_nama];
             return $array;
         })->toArray();
     }
@@ -570,7 +653,7 @@ class PemeriksaanRalanForm extends Component
             return;
         }
 
-        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+        $currentNip = $this->nip ?: (auth()->user()->username ?? '-');
 
         $query = SoapieTemplate::forUser($currentNip)
             ->orderBy('is_public', 'asc')
@@ -724,7 +807,7 @@ class PemeriksaanRalanForm extends Component
             return;
         }
 
-        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? '-');
 
         // Check permission for public templates
         $canCreatePublic = auth()->user()->hasPermissionTo('create_public_soapie_templates');
@@ -766,7 +849,7 @@ class PemeriksaanRalanForm extends Component
             return;
         }
 
-        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+        $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? '-');
 
         $templateName = 'Auto Template - ' . date('Y-m-d H:i:s');
 
@@ -805,7 +888,7 @@ class PemeriksaanRalanForm extends Component
         $template = SoapieTemplate::find($templateId);
 
         if ($template) {
-            $currentNip = $this->nip ?: (auth()->user()->pegawai->nik ?? auth()->user()->username ?? '-');
+            $currentNip = $this->nip ?: (auth()->user()->username ?? '-');
             $canEditAll = auth()->user()->hasPermissionTo('edit_all_soapie_templates');
 
             // Check if user can delete (owner or has permission for all templates)

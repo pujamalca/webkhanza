@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs;
+namespace App\Filament\Clusters\Administrator\Resources\TrackerSQLs;
 
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\ListTrackerSQLs;
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Pages\ViewTrackerSQL;
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Schemas\TrackerSQLForm;
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Schemas\TrackerSQLInfolist;
-use App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Tables\TrackerSQLsTable;
-use App\Filament\Clusters\UserRole\UserRoleCluster;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Pages\ListTrackerSQLs;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Pages\ViewTrackerSQL;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Schemas\TrackerSQLForm;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Schemas\TrackerSQLInfolist;
+use App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Tables\TrackerSQLsTable;
+use App\Filament\Clusters\Administrator\AdministratorCluster;
 use App\Models\TrackerSQL;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,7 +19,7 @@ class TrackerSQLResource extends Resource
 {
     protected static ?string $model = TrackerSQL::class;
 
-    protected static ?string $cluster = UserRoleCluster::class;
+    protected static ?string $cluster = AdministratorCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 

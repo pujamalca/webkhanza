@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\UserRole\Resources\TrackerSQLs\Schemas;
+namespace App\Filament\Clusters\Administrator\Resources\TrackerSQLs\Schemas;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;

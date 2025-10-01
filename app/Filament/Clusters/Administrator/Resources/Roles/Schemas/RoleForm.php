@@ -174,6 +174,39 @@ class RoleForm
                                             'rawat_jalan_delete' => '🗑️ Rawat Jalan - Hapus rawat jalan',
                                             'rawat_jalan_view_details' => '📄 Rawat Jalan - Lihat detail rawat jalan',
 
+                                            // Tab Pemeriksaan Ralan
+                                            'rawat_jalan_pemeriksaan_access' => '🩺 Tab Pemeriksaan - Akses tab Pemeriksaan Ralan',
+
+                                            // Tab Input Tindakan
+                                            'rawat_jalan_input_tindakan_access' => '🔧 Tab Input Tindakan - Akses tab Input Tindakan',
+                                            'rawat_jalan_input_tindakan_create' => '➕ Tab Input Tindakan - Buat tindakan baru',
+                                            'rawat_jalan_input_tindakan_edit' => '✏️ Tab Input Tindakan - Edit tindakan',
+                                            'rawat_jalan_input_tindakan_delete' => '🗑️ Tab Input Tindakan - Hapus tindakan',
+
+                                            // Tab Diagnosa
+                                            'rawat_jalan_diagnosa_access' => '📋 Tab Diagnosa - Akses tab Diagnosa',
+                                            'rawat_jalan_diagnosa_create' => '➕ Tab Diagnosa - Buat diagnosa baru',
+                                            'rawat_jalan_diagnosa_edit' => '✏️ Tab Diagnosa - Edit diagnosa',
+                                            'rawat_jalan_diagnosa_delete' => '🗑️ Tab Diagnosa - Hapus diagnosa',
+
+                                            // Tab Catatan Pasien
+                                            'rawat_jalan_catatan_access' => '📝 Tab Catatan - Akses tab Catatan Pasien',
+                                            'rawat_jalan_catatan_create' => '➕ Tab Catatan - Buat catatan baru',
+                                            'rawat_jalan_catatan_edit' => '✏️ Tab Catatan - Edit catatan',
+                                            'rawat_jalan_catatan_delete' => '🗑️ Tab Catatan - Hapus catatan',
+
+                                            // Tab Resep Obat
+                                            'rawat_jalan_resep_access' => '💊 Tab Resep - Akses tab Resep Obat',
+                                            'rawat_jalan_resep_create' => '➕ Tab Resep - Buat resep baru',
+                                            'rawat_jalan_resep_edit' => '✏️ Tab Resep - Edit resep',
+                                            'rawat_jalan_resep_delete' => '🗑️ Tab Resep - Hapus resep',
+
+                                            // Tab Permintaan Labor
+                                            'rawat_jalan_labor_access' => '🧪 Tab Labor - Akses tab Permintaan Labor',
+                                            'rawat_jalan_labor_create' => '➕ Tab Labor - Buat permintaan labor baru',
+                                            'rawat_jalan_labor_edit' => '✏️ Tab Labor - Edit permintaan labor',
+                                            'rawat_jalan_labor_delete' => '🗑️ Tab Labor - Hapus permintaan labor',
+
                                             'pasien_view' => '👁️ Pasien - Lihat daftar pasien',
                                             'pasien_create' => '➕ Pasien - Buat data pasien baru',
                                             'pasien_edit' => '✏️ Pasien - Edit data pasien',
