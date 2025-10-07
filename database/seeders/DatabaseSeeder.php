@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             // Run individually if needed: php artisan db:seed --class=RolePermissionSeeder
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
+            ManageExaminationPermissionSeeder::class, // manage_all_examinations permission
+            RawatJalanPermissionSeeder::class, // Rawat Jalan permissions
+            SoapieRolePermissionSeeder::class, // SOAPIE template permissions
             CoreDataSeeder::class, // Essential data seperti WebsiteIdentity - VERIFIED WORKING
             BlogCategorySeeder::class, // VERIFIED WORKING
             BlogSeeder::class,

@@ -59,7 +59,8 @@
       "Bash(rm:*)",
       "Read(//d/d/laragon/www/webkhanza/**)",
       "Bash(chmod:*)",
-      "Bash(./update_namespaces.sh:*)"
+      "Bash(./update_namespaces.sh:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": [],

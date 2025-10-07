@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'bpjs' => [
+        'mobile_jkn_url' => env('BPJS_MOBILE_JKN_URL', 'https://api-satusehat.kemkes.go.id'),
+        'api_key' => env('BPJS_API_KEY'),
+        'secret_key' => env('BPJS_SECRET_KEY'),
+    ],
+
 ];

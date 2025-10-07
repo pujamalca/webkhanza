@@ -57,9 +57,9 @@ class InputTindakanForm extends Component
 
         // Check user permissions
         $this->isAdmin = auth()->user()->hasRole(['super_admin', 'admin']) ||
-                        auth()->user()->hasPermissionTo('manage_all_examinations') ||
-                        auth()->user()->hasPermissionTo('manage_all_medical_notes') ||
-                        auth()->user()->hasPermissionTo('manage_all_input_tindakan');
+                        auth()->user()->can('manage_all_examinations') ||
+                        auth()->user()->can('manage_all_medical_notes') ||
+                        auth()->user()->can('manage_all_input_tindakan');
 
         // Load existing tindakan
         $this->loadExistingTindakan();
