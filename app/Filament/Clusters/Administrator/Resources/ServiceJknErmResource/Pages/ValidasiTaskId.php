@@ -130,34 +130,85 @@ class ValidasiTaskId extends Page
         $totalFixed = 0;
         $totalOk = 0;
 
-        // Query data registrasi dengan BPJS
+        // Query data registrasi rawat jalan dengan jadwal dokter
         $records = DB::table('reg_periksa as r')
             ->join('pasien as p', 'r.no_rkm_medis', '=', 'p.no_rkm_medis')
-            ->join('referensi_mobilejkn_bpjs as mjkn', 'r.no_rawat', '=', 'mjkn.no_rawat')
+            ->leftJoin('referensi_mobilejkn_bpjs as mjkn', 'r.no_rawat', '=', 'mjkn.no_rawat')
+            ->leftJoin('jadwal as j', function($join) {
+                $join->on('r.kd_dokter', '=', 'j.kd_dokter')
+                     ->on('r.kd_poli', '=', 'j.kd_poli')
+                     ->whereRaw('DAYNAME(r.tgl_registrasi) = CASE
+                        WHEN j.hari_kerja = "SENIN" THEN "Monday"
+                        WHEN j.hari_kerja = "SELASA" THEN "Tuesday"
+                        WHEN j.hari_kerja = "RABU" THEN "Wednesday"
+                        WHEN j.hari_kerja = "KAMIS" THEN "Thursday"
+                        WHEN j.hari_kerja = "JUMAT" THEN "Friday"
+                        WHEN j.hari_kerja = "SABTU" THEN "Saturday"
+                        WHEN j.hari_kerja = "AKHAD" THEN "Sunday"
+                     END');
+            })
             ->whereBetween('r.tgl_registrasi', [$this->dariTanggal, $this->sampaiTanggal])
-            ->whereNotNull('mjkn.validasi')
-            ->where('mjkn.validasi', '!=', '0000-00-00 00:00:00')
+            ->where('r.status_lanjut', 'Ralan')
             ->select([
                 'r.no_rawat',
                 'r.no_rkm_medis',
                 'r.tgl_registrasi',
                 'r.jam_reg',
+                'r.kd_dokter',
+                'r.kd_poli',
                 'p.nm_pasien',
+                'j.jam_mulai as jam_praktek',
                 'mjkn.validasi'
             ])
             ->orderBy('r.tgl_registrasi')
             ->orderBy('r.jam_reg')
             ->get();
 
+        // Group records by dokter+poli+tanggal untuk sequential timing
+        $groupedRecords = [];
         foreach ($records as $record) {
-            try {
-                $tasks = [];
-                $issues = [];
-                $originalTasks = [];
+            $key = $record->kd_dokter . '|' . $record->kd_poli . '|' . $record->tgl_registrasi;
+            if (!isset($groupedRecords[$key])) {
+                $groupedRecords[$key] = [];
+            }
+            $groupedRecords[$key][] = $record;
+        }
 
-                // Task 3: Waktu validasi SEP/BPJS (dari referensi_mobilejkn_bpjs.validasi)
-                $tasks[3] = Carbon::parse($record->validasi);
-                $originalTasks[3] = $tasks[3]->copy();
+        foreach ($groupedRecords as $key => $groupRecords) {
+            $sequenceNumber = 0;
+
+            foreach ($groupRecords as $record) {
+                try {
+                    $tasks = [];
+                    $issues = [];
+                    $originalTasks = [];
+
+                    // Task 3: Waktu tunggu poli (jam_reg atau jam_praktek) + sequence
+                    $jamReg = Carbon::parse($record->tgl_registrasi . ' ' . $record->jam_reg);
+                    $originalTasks[3] = $jamReg->copy();
+
+                    // Jika ada jam praktek dokter dan jam_reg lebih awal, gunakan jam praktek
+                    if (!empty($record->jam_praktek)) {
+                        $jamPraktek = Carbon::parse($record->tgl_registrasi . ' ' . $record->jam_praktek);
+
+                        if ($jamReg->lt($jamPraktek)) {
+                            $tasks[3] = $jamPraktek->copy()->addSeconds($sequenceNumber * 7);
+                            $issues[] = "Jam Reg ({$jamReg->format('H:i')}) < Jam Praktek ({$jamPraktek->format('H:i')}), diubah ke jam praktek";
+                        } else {
+                            $tasks[3] = $jamReg->copy()->addSeconds($sequenceNumber * 7);
+                        }
+                    } else {
+                        // Tidak ada jadwal dokter, pakai jam_reg + sequence
+                        $tasks[3] = $jamReg->copy()->addSeconds($sequenceNumber * 7);
+                    }
+
+                    $sequenceNumber++;
+
+                // Task 3 Alternatif: Validasi SEP Mobile JKN (hanya untuk info)
+                $tasks['3_sep'] = null;
+                if (!empty($record->validasi) && $record->validasi != '0000-00-00 00:00:00') {
+                    $tasks['3_sep'] = Carbon::parse($record->validasi);
+                }
 
                 // Task 4: Mulai pemeriksaan
                 $pemeriksaan = DB::table('pemeriksaan_ralan')
@@ -176,8 +227,9 @@ class ValidasiTaskId extends Page
                 if ($pemeriksaan && $pemeriksaan != '0000-00-00 00:00:00') {
                     $originalTasks[4] = Carbon::parse($pemeriksaan);
                     $tasks[4] = $originalTasks[4]->copy();
-                    if ($tasks[4]->lt($tasks[3])) {
-                        $issues[] = "Task 4 ({$originalTasks[4]->format('H:i')}) < Task 3 ({$tasks[3]->format('H:i')})";
+                    // Bandingkan dengan originalTasks[3] (waktu asli), bukan tasks[3] (yang sudah + sequence)
+                    if ($originalTasks[4]->lte($originalTasks[3])) {
+                        $issues[] = "Task 4 ({$originalTasks[4]->format('H:i:s')}) <= Task 3 ({$originalTasks[3]->format('H:i:s')})";
                         $tasks[4] = $tasks[3]->copy()->addMinutes(5);
                     }
                 } else {
@@ -196,8 +248,9 @@ class ValidasiTaskId extends Page
                 if ($kembali && $kembali != '0000-00-00 00:00:00') {
                     $originalTasks[5] = Carbon::parse($kembali);
                     $tasks[5] = $originalTasks[5]->copy();
-                    if ($tasks[5]->lt($tasks[4])) {
-                        $issues[] = "Task 5 ({$originalTasks[5]->format('H:i')}) < Task 4 ({$tasks[4]->format('H:i')})";
+                    // Bandingkan dengan originalTasks[4] (waktu asli)
+                    if (isset($originalTasks[4]) && $originalTasks[5]->lte($originalTasks[4])) {
+                        $issues[] = "Task 5 ({$originalTasks[5]->format('H:i:s')}) <= Task 4 ({$originalTasks[4]->format('H:i:s')})";
                         $tasks[5] = $tasks[4]->copy()->addMinutes(5);
                     }
                 } else {
@@ -218,8 +271,9 @@ class ValidasiTaskId extends Page
                 if ($resep && $resep != '0000-00-00 00:00:00') {
                     $originalTasks[6] = Carbon::parse($resep);
                     $tasks[6] = $originalTasks[6]->copy();
-                    if ($tasks[6]->lt($tasks[5])) {
-                        $issues[] = "Task 6 ({$originalTasks[6]->format('H:i')}) < Task 5 ({$tasks[5]->format('H:i')})";
+                    // Bandingkan dengan originalTasks[5] (waktu asli)
+                    if (isset($originalTasks[5]) && $originalTasks[6]->lte($originalTasks[5])) {
+                        $issues[] = "Task 6 ({$originalTasks[6]->format('H:i:s')}) <= Task 5 ({$originalTasks[5]->format('H:i:s')})";
                         $tasks[6] = $tasks[5]->copy()->addMinutes(5);
                     }
 
@@ -235,8 +289,9 @@ class ValidasiTaskId extends Page
                     if ($penyerahan && $penyerahan != '0000-00-00 00:00:00') {
                         $originalTasks[7] = Carbon::parse($penyerahan);
                         $tasks[7] = $originalTasks[7]->copy();
-                        if ($tasks[7]->lt($tasks[6])) {
-                            $issues[] = "Task 7 ({$originalTasks[7]->format('H:i')}) < Task 6 ({$tasks[6]->format('H:i')})";
+                        // Bandingkan dengan originalTasks[6] (waktu asli)
+                        if (isset($originalTasks[6]) && $originalTasks[7]->lte($originalTasks[6])) {
+                            $issues[] = "Task 7 ({$originalTasks[7]->format('H:i:s')}) <= Task 6 ({$originalTasks[6]->format('H:i:s')})";
                             $tasks[7] = $tasks[6]->copy()->addMinutes(5);
                         }
                     }
@@ -259,8 +314,9 @@ class ValidasiTaskId extends Page
                     $totalOk++;
                 }
 
-            } catch (\Exception $e) {
-                \Log::error("Error validating {$record->no_rawat}: {$e->getMessage()}");
+                } catch (\Exception $e) {
+                    \Log::error("Error validating {$record->no_rawat}: {$e->getMessage()}");
+                }
             }
         }
 
@@ -308,11 +364,26 @@ class ValidasiTaskId extends Page
         DB::beginTransaction();
         try {
             foreach ($this->validationResults as $result) {
+                // Skip jika tidak ada masalah
+                if (!$result['has_issues']) {
+                    continue;
+                }
+
                 $noRawat = $result['no_rawat'];
                 $tasks = $result['tasks'];
                 $originalTasks = $result['originalTasks'];
 
-                // Task 3 TIDAK perlu diupdate (dari referensi_mobilejkn_bpjs.validasi - readonly)
+                // Update Task 3: jam_reg di reg_periksa (jika berubah)
+                if (isset($tasks[3]) && isset($originalTasks[3])) {
+                    if ($tasks[3]->ne($originalTasks[3])) {
+                        // Jam reg berubah (karena disesuaikan dengan jam praktek)
+                        // Gunakan unprepared statement untuk menghindari cache issue
+                        $jamRegBaru = $tasks[3]->format('H:i:s');
+                        $noRawatEscaped = DB::connection()->getPdo()->quote($noRawat);
+                        $jamRegEscaped = DB::connection()->getPdo()->quote($jamRegBaru);
+                        DB::unprepared("UPDATE reg_periksa SET jam_reg = {$jamRegEscaped} WHERE no_rawat = {$noRawatEscaped}");
+                    }
+                }
 
                 // Update Task 4: pemeriksaan_ralan DAN mutasi_berkas.diterima
                 if (isset($tasks[4])) {

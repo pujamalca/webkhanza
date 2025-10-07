@@ -270,7 +270,7 @@
                                         $isAutoFilled = !$hasOriginal;
 
                                         $taskName = match($taskNum) {
-                                            3 => 'Validasi SEP',
+                                            3 => 'Registrasi (Jam Reg)',
                                             4 => 'Mulai Pelayanan',
                                             5 => 'Selesai Pelayanan',
                                             6 => 'Resep Dibuat',
@@ -336,6 +336,22 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Info Validasi SEP Mobile JKN (jika ada) --}}
+                    @if(isset($result['tasks']['3_sep']) && $result['tasks']['3_sep'])
+                    <div class="mt-3 px-4 py-2 rounded-lg border"
+                         x-bind:class="darkMode ? 'bg-blue-900/20 border-blue-700' : 'bg-blue-50 border-blue-300'">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" x-bind:class="darkMode ? 'text-blue-400' : 'text-blue-600'" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            <span x-bind:class="darkMode ? 'text-blue-300' : 'text-blue-700'">
+                                <strong>Validasi SEP Mobile JKN:</strong> {{ $result['tasks']['3_sep']->format('H:i:s') }}
+                                <span class="text-xs opacity-75">(tidak diupdate, hanya info)</span>
+                            </span>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endforeach
