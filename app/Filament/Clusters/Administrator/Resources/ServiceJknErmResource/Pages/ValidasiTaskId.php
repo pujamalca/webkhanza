@@ -242,16 +242,18 @@ class ValidasiTaskId extends Page
                     }
                 }
 
-                // Simpan hasil validasi
+                // Simpan hasil validasi - SEMUA data (yang bermasalah dan yang OK)
+                $this->validationResults[] = [
+                    'no_rawat' => $record->no_rawat,
+                    'no_rkm_medis' => $record->no_rkm_medis,
+                    'pasien' => $record->nm_pasien,
+                    'issues' => $issues,
+                    'tasks' => $tasks,
+                    'originalTasks' => $originalTasks,
+                    'has_issues' => !empty($issues), // Flag untuk warna berbeda
+                ];
+
                 if (!empty($issues)) {
-                    $this->validationResults[] = [
-                        'no_rawat' => $record->no_rawat,
-                        'no_rkm_medis' => $record->no_rkm_medis,
-                        'pasien' => $record->nm_pasien,
-                        'issues' => $issues,
-                        'tasks' => $tasks,
-                        'originalTasks' => $originalTasks,
-                    ];
                     $totalFixed++;
                 } else {
                     $totalOk++;
@@ -261,6 +263,11 @@ class ValidasiTaskId extends Page
                 \Log::error("Error validating {$record->no_rawat}: {$e->getMessage()}");
             }
         }
+
+        // Sort: yang bermasalah di atas, yang OK di bawah
+        usort($this->validationResults, function($a, $b) {
+            return $b['has_issues'] <=> $a['has_issues'];
+        });
 
         $this->summary = [
             'totalFixed' => $totalFixed,
@@ -307,10 +314,10 @@ class ValidasiTaskId extends Page
 
                 // Task 3 TIDAK perlu diupdate (dari referensi_mobilejkn_bpjs.validasi - readonly)
 
-                // Update Task 4: pemeriksaan_ralan - DELETE old, INSERT new OR INSERT if empty
+                // Update Task 4: pemeriksaan_ralan DAN mutasi_berkas.diterima
                 if (isset($tasks[4])) {
                     if (isset($originalTasks[4])) {
-                        // Ada data asli - DELETE old, INSERT new
+                        // Ada data asli - cek di pemeriksaan_ralan
                         $oldRecord = DB::table('pemeriksaan_ralan')
                             ->where('no_rawat', $noRawat)
                             ->where('tgl_perawatan', $originalTasks[4]->format('Y-m-d'))
@@ -318,6 +325,7 @@ class ValidasiTaskId extends Page
                             ->first();
 
                         if ($oldRecord) {
+                            // DELETE old dari pemeriksaan_ralan, INSERT new
                             DB::table('pemeriksaan_ralan')
                                 ->where('no_rawat', $noRawat)
                                 ->where('tgl_perawatan', $originalTasks[4]->format('Y-m-d'))
@@ -329,7 +337,39 @@ class ValidasiTaskId extends Page
                             $newRecord['jam_rawat'] = $tasks[4]->format('H:i:s');
 
                             DB::table('pemeriksaan_ralan')->insert($newRecord);
+                        } else {
+                            // Data asli dari mutasi_berkas.diterima, bukan pemeriksaan_ralan
+                            // INSERT baru ke pemeriksaan_ralan dengan waktu yang sudah diperbaiki
+                            DB::table('pemeriksaan_ralan')->insert([
+                                'no_rawat' => $noRawat,
+                                'tgl_perawatan' => $tasks[4]->format('Y-m-d'),
+                                'jam_rawat' => $tasks[4]->format('H:i:s'),
+                                'suhu_tubuh' => '36',
+                                'tensi' => '120/80',
+                                'nadi' => '80',
+                                'respirasi' => '20',
+                                'tinggi' => '0',
+                                'berat' => '0',
+                                'spo2' => '99',
+                                'gcs' => '456',
+                                'kesadaran' => 'Compos Mentis',
+                                'keluhan' => '-',
+                                'pemeriksaan' => '-',
+                                'alergi' => '-',
+                                'lingkar_perut' => '0',
+                                'rtl' => '-',
+                                'penilaian' => '-',
+                                'instruksi' => '-',
+                                'evaluasi' => '-',
+                                'nip' => '-',
+                            ]);
                         }
+
+                        // Update juga mutasi_berkas.diterima jika ada
+                        DB::table('mutasi_berkas')
+                            ->where('no_rawat', $noRawat)
+                            ->update(['diterima' => $tasks[4]->format('Y-m-d H:i:s')]);
+
                     } else {
                         // Data kosong (auto-generated) - INSERT baru
                         DB::table('pemeriksaan_ralan')->insert([
@@ -405,7 +445,10 @@ class ValidasiTaskId extends Page
                             $newResep['tgl_perawatan'] = $tasks[6]->format('Y-m-d');
                             $newResep['jam'] = $tasks[6]->format('H:i:s');
 
+                            // Disable strict mode untuk insert resep_obat (mungkin ada '0000-00-00')
+                            DB::statement("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'");
                             DB::table('resep_obat')->insert($newResep);
+                            DB::statement("SET SESSION sql_mode = (SELECT @@GLOBAL.sql_mode)");
                         }
                     } else {
                         // Data kosong (auto-generated) - INSERT baru dengan data minimal

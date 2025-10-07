@@ -173,14 +173,27 @@
 
         <div class="space-y-6">
             @foreach($this->paginatedValidationResults as $index => $result)
-            <div class="rounded-lg p-6 space-y-4"
-                 x-bind:class="darkMode ? 'bg-gray-700 border border-gray-600' : 'bg-gray-50 border border-gray-200'">
+            <div class="rounded-lg p-6 space-y-4 @if($result['has_issues']) border-2 @else border @endif"
+                 x-bind:class="darkMode ?
+                    '{{ $result['has_issues'] ? 'bg-warning-900/10 border-warning-600' : 'bg-success-900/10 border-success-600' }}' :
+                    '{{ $result['has_issues'] ? 'bg-warning-50 border-warning-500' : 'bg-success-50 border-success-500' }}'">
                 {{-- Header --}}
                 <div class="flex items-start justify-between pb-4"
                      x-bind:class="darkMode ? 'border-b border-gray-600' : 'border-b border-gray-200'">
-                    <div>
-                        <div class="text-lg font-semibold" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">
-                            {{ $this->pagination['from'] + $index }}. {{ $result['pasien'] }}
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3">
+                            <div class="text-lg font-semibold" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">
+                                {{ $this->pagination['from'] + $index }}. {{ $result['pasien'] }}
+                            </div>
+                            @if($result['has_issues'])
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800 dark:bg-warning-900/30 dark:text-warning-200">
+                                    ⚠ Perlu Diperbaiki
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800 dark:bg-success-900/30 dark:text-success-200">
+                                    ✓ Sudah Benar
+                                </span>
+                            @endif
                         </div>
                         <div class="text-sm mt-1 space-x-4" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-600'">
                             <span>No. Rawat: <strong class="font-mono" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">{{ $result['no_rawat'] }}</strong></span>
@@ -189,7 +202,8 @@
                     </div>
                 </div>
 
-                {{-- Issues --}}
+                {{-- Issues - hanya tampil jika ada masalah --}}
+                @if($result['has_issues'])
                 <div class="border-l-4 border-warning-600 p-4 rounded"
                      x-bind:class="darkMode ? 'bg-warning-900/20' : 'bg-warning-50'">
                     <div class="flex">
@@ -212,6 +226,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 {{-- Timeline Table --}}
                 <div>
