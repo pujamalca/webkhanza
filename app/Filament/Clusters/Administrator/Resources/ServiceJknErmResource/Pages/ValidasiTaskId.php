@@ -33,6 +33,7 @@ class ValidasiTaskId extends Page
     public $hasValidated = false;
     public $currentPage = 1;
     public $perPage = 3;
+    public $dataExported = false;
 
     public function mount(): void
     {
@@ -125,19 +126,24 @@ class ValidasiTaskId extends Page
 
         $this->validationResults = [];
         $this->currentPage = 1; // Reset ke halaman pertama
+        $this->dataExported = false; // Reset flag export
         $totalFixed = 0;
         $totalOk = 0;
 
-        // Query data registrasi
+        // Query data registrasi dengan BPJS
         $records = DB::table('reg_periksa as r')
             ->join('pasien as p', 'r.no_rkm_medis', '=', 'p.no_rkm_medis')
+            ->join('referensi_mobilejkn_bpjs as mjkn', 'r.no_rawat', '=', 'mjkn.no_rawat')
             ->whereBetween('r.tgl_registrasi', [$this->dariTanggal, $this->sampaiTanggal])
+            ->whereNotNull('mjkn.validasi')
+            ->where('mjkn.validasi', '!=', '0000-00-00 00:00:00')
             ->select([
                 'r.no_rawat',
                 'r.no_rkm_medis',
                 'r.tgl_registrasi',
                 'r.jam_reg',
-                'p.nm_pasien'
+                'p.nm_pasien',
+                'mjkn.validasi'
             ])
             ->orderBy('r.tgl_registrasi')
             ->orderBy('r.jam_reg')
@@ -149,8 +155,8 @@ class ValidasiTaskId extends Page
                 $issues = [];
                 $originalTasks = [];
 
-                // Task 3: Waktu registrasi (wajib)
-                $tasks[3] = Carbon::parse($record->tgl_registrasi . ' ' . $record->jam_reg);
+                // Task 3: Waktu validasi SEP/BPJS (dari referensi_mobilejkn_bpjs.validasi)
+                $tasks[3] = Carbon::parse($record->validasi);
                 $originalTasks[3] = $tasks[3]->copy();
 
                 // Task 4: Mulai pemeriksaan
@@ -275,6 +281,182 @@ class ValidasiTaskId extends Page
                 ->title('Validasi selesai')
                 ->body("Ditemukan {$totalFixed} data yang perlu diperbaiki")
                 ->warning()
+                ->send();
+        }
+    }
+
+    public function updateTaskIds()
+    {
+        if (empty($this->validationResults)) {
+            Notification::make()
+                ->title('Tidak ada data untuk diupdate')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        $updated = 0;
+        $errors = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($this->validationResults as $result) {
+                $noRawat = $result['no_rawat'];
+                $tasks = $result['tasks'];
+                $originalTasks = $result['originalTasks'];
+
+                // Task 3 TIDAK perlu diupdate (dari referensi_mobilejkn_bpjs.validasi - readonly)
+
+                // Update Task 4: pemeriksaan_ralan - DELETE old, INSERT new OR INSERT if empty
+                if (isset($tasks[4])) {
+                    if (isset($originalTasks[4])) {
+                        // Ada data asli - DELETE old, INSERT new
+                        $oldRecord = DB::table('pemeriksaan_ralan')
+                            ->where('no_rawat', $noRawat)
+                            ->where('tgl_perawatan', $originalTasks[4]->format('Y-m-d'))
+                            ->where('jam_rawat', $originalTasks[4]->format('H:i:s'))
+                            ->first();
+
+                        if ($oldRecord) {
+                            DB::table('pemeriksaan_ralan')
+                                ->where('no_rawat', $noRawat)
+                                ->where('tgl_perawatan', $originalTasks[4]->format('Y-m-d'))
+                                ->where('jam_rawat', $originalTasks[4]->format('H:i:s'))
+                                ->delete();
+
+                            $newRecord = (array) $oldRecord;
+                            $newRecord['tgl_perawatan'] = $tasks[4]->format('Y-m-d');
+                            $newRecord['jam_rawat'] = $tasks[4]->format('H:i:s');
+
+                            DB::table('pemeriksaan_ralan')->insert($newRecord);
+                        }
+                    } else {
+                        // Data kosong (auto-generated) - INSERT baru
+                        DB::table('pemeriksaan_ralan')->insert([
+                            'no_rawat' => $noRawat,
+                            'tgl_perawatan' => $tasks[4]->format('Y-m-d'),
+                            'jam_rawat' => $tasks[4]->format('H:i:s'),
+                            'suhu_tubuh' => '36',
+                            'tensi' => '120/80',
+                            'nadi' => '80',
+                            'respirasi' => '20',
+                            'tinggi' => '0',
+                            'berat' => '0',
+                            'spo2' => '99',
+                            'gcs' => '456',
+                            'kesadaran' => 'Compos Mentis',
+                            'keluhan' => '-',
+                            'pemeriksaan' => '-',
+                            'alergi' => '-',
+                            'lingkar_perut' => '0',
+                            'rtl' => '-',
+                            'penilaian' => '-',
+                            'instruksi' => '-',
+                            'evaluasi' => '-',
+                            'nip' => '-',
+                        ]);
+                    }
+                }
+
+                // Update Task 5: mutasi_berkas (kembali) - UPDATE or INSERT
+                if (isset($tasks[5])) {
+                    $exists = DB::table('mutasi_berkas')
+                        ->where('no_rawat', $noRawat)
+                        ->exists();
+
+                    if ($exists) {
+                        DB::table('mutasi_berkas')
+                            ->where('no_rawat', $noRawat)
+                            ->update(['kembali' => $tasks[5]->format('Y-m-d H:i:s')]);
+                    } else {
+                        // INSERT baru jika tidak ada record mutasi_berkas
+                        // 7 kolom: no_rawat, status, dikirim, diterima, kembali, tidakada, ranap
+                        // Disable strict mode untuk insert, karena database asli punya '0000-00-00 00:00:00'
+                        DB::statement("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'");
+                        DB::statement(
+                            "INSERT INTO mutasi_berkas VALUES (?, 'Sudah Kembali', NOW(), ?, ?, '0000-00-00 00:00:00', '0000-00-00 00:00:00')",
+                            [$noRawat, $tasks[4]->format('Y-m-d H:i:s'), $tasks[5]->format('Y-m-d H:i:s')]
+                        );
+                        // Restore sql_mode
+                        DB::statement("SET SESSION sql_mode = (SELECT @@GLOBAL.sql_mode)");
+                    }
+                }
+
+                // Update Task 6: resep_obat - DELETE old, INSERT new OR INSERT if empty
+                if (isset($tasks[6])) {
+                    if (isset($originalTasks[6])) {
+                        // Ada data asli - DELETE old, INSERT new
+                        $oldResep = DB::table('resep_obat')
+                            ->where('no_rawat', $noRawat)
+                            ->where('status', 'ralan')
+                            ->where('tgl_perawatan', $originalTasks[6]->format('Y-m-d'))
+                            ->where('jam', $originalTasks[6]->format('H:i:s'))
+                            ->first();
+
+                        if ($oldResep) {
+                            DB::table('resep_obat')
+                                ->where('no_rawat', $noRawat)
+                                ->where('status', 'ralan')
+                                ->where('tgl_perawatan', $originalTasks[6]->format('Y-m-d'))
+                                ->where('jam', $originalTasks[6]->format('H:i:s'))
+                                ->delete();
+
+                            $newResep = (array) $oldResep;
+                            $newResep['tgl_perawatan'] = $tasks[6]->format('Y-m-d');
+                            $newResep['jam'] = $tasks[6]->format('H:i:s');
+
+                            DB::table('resep_obat')->insert($newResep);
+                        }
+                    } else {
+                        // Data kosong (auto-generated) - INSERT baru dengan data minimal
+                        DB::table('resep_obat')->insert([
+                            'no_resep' => 'AUTO-' . time(),
+                            'tgl_perawatan' => $tasks[6]->format('Y-m-d'),
+                            'jam' => $tasks[6]->format('H:i:s'),
+                            'no_rawat' => $noRawat,
+                            'kd_dokter' => '-',
+                            'tgl_peresepan' => $tasks[6]->format('Y-m-d'),
+                            'jam_peresepan' => $tasks[6]->format('H:i:s'),
+                            'status' => 'ralan',
+                            'tgl_penyerahan' => isset($tasks[7]) ? $tasks[7]->format('Y-m-d') : $tasks[6]->format('Y-m-d'),
+                            'jam_penyerahan' => isset($tasks[7]) ? $tasks[7]->format('H:i:s') : $tasks[6]->format('H:i:s'),
+                        ]);
+                    }
+                }
+
+                // Update Task 7: resep_obat penyerahan - bisa langsung update
+                if (isset($tasks[7])) {
+                    DB::table('resep_obat')
+                        ->where('no_rawat', $noRawat)
+                        ->where('status', 'ralan')
+                        ->update([
+                            'tgl_penyerahan' => $tasks[7]->format('Y-m-d'),
+                            'jam_penyerahan' => $tasks[7]->format('H:i:s'),
+                        ]);
+                }
+
+                $updated++;
+            }
+
+            DB::commit();
+
+            Notification::make()
+                ->title('Update berhasil!')
+                ->body("Berhasil mengupdate {$updated} data ke database. Desktop app dapat mengambil data terbaru.")
+                ->success()
+                ->send();
+
+            // Set flag bahwa data sudah di-update
+            $this->dataExported = true;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Error updating task IDs: {$e->getMessage()}");
+
+            Notification::make()
+                ->title('Update gagal!')
+                ->body($e->getMessage())
+                ->danger()
                 ->send();
         }
     }

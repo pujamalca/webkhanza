@@ -73,6 +73,55 @@
         </div>
     </div>
 
+    {{-- Update Database Button --}}
+    @if($hasValidated && count($this->validationResults) > 0)
+    <div class="mb-6 rounded-lg shadow p-6"
+         x-bind:class="darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'">
+        <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-success-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                    <h3 class="text-lg font-semibold" x-bind:class="darkMode ? 'text-gray-100' : 'text-gray-900'">
+                        Update Database
+                    </h3>
+                    @if($dataExported)
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800 dark:bg-success-900/30 dark:text-success-400">
+                            ✓ Sudah Diupdate
+                        </span>
+                    @endif
+                </div>
+                <p class="text-sm mb-4" x-bind:class="darkMode ? 'text-gray-400' : 'text-gray-600'">
+                    {{ $this->pagination['total'] }} data siap diupdate ke database. Desktop app akan mengambil data terbaru dari database untuk dikirim ke BPJS.
+                </p>
+                <div class="flex gap-3">
+                    <x-filament::button
+                        wire:click="updateTaskIds"
+                        wire:confirm="Apakah Anda yakin ingin mengupdate {{ $this->pagination['total'] }} data ke database? Proses ini akan mengubah waktu di tabel pemeriksaan_ralan, resep_obat, dan mutasi_berkas."
+                        color="success"
+                        icon="heroicon-o-check-circle"
+                        size="lg"
+                    >
+                        Update {{ $this->pagination['total'] }} Data ke Database
+                    </x-filament::button>
+                    <x-filament::button
+                        wire:click="$set('hasValidated', false)"
+                        color="gray"
+                        icon="heroicon-o-arrow-path"
+                        size="lg"
+                        outlined
+                    >
+                        Reset & Validasi Ulang
+                    </x-filament::button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Statistics Cards --}}
     @if($hasValidated)
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -206,10 +255,10 @@
                                         $isAutoFilled = !$hasOriginal;
 
                                         $taskName = match($taskNum) {
-                                            3 => 'Mulai Periksa',
-                                            4 => 'Panggil Farmasi',
-                                            5 => 'Tunggu Obat',
-                                            6 => 'Obat Disiapkan',
+                                            3 => 'Validasi SEP',
+                                            4 => 'Mulai Pelayanan',
+                                            5 => 'Selesai Pelayanan',
+                                            6 => 'Resep Dibuat',
                                             7 => 'Obat Diserahkan',
                                             default => 'Task ' . $taskNum
                                         };
@@ -400,8 +449,9 @@
                     </div>
                     <div class="ml-3">
                         <p class="text-sm" x-bind:class="darkMode ? 'text-gray-100' : 'text-info-800'">
-                            <strong>Catatan:</strong> Validasi ini hanya menampilkan hasil perbaikan waktu.
-                            Desktop app yang akan membaca waktu-waktu ini dan mengirim ke BPJS melalui API.
+                            <strong>Catatan:</strong> Validasi ini menampilkan hasil perbaikan waktu Task ID.
+                            Setelah klik tombol Update, waktu akan <strong>diubah di database</strong> (pemeriksaan_ralan, resep_obat, mutasi_berkas).
+                            Desktop app akan mengambil data terbaru dari database untuk dikirim ke BPJS API.
                         </p>
                     </div>
                 </div>
