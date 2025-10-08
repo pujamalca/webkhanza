@@ -18,7 +18,6 @@ class AdminUserSeeder extends Seeder
         $admin = User::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
-                'id' => '1', // Provide explicit ID for varchar(20) field
                 'name' => 'admin',
                 'username' => 'admin',
                 'email' => 'admin@gmail.com',

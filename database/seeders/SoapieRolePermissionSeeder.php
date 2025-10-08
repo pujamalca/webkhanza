@@ -49,10 +49,16 @@ class SoapieRolePermissionSeeder extends Seeder
                 'create_public_soapie_templates',
                 'fill_ttv_from_previous',
             ]);
+            $this->command->info('✓ SOAPIE permissions assigned to Admin role');
+        } else {
+            $this->command->warn('⚠ Admin role not found. Skipping SOAPIE permissions assignment.');
         }
 
         if ($superAdminRole) {
             $superAdminRole->givePermissionTo(Permission::all());
+            $this->command->info('✓ All permissions assigned to Super Admin role');
+        } else {
+            $this->command->warn('⚠ Super Admin role not found. Skipping permissions assignment.');
         }
 
         // Give permissions to existing Dokter role
@@ -64,6 +70,9 @@ class SoapieRolePermissionSeeder extends Seeder
                 'delete_soapie_templates',
                 'fill_ttv_from_previous',
             ]);
+            $this->command->info('✓ SOAPIE permissions assigned to Dokter role');
+        } else {
+            $this->command->warn('⚠ Dokter role not found. Skipping SOAPIE permissions assignment.');
         }
     }
 }

@@ -41,14 +41,18 @@ class RawatJalanPermissionSeeder extends Seeder
         $superAdminRole = Role::where('name', 'Super Admin')->first();
         if ($superAdminRole) {
             $superAdminRole->givePermissionTo(array_keys($permissions));
-            $this->command->info("All Rawat Jalan permissions assigned to Super Admin role.");
+            $this->command->info("✓ All Rawat Jalan permissions assigned to Super Admin role.");
+        } else {
+            $this->command->warn("⚠ Super Admin role not found. Skipping Rawat Jalan permissions assignment.");
         }
 
         // Berikan semua permission ke role Admin (jika ada)
         $adminRole = Role::where('name', 'Admin')->first();
         if ($adminRole) {
             $adminRole->givePermissionTo(array_keys($permissions));
-            $this->command->info("All Rawat Jalan permissions assigned to Admin role.");
+            $this->command->info("✓ All Rawat Jalan permissions assigned to Admin role.");
+        } else {
+            $this->command->warn("⚠ Admin role not found. Skipping Rawat Jalan permissions assignment.");
         }
 
         // Berikan permission terbatas ke role Dokter (jika ada)
@@ -61,7 +65,9 @@ class RawatJalanPermissionSeeder extends Seeder
                 'rawat_jalan_resep_access',
                 'rawat_jalan_resume_access',
             ]);
-            $this->command->info("Selected Rawat Jalan permissions assigned to Dokter role.");
+            $this->command->info("✓ Selected Rawat Jalan permissions assigned to Dokter role.");
+        } else {
+            $this->command->warn("⚠ Dokter role not found. Skipping Rawat Jalan permissions assignment.");
         }
 
         // Berikan permission terbatas ke role Perawat (jika ada)
@@ -72,7 +78,9 @@ class RawatJalanPermissionSeeder extends Seeder
                 'rawat_jalan_input_tindakan_access',
                 'rawat_jalan_catatan_access',
             ]);
-            $this->command->info("Selected Rawat Jalan permissions assigned to Perawat role.");
+            $this->command->info("✓ Selected Rawat Jalan permissions assigned to Perawat role.");
+        } else {
+            $this->command->warn("⚠ Perawat role not found. Skipping Rawat Jalan permissions assignment.");
         }
     }
 }

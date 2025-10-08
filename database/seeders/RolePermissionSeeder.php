@@ -192,15 +192,15 @@ class RolePermissionSeeder extends Seeder
         $this->createRolesWithPermissions();
 
         $this->command->info('Roles and permissions seeded successfully!');
-        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, Marketing, User');
+        $this->command->info('Created roles: Super Admin, Admin, HRD Manager, Staff HRD, Supervisor, Manager, Marketing, Dokter, Perawat, User');
         $this->command->info('Created ' . count($permissions) . ' permissions (including Marketing and BPJS Transfer)');
     }
 
     private function createRolesWithPermissions(): void
     {
         // First, create all roles to ensure they exist
-        $roleNames = ['Super Admin', 'Admin', 'HRD Manager', 'Staff HRD', 'Supervisor', 'Manager', 'Marketing', 'User'];
-        
+        $roleNames = ['Super Admin', 'Admin', 'HRD Manager', 'Staff HRD', 'Supervisor', 'Manager', 'Marketing', 'Dokter', 'Perawat', 'User'];
+
         foreach ($roleNames as $roleName) {
             Role::firstOrCreate([
                 'name' => $roleName,
@@ -290,6 +290,22 @@ class RolePermissionSeeder extends Seeder
                 // Basic ERM access untuk lihat data pasien
                 'erm_access', 'pasien_view', 'pasien_view_details',
                 'registrasi_view', 'registrasi_view_details',
+            ],
+            'Dokter' => [
+                'dashboard_access',
+                // ERM Access untuk melihat pasien
+                'erm_access', 'pasien_view', 'pasien_view_details',
+                'registrasi_view', 'registrasi_view_details',
+                'rawat_jalan_view', 'rawat_jalan_edit', 'rawat_jalan_view_details',
+                // Medical record permissions (akan ditambah oleh seeder lain)
+            ],
+            'Perawat' => [
+                'dashboard_access',
+                // ERM Access untuk melihat dan input data pasien
+                'erm_access', 'pasien_view', 'pasien_view_details',
+                'registrasi_view', 'registrasi_view_details',
+                'rawat_jalan_view', 'rawat_jalan_edit', 'rawat_jalan_view_details',
+                // Vital signs dan tindakan keperawatan (akan ditambah seeder lain)
             ],
             'User' => [
                 'dashboard_access',
