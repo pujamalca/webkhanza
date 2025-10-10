@@ -11,26 +11,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blog_tags', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->string('color', 7)->default('#6B7280'); // Hex color for tag
-            
-            // SEO Fields
-            $table->string('meta_title')->nullable();
-            $table->text('meta_description')->nullable();
-            
-            // Status
-            $table->boolean('is_active')->default(true);
-            
-            $table->timestamps();
-            
-            // Indexes
-            $table->index(['is_active']);
-            $table->index('slug');
-        });
+        if (!Schema::hasTable('blog_tags')) {
+            Schema::create('blog_tags', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('slug')->unique();
+                $table->text('description')->nullable();
+                $table->string('color', 7)->default('#6B7280'); // Hex color for tag
+
+                // SEO Fields
+                $table->string('meta_title')->nullable();
+                $table->text('meta_description')->nullable();
+
+                // Status
+                $table->boolean('is_active')->default(true);
+
+                $table->timestamps();
+
+                // Indexes
+                $table->index(['is_active']);
+                $table->index('slug');
+            });
+        }
     }
 
     /**

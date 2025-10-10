@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blogs', function (Blueprint $table) {
+        if (!Schema::hasTable('blogs')) {
+            Schema::create('blogs', function (Blueprint $table) {
             $table->id();
             
             // Basic Information
@@ -66,7 +67,8 @@ return new class extends Migration
             $table->index('slug');
             $table->index('views_count');
             $table->fullText(['title', 'excerpt', 'content']); // For search
-        });
+            });
+        }
     }
 
     /**

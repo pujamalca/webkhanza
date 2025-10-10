@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bpjs_transfers', function (Blueprint $table) {
+        if (!Schema::hasTable('bpjs_transfers')) {
+            Schema::create('bpjs_transfers', function (Blueprint $table) {
             $table->id();
             $table->string('nama_pasien'); // Required field
             $table->integer('jumlah_keluarga')->default(1); // Required field - jumlah anggota keluarga
@@ -35,7 +36,8 @@ return new class extends Migration
             $table->index(['no_peserta_lama']);
             $table->index(['created_by']);
             $table->index(['edukasi_completed_by']);
-        });
+            });
+        }
     }
 
     /**

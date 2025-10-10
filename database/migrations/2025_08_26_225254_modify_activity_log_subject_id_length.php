@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('activity_log', function (Blueprint $table) {
-            // Change subject_id from default length to 255 to accommodate longer IDs
-            $table->string('subject_id', 255)->nullable()->change();
-        });
+        if (Schema::hasTable('activity_log') && Schema::hasColumn('activity_log', 'subject_id')) {
+            Schema::table('activity_log', function (Blueprint $table) {
+                // Change subject_id from default length to 255 to accommodate longer IDs
+                $table->string('subject_id', 255)->nullable()->change();
+            });
+        }
     }
 
     /**

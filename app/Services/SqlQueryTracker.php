@@ -48,6 +48,11 @@ class SqlQueryTracker
             static::$tracking = true;
 
             try {
+                // Double check table exists before logging
+                if (!\Illuminate\Support\Facades\Schema::hasTable('activity_log')) {
+                    return;
+                }
+
                 $properties = [
                     'query' => static::formatQuery($query->sql),
                     'bindings' => $query->bindings,
@@ -61,7 +66,7 @@ class SqlQueryTracker
 
                 // Determine query type
                 $queryType = static::getQueryType($query->sql);
-                
+
                 // Get affected table(s)
                 $tables = static::extractTables($query->sql);
 
@@ -69,6 +74,8 @@ class SqlQueryTracker
                     ->causedBy(auth()->user())
                     ->withProperties($properties)
                     ->log("SQL {$queryType} on " . implode(', ', $tables));
+            } catch (\Exception $e) {
+                // Silently fail if logging not available
             } finally {
                 // Always reset tracking flag
                 static::$tracking = false;

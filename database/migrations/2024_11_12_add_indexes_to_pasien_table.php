@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,17 +12,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pasien', function (Blueprint $table) {
-            // Add indexes for fast searching
-            $table->index('no_rkm_medis', 'idx_pasien_no_rm');
-            $table->index('nm_pasien', 'idx_pasien_nama');  
-            $table->index('no_ktp', 'idx_pasien_nik');
-            $table->index('no_peserta', 'idx_pasien_bpjs');
-            
-            // Composite index for common searches
-            $table->index(['nm_pasien', 'no_rkm_medis'], 'idx_pasien_nama_rm');
-            $table->index(['no_rkm_medis', 'nm_pasien'], 'idx_pasien_rm_nama');
-        });
+        if (Schema::hasTable('pasien')) {
+            // Get existing indexes using raw query
+            $indexes = DB::select("SHOW INDEX FROM pasien");
+            $indexNames = array_unique(array_column($indexes, 'Key_name'));
+
+            Schema::table('pasien', function (Blueprint $table) use ($indexNames) {
+                // Add indexes for fast searching
+                if (!in_array('idx_pasien_no_rm', $indexNames)) {
+                    $table->index('no_rkm_medis', 'idx_pasien_no_rm');
+                }
+                if (!in_array('idx_pasien_nama', $indexNames)) {
+                    $table->index('nm_pasien', 'idx_pasien_nama');
+                }
+                if (!in_array('idx_pasien_nik', $indexNames)) {
+                    $table->index('no_ktp', 'idx_pasien_nik');
+                }
+                if (!in_array('idx_pasien_bpjs', $indexNames)) {
+                    $table->index('no_peserta', 'idx_pasien_bpjs');
+                }
+
+                // Composite index for common searches
+                if (!in_array('idx_pasien_nama_rm', $indexNames)) {
+                    $table->index(['nm_pasien', 'no_rkm_medis'], 'idx_pasien_nama_rm');
+                }
+                if (!in_array('idx_pasien_rm_nama', $indexNames)) {
+                    $table->index(['no_rkm_medis', 'nm_pasien'], 'idx_pasien_rm_nama');
+                }
+            });
+        }
     }
 
     /**
@@ -29,13 +48,31 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pasien', function (Blueprint $table) {
-            $table->dropIndex('idx_pasien_no_rm');
-            $table->dropIndex('idx_pasien_nama');
-            $table->dropIndex('idx_pasien_nik'); 
-            $table->dropIndex('idx_pasien_bpjs');
-            $table->dropIndex('idx_pasien_nama_rm');
-            $table->dropIndex('idx_pasien_rm_nama');
-        });
+        if (Schema::hasTable('pasien')) {
+            // Get existing indexes using raw query
+            $indexes = DB::select("SHOW INDEX FROM pasien");
+            $indexNames = array_unique(array_column($indexes, 'Key_name'));
+
+            Schema::table('pasien', function (Blueprint $table) use ($indexNames) {
+                if (in_array('idx_pasien_no_rm', $indexNames)) {
+                    $table->dropIndex('idx_pasien_no_rm');
+                }
+                if (in_array('idx_pasien_nama', $indexNames)) {
+                    $table->dropIndex('idx_pasien_nama');
+                }
+                if (in_array('idx_pasien_nik', $indexNames)) {
+                    $table->dropIndex('idx_pasien_nik');
+                }
+                if (in_array('idx_pasien_bpjs', $indexNames)) {
+                    $table->dropIndex('idx_pasien_bpjs');
+                }
+                if (in_array('idx_pasien_nama_rm', $indexNames)) {
+                    $table->dropIndex('idx_pasien_nama_rm');
+                }
+                if (in_array('idx_pasien_rm_nama', $indexNames)) {
+                    $table->dropIndex('idx_pasien_rm_nama');
+                }
+            });
+        }
     }
 };

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('registration_templates', function (Blueprint $table) {
-            $table->dropColumn('stts_daftar');
+            if (Schema::hasColumn('registration_templates', 'stts_daftar')) {
+                $table->dropColumn('stts_daftar');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('registration_templates', function (Blueprint $table) {
-            $table->enum('stts_daftar', ['Baru', 'Lama'])->default('Lama');
+            if (!Schema::hasColumn('registration_templates', 'stts_daftar')) {
+                $table->enum('stts_daftar', ['Baru', 'Lama'])->default('Lama');
+            }
         });
     }
 };

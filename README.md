@@ -1,61 +1,242 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# WebKhanza - Sistem Informasi Kesehatan Terpadu
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Platform terintegrasi untuk manajemen rumah sakit, klinik, dan fasilitas kesehatan dengan teknologi modern dan user-friendly interface.
 
-## About Laravel
+## Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Electronic Medical Record (EMR)** - Manajemen data pasien, registrasi, dan rawat jalan
+- **Manajemen SDM** - Pengelolaan pegawai, dokter, petugas, absensi, dan cuti
+- **Marketing Management** - Kategori marketing, patient tasks, dan BPJS transfer
+- **Website & Blog Management** - Kelola identitas website dan konten blog
+- **Role & Permission Management** - Sistem keamanan berbasis role dan permission
+- **Activity Logging** - Tracking semua aktivitas user
+- **Multi-device Login Control** - Kontrol perangkat login user
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Laravel 11** - PHP Framework
+- **Filament 3** - Admin Panel Framework
+- **MySQL/MariaDB** - Database
+- **Spatie Packages** - Permission & Activity Log
+- **Tailwind CSS** - Styling
 
-## Learning Laravel
+## Instalasi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Requirements
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.2 atau lebih tinggi
+- Composer
+- MySQL/MariaDB
+- Node.js & NPM (untuk kompilasi assets)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Langkah Instalasi
 
-## Laravel Sponsors
+1. **Clone repository**
+   ```bash
+   git clone <repository-url>
+   cd webkhanza
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
 
-### Premium Partners
+3. **Setup environment**
+   ```bash
+   cp .env.example .env
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   Edit file `.env` dan sesuaikan konfigurasi database:
+   ```env
+   DB_CONNECTION=mariadb
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=webkhanza
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-## Contributing
+4. **Generate application key**
+   ```bash
+   php artisan key:generate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Create database**
 
-## Code of Conduct
+   Buat database baru dengan nama sesuai `DB_DATABASE` di file `.env`:
+   ```sql
+   CREATE DATABASE webkhanza CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
 
-## Security Vulnerabilities
+7. **Run seeders**
+   ```bash
+   php artisan db:seed
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   Seeder akan membuat:
+   - Role dan permissions
+   - User admin default (email: admin@gmail.com, password: admin)
+   - Data website identity
+   - Sample blog categories dan posts
+   - Marketing categories
+   - Registration templates
+
+8. **Compile assets**
+   ```bash
+   npm run build
+   # atau untuk development
+   npm run dev
+   ```
+
+9. **Start development server**
+   ```bash
+   php artisan serve
+   ```
+
+   Aplikasi akan berjalan di `http://localhost:8000`
+
+10. **Login ke admin panel**
+
+    URL: `http://localhost:8000/admin`
+    - Email: `admin@gmail.com`
+    - Password: `admin`
+
+## Migrasi dari Database Desktop
+
+Jika Anda sudah memiliki database dari aplikasi desktop KHANZA sebelumnya:
+
+1. Import database desktop Anda terlebih dahulu
+2. Jalankan migration untuk menambahkan tabel-tabel baru yang diperlukan web app:
+   ```bash
+   php artisan migrate
+   ```
+3. Migration dirancang untuk tidak merusak data existing dengan pengecekan `hasColumn` dan `hasTable`
+4. Jalankan seeder untuk menambahkan data initial web app:
+   ```bash
+   php artisan db:seed
+   ```
+
+## Default User Credentials
+
+Setelah seeding, Anda dapat login dengan:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | admin@gmail.com | admin |
+
+**PENTING**: Segera ubah password default setelah login pertama kali!
+
+## Struktur Filament Clusters
+
+Aplikasi menggunakan struktur cluster untuk organisasi menu:
+
+- **Administrator** - User management, roles, permissions, activity logs
+- **ERM (Electronic Medical Record)** - Pasien, registrasi, rawat jalan
+- **SDM** - Pegawai, dokter, petugas, berkas, absensi, cuti
+- **Marketing** - Marketing categories, patient tasks, BPJS transfer
+- **Website Management** - Website identity, blog management
+- **Pegawai Cluster** - Portal untuk pegawai (absensi & cuti mereka sendiri)
+
+## Permission System
+
+Aplikasi menggunakan Spatie Laravel Permission dengan role-based access control:
+
+- **Super Admin** - Full access
+- **Admin** - Hampir semua akses kecuali delete users/roles
+- **HRD Manager** - Full access SDM cluster
+- **Staff HRD** - Limited access SDM cluster
+- **Supervisor** - View only SDM data
+- **Manager** - View semua data, approve cuti
+- **Marketing** - Marketing cluster & view pasien
+- **Dokter** - ERM access & medical records
+- **Perawat** - ERM access & vital signs
+- **User** - View own data only
+
+## Troubleshooting
+
+### Migration Error
+
+Jika ada error saat migration:
+
+```bash
+# Clear cache terlebih dahulu
+php artisan config:clear
+php artisan cache:clear
+
+# Jalankan ulang migration
+php artisan migrate:fresh --seed
+```
+
+**WARNING**: `migrate:fresh` akan menghapus semua data. Gunakan hanya untuk fresh installation!
+
+### Seeder Error
+
+Jika seeder tertentu error, jalankan individual:
+
+```bash
+php artisan db:seed --class=RolePermissionSeeder
+php artisan db:seed --class=AdminUserSeeder
+php artisan db:seed --class=CoreDataSeeder
+```
+
+### Permission Cache
+
+Jika permission tidak terdeteksi setelah seeding:
+
+```bash
+php artisan permission:cache-reset
+php artisan optimize:clear
+```
+
+### Storage Permission (Linux/Mac)
+
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+## Development
+
+### Running Tests
+
+```bash
+php artisan test
+```
+
+### Code Style
+
+Project ini mengikuti PSR-12 coding standard.
+
+### Git Workflow
+
+1. Create feature branch dari `main`
+2. Commit dengan pesan yang jelas dan deskriptif
+3. Push dan create pull request
+4. Review dan merge
+
+## Database Schema
+
+Migration files ada di `database/migrations/`:
+- User authentication & device management
+- Permission tables (Spatie)
+- Activity log tables
+- WebKhanza tables (compatibility dengan desktop app)
+- New web features tables
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary - All rights reserved
+
+## Support
+
+Untuk bantuan dan dokumentasi lebih lanjut, hubungi tim development.
+
+---
+
+**Catatan**: README ini dibuat untuk memudahkan setup fresh installation. Pastikan semua langkah diikuti dengan urutan yang benar.

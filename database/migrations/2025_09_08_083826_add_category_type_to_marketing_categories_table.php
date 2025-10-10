@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('marketing_categories', function (Blueprint $table) {
-            $table->enum('category_type', ['patient_marketing', 'bpjs_transfer'])
-                ->default('patient_marketing')
-                ->after('description')
-                ->comment('Type of category: patient_marketing for Data Pasien Marketing, bpjs_transfer for Pindah BPJS');
+            if (!Schema::hasColumn('marketing_categories', 'category_type')) {
+                $table->enum('category_type', ['patient_marketing', 'bpjs_transfer'])
+                    ->default('patient_marketing')
+                    ->after('description')
+                    ->comment('Type of category: patient_marketing for Data Pasien Marketing, bpjs_transfer for Pindah BPJS');
+            }
         });
     }
 
@@ -25,7 +27,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('marketing_categories', function (Blueprint $table) {
-            $table->dropColumn('category_type');
+            if (Schema::hasColumn('marketing_categories', 'category_type')) {
+                $table->dropColumn('category_type');
+            }
         });
     }
 };

@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('berkas_pegawai', function (Blueprint $table) {
-            $table->date('tgl_berakhir')->nullable()->after('tgl_uploud')
-                  ->comment('Tanggal berakhir/expired dokumen');
-        });
+        if (Schema::hasTable('berkas_pegawai')) {
+            Schema::table('berkas_pegawai', function (Blueprint $table) {
+                if (!Schema::hasColumn('berkas_pegawai', 'tgl_berakhir')) {
+                    $table->date('tgl_berakhir')->nullable()->after('tgl_uploud')
+                          ->comment('Tanggal berakhir/expired dokumen');
+                }
+            });
+        }
     }
 
     /**
@@ -22,8 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('berkas_pegawai', function (Blueprint $table) {
-            $table->dropColumn('tgl_berakhir');
-        });
+        if (Schema::hasTable('berkas_pegawai')) {
+            Schema::table('berkas_pegawai', function (Blueprint $table) {
+                if (Schema::hasColumn('berkas_pegawai', 'tgl_berakhir')) {
+                    $table->dropColumn('tgl_berakhir');
+                }
+            });
+        }
     }
 };

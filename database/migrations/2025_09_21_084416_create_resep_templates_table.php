@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('resep_templates', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_template');
-            $table->text('keterangan')->nullable();
-            $table->string('nip', 20);
-            $table->boolean('is_public')->default(false);
-            $table->string('kategori')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('resep_templates')) {
+            Schema::create('resep_templates', function (Blueprint $table) {
+                $table->id();
+                $table->string('nama_template');
+                $table->text('keterangan')->nullable();
+                $table->string('nip', 20);
+                $table->boolean('is_public')->default(false);
+                $table->string('kategori')->nullable();
+                $table->timestamps();
 
-            $table->index(['nip', 'is_public']);
-            $table->index('kategori');
-        });
+                $table->index(['nip', 'is_public']);
+                $table->index('kategori');
+            });
+        }
     }
 
     /**

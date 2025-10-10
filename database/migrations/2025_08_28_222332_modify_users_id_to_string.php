@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('id', 20)->change();
-        });
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'id')) {
+            // Only change if id is not already a string
+            $columnType = Schema::getColumnType('users', 'id');
+            if ($columnType !== 'string') {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('id', 20)->change();
+                });
+            }
+        }
     }
 
     /**

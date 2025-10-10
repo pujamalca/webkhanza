@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::table('blog_categories', function (Blueprint $table) {
             // Add missing columns that the model expects
-            $table->unsignedBigInteger('parent_id')->nullable()->after('image'); 
-            $table->enum('status', ['active', 'inactive'])->default('active')->after('meta_keywords');
-            
-            // Add foreign key constraint
-            $table->foreign('parent_id')->references('id')->on('blog_categories')->onDelete('cascade');
+            if (!Schema::hasColumn('blog_categories', 'parent_id')) {
+                $table->unsignedBigInteger('parent_id')->nullable()->after('image');
+                $table->foreign('parent_id')->references('id')->on('blog_categories')->onDelete('cascade');
+            }
+
+            if (!Schema::hasColumn('blog_categories', 'status')) {
+                $table->enum('status', ['active', 'inactive'])->default('active')->after('meta_keywords');
+            }
         });
     }
 
@@ -27,8 +30,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('blog_categories', function (Blueprint $table) {
-            $table->dropForeign(['parent_id']);
-            $table->dropColumn(['parent_id', 'status']);
+            if (Schema::hasColumn('blog_categories', 'parent_id')) {
+                $table->dropForeign(['parent_id']);
+                $table->dropColumn('parent_id');
+            }
+
+            if (Schema::hasColumn('blog_categories', 'status')) {
+                $table->dropColumn('status');
+            }
         });
     }
 };

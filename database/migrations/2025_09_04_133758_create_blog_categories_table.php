@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blog_categories', function (Blueprint $table) {
+        if (!Schema::hasTable('blog_categories')) {
+            Schema::create('blog_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
@@ -40,7 +41,8 @@ return new class extends Migration
             // Indexes
             $table->index(['is_active', 'sort_order']);
             $table->index('slug');
-        });
+            });
+        }
     }
 
     /**

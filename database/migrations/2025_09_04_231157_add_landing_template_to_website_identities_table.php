@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('website_identities', function (Blueprint $table) {
-            $table->enum('landing_template', ['default', 'doctor', 'clinic', 'hospital', 'pharmacy'])
-                  ->default('default')
-                  ->after('description')
-                  ->comment('Landing page template type');
+            if (!Schema::hasColumn('website_identities', 'landing_template')) {
+                $table->enum('landing_template', ['default', 'doctor', 'clinic', 'hospital', 'pharmacy'])
+                      ->default('default')
+                      ->after('description')
+                      ->comment('Landing page template type');
+            }
         });
     }
 
@@ -25,7 +27,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('website_identities', function (Blueprint $table) {
-            $table->dropColumn('landing_template');
+            if (Schema::hasColumn('website_identities', 'landing_template')) {
+                $table->dropColumn('landing_template');
+            }
         });
     }
 };

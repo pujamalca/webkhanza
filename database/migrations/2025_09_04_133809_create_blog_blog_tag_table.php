@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blog_blog_tag', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('blog_id')->constrained()->onDelete('cascade');
-            $table->foreignId('blog_tag_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-            
-            // Composite unique constraint
-            $table->unique(['blog_id', 'blog_tag_id']);
-            
-            // Indexes
-            $table->index('blog_id');
-            $table->index('blog_tag_id');
-        });
+        if (!Schema::hasTable('blog_blog_tag')) {
+            Schema::create('blog_blog_tag', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('blog_id')->constrained()->onDelete('cascade');
+                $table->foreignId('blog_tag_id')->constrained()->onDelete('cascade');
+                $table->timestamps();
+
+                // Composite unique constraint
+                $table->unique(['blog_id', 'blog_tag_id']);
+
+                // Indexes
+                $table->index('blog_id');
+                $table->index('blog_tag_id');
+            });
+        }
     }
 
     /**

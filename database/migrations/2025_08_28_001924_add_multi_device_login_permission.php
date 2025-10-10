@@ -12,11 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create multi_device_login permission
-        Permission::create([
-            'name' => 'multi_device_login',
-            'guard_name' => 'web'
-        ]);
+        // Create multi_device_login permission if not exists
+        if (Schema::hasTable('permissions')) {
+            Permission::firstOrCreate([
+                'name' => 'multi_device_login',
+                'guard_name' => 'web'
+            ]);
+        }
     }
 
     /**
