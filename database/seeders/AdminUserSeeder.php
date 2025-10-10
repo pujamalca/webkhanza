@@ -31,7 +31,7 @@ class AdminUserSeeder extends Seeder
                 if (!$isAutoIncrement) {
                     // For KHANZA desktop database where id is varchar/manual
                     $admin = User::create([
-                        'id' => 'admin', // Manual ID for varchar/string type
+                        'id' => '1', // Manual ID for varchar/string type
                         'name' => 'admin',
                         'username' => 'admin',
                         'email' => 'admin@gmail.com',
@@ -76,14 +76,23 @@ class AdminUserSeeder extends Seeder
             $this->command->info('✓ Admin user updated: admin@gmail.com / admin');
         }
 
+        // Refresh the user to ensure we have latest data
+        $admin->refresh();
+
         // Assign Super Admin role
         if (class_exists(\Spatie\Permission\Models\Role::class)) {
             $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
-            if ($superAdminRole && !$admin->hasRole('Super Admin')) {
-                $admin->assignRole($superAdminRole);
+            if ($superAdminRole) {
+                // Remove old role assignments if they exist (in case user ID was changed)
+                \DB::table('model_has_roles')
+                    ->where('model_type', 'App\Models\User')
+                    ->where('model_id', '!=', $admin->id)
+                    ->whereIn('model_id', ['admin', '1']) // Clean up old IDs
+                    ->delete();
+
+                // Sync role to ensure it's assigned correctly
+                $admin->syncRoles([$superAdminRole]);
                 $this->command->info('✓ Admin user assigned Super Admin role');
-            } elseif ($superAdminRole) {
-                $this->command->info('✓ Admin user already has Super Admin role');
             }
         }
     }

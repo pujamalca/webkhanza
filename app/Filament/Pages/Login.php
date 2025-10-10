@@ -89,12 +89,16 @@ class Login extends BaseLogin
         
         // Lanjutkan proses login normal
         $response = parent::authenticate();
-        
+
         if ($response && auth()->check()) {
             $user = auth()->user();
+
+            // Refresh user data to get latest permissions
+            $user->refresh();
+
             $userAgent = request()->header('User-Agent', '');
             $ipAddress = request()->ip();
-            
+
             // Set device token dan status login
             // Untuk admin dengan multi_device_login, tidak perlu overwrite device_token existing
             if (!$user->can('multi_device_login') || !$user->device_token) {
@@ -108,16 +112,22 @@ class Login extends BaseLogin
                     'logged_in_at' => now(),
                 ]);
             }
-            
-            // Refresh model untuk mendapatkan data terbaru
+
+            // Refresh model lagi untuk mendapatkan data terbaru
             $user->refresh();
-            
+
             // Simpan device token di session untuk middleware
             // Untuk admin, bisa pakai device_token yang ada atau generate sementara untuk session ini
             $sessionDeviceToken = $user->device_token ?? $user->generateDeviceToken();
             Session::put('device_token', $sessionDeviceToken);
+
+            \Log::info("Login successful for user: {$user->id}, device_token saved to session", [
+                'user_id' => $user->id,
+                'has_multi_device' => $user->can('multi_device_login'),
+                'session_token' => substr($sessionDeviceToken, 0, 10) . '...',
+            ]);
         }
-        
+
         return $response;
     }
     

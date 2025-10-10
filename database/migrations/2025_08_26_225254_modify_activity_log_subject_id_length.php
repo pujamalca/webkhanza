@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('activity_log') && Schema::hasColumn('activity_log', 'subject_id')) {
+        if (Schema::hasTable('activity_log')) {
             Schema::table('activity_log', function (Blueprint $table) {
-                // Change subject_id from default length to 255 to accommodate longer IDs
-                $table->string('subject_id', 255)->nullable()->change();
+                // Change subject_id and causer_id to varchar to accommodate string IDs
+                if (Schema::hasColumn('activity_log', 'subject_id')) {
+                    $table->string('subject_id', 255)->nullable()->change();
+                }
+                if (Schema::hasColumn('activity_log', 'causer_id')) {
+                    $table->string('causer_id', 255)->nullable()->change();
+                }
             });
         }
     }
@@ -24,9 +29,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('activity_log', function (Blueprint $table) {
-            // Revert back to original length (assuming it was 50 or similar)
-            $table->string('subject_id', 50)->nullable()->change();
-        });
+        if (Schema::hasTable('activity_log')) {
+            Schema::table('activity_log', function (Blueprint $table) {
+                // Revert back to bigint
+                if (Schema::hasColumn('activity_log', 'subject_id')) {
+                    $table->unsignedBigInteger('subject_id')->nullable()->change();
+                }
+                if (Schema::hasColumn('activity_log', 'causer_id')) {
+                    $table->unsignedBigInteger('causer_id')->nullable()->change();
+                }
+            });
+        }
     }
 };
